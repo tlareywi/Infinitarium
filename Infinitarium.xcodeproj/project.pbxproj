@@ -1,0 +1,392 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0DD92A20D5C5D70011AF55 /* CameraMetal.mm */; };
+		2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */; };
+		2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA320BCFDB00014BF08 /* GameViewController.m */; };
+		2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA520BCFDB00014BF08 /* Shaders.metal */; };
+		2A61CCA920BCFDB10014BF08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A61CCA820BCFDB10014BF08 /* Assets.xcassets */; };
+		2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCAE20BCFDB10014BF08 /* Stub.mm */; };
+		2A7BEAF4214EE0D2007CA6A3 /* MotionControllerOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */; };
+		2A7BEAFD214EEAE7007CA6A3 /* libOIS.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */; };
+		2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */; };
+		2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEB01214EF96D007CA6A3 /* Carbon.framework */; };
+		2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB03214F1565007CA6A3 /* main.cpp */; };
+		2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB05214F15B0007CA6A3 /* Platform.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2A0DD92A20D5C5D70011AF55 /* CameraMetal.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CameraMetal.mm; sourceTree = "<group>"; };
+		2A0DD92B20D5C5D70011AF55 /* CameraMetal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraMetal.h; sourceTree = "<group>"; };
+		2A61CC9920BCFDB00014BF08 /* Infinitarium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Infinitarium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2A61CCA220BCFDB00014BF08 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
+		2A61CCA320BCFDB00014BF08 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		2A61CCA520BCFDB00014BF08 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		2A61CCA720BCFDB00014BF08 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+		2A61CCA820BCFDB10014BF08 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2A61CCAD20BCFDB10014BF08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2A61CCAE20BCFDB10014BF08 /* Stub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Stub.mm; sourceTree = "<group>"; };
+		2A61CCB020BCFDB10014BF08 /* MetalTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MetalTest.entitlements; sourceTree = "<group>"; };
+		2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MotionControllerOrbit.cpp; sourceTree = "<group>"; };
+		2A7BEAF3214EE0D2007CA6A3 /* MotionControllerOrbit.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MotionControllerOrbit.hpp; sourceTree = "<group>"; };
+		2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOIS.dylib; sourceTree = "<group>"; };
+		2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OISBridge.mm; sourceTree = "<group>"; };
+		2A7BEAFF214EF7A1007CA6A3 /* OISBridge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OISBridge.hpp; sourceTree = "<group>"; };
+		2A7BEB01214EF96D007CA6A3 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		2A7BEB03214F1565007CA6A3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		2A7BEB05214F15B0007CA6A3 /* Platform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Platform.cpp; sourceTree = "<group>"; };
+		2A7BEB06214F15B0007CA6A3 /* Platform.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Platform.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2A61CC9620BCFDB00014BF08 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */,
+				2A7BEAFD214EEAE7007CA6A3 /* libOIS.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2A61CC9020BCFDAF0014BF08 = {
+			isa = PBXGroup;
+			children = (
+				2A7BEAF7214EE9B6007CA6A3 /* Frameworks */,
+				2A7BEAF6214EE5C2007CA6A3 /* Vulkan */,
+				2A7BEAF1214ED611007CA6A3 /* Engine */,
+				2A61CC9B20BCFDB00014BF08 /* Metal */,
+				2A61CC9A20BCFDB00014BF08 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2A61CC9A20BCFDB00014BF08 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A61CC9920BCFDB00014BF08 /* Infinitarium.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A61CC9B20BCFDB00014BF08 /* Metal */ = {
+			isa = PBXGroup;
+			children = (
+				2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */,
+				2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */,
+				2A61CCA220BCFDB00014BF08 /* GameViewController.h */,
+				2A61CCA320BCFDB00014BF08 /* GameViewController.m */,
+				2A61CCA520BCFDB00014BF08 /* Shaders.metal */,
+				2A61CCA720BCFDB00014BF08 /* ShaderTypes.h */,
+				2A61CCA820BCFDB10014BF08 /* Assets.xcassets */,
+				2A61CCAD20BCFDB10014BF08 /* Info.plist */,
+				2A61CCAE20BCFDB10014BF08 /* Stub.mm */,
+				2A61CCB020BCFDB10014BF08 /* MetalTest.entitlements */,
+				2A0DD92A20D5C5D70011AF55 /* CameraMetal.mm */,
+				2A0DD92B20D5C5D70011AF55 /* CameraMetal.h */,
+			);
+			path = Metal;
+			sourceTree = "<group>";
+		};
+		2A7BEAF1214ED611007CA6A3 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */,
+				2A7BEAF3214EE0D2007CA6A3 /* MotionControllerOrbit.hpp */,
+				2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */,
+				2A7BEAFF214EF7A1007CA6A3 /* OISBridge.hpp */,
+				2A7BEB03214F1565007CA6A3 /* main.cpp */,
+				2A7BEB05214F15B0007CA6A3 /* Platform.cpp */,
+				2A7BEB06214F15B0007CA6A3 /* Platform.hpp */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		2A7BEAF6214EE5C2007CA6A3 /* Vulkan */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Vulkan;
+			sourceTree = "<group>";
+		};
+		2A7BEAF7214EE9B6007CA6A3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2A7BEB01214EF96D007CA6A3 /* Carbon.framework */,
+				2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2A61CC9820BCFDB00014BF08 /* Infinitarium */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A61CCB320BCFDB10014BF08 /* Build configuration list for PBXNativeTarget "Infinitarium" */;
+			buildPhases = (
+				2A61CC9520BCFDB00014BF08 /* Sources */,
+				2A61CC9620BCFDB00014BF08 /* Frameworks */,
+				2A61CC9720BCFDB00014BF08 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Infinitarium;
+			productName = MetalTest;
+			productReference = 2A61CC9920BCFDB00014BF08 /* Infinitarium.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2A61CC9120BCFDAF0014BF08 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0930;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					2A61CC9820BCFDB00014BF08 = {
+						CreatedOnToolsVersion = 9.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 2A61CC9420BCFDAF0014BF08 /* Build configuration list for PBXProject "Infinitarium" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2A61CC9020BCFDAF0014BF08;
+			productRefGroup = 2A61CC9A20BCFDB00014BF08 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2A61CC9820BCFDB00014BF08 /* Infinitarium */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2A61CC9720BCFDB00014BF08 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A61CCA920BCFDB10014BF08 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A61CC9520BCFDB00014BF08 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */,
+				2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */,
+				2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */,
+				2A7BEAF4214EE0D2007CA6A3 /* MotionControllerOrbit.cpp in Sources */,
+				2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */,
+				2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */,
+				2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */,
+				2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */,
+				2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2A61CCB120BCFDB10014BF08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2A61CCB220BCFDB10014BF08 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2A61CCB420BCFDB10014BF08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MetalTest/MetalTest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = "$(SRCROOT)/Metal/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bluecanvas-studios.infinitarium";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2A61CCB520BCFDB10014BF08 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MetalTest/MetalTest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = "$(SRCROOT)/Metal/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bluecanvas-studios.infinitarium";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2A61CC9420BCFDAF0014BF08 /* Build configuration list for PBXProject "Infinitarium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A61CCB120BCFDB10014BF08 /* Debug */,
+				2A61CCB220BCFDB10014BF08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A61CCB320BCFDB10014BF08 /* Build configuration list for PBXNativeTarget "Infinitarium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A61CCB420BCFDB10014BF08 /* Debug */,
+				2A61CCB520BCFDB10014BF08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2A61CC9120BCFDAF0014BF08 /* Project object */;
+}
