@@ -15,5 +15,11 @@
    return [CAMetalLayer class];
 }
 
+- (id) metalLayer {
+    if( !self.layer )
+        self.layer = [[CAMetalLayer alloc] init];
+    return (CAMetalLayer*)self.layer;
+}
+
 @end
 

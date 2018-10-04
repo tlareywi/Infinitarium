@@ -19,6 +19,7 @@
 		2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEB01214EF96D007CA6A3 /* Carbon.framework */; };
 		2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB03214F1565007CA6A3 /* main.cpp */; };
 		2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB05214F15B0007CA6A3 /* Platform.cpp */; };
+		4F046789216683EE00E12914 /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F046788216683EE00E12914 /* SimulationView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,9 @@
 		2A7BEB03214F1565007CA6A3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2A7BEB05214F15B0007CA6A3 /* Platform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Platform.cpp; sourceTree = "<group>"; };
 		2A7BEB06214F15B0007CA6A3 /* Platform.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Platform.hpp; sourceTree = "<group>"; };
+		4F046787216683DD00E12914 /* SimulationView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
+		4F046788216683EE00E12914 /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
+		4F04678B2166D19700E12914 /* defaultOverlay.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = defaultOverlay.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,7 @@
 		2A61CC9020BCFDAF0014BF08 = {
 			isa = PBXGroup;
 			children = (
+				4F04678A2166D14300E12914 /* UI */,
 				2A7BEAF7214EE9B6007CA6A3 /* Frameworks */,
 				2A7BEAF6214EE5C2007CA6A3 /* Vulkan */,
 				2A7BEAF1214ED611007CA6A3 /* Engine */,
@@ -81,6 +86,8 @@
 		2A61CC9B20BCFDB00014BF08 /* Metal */ = {
 			isa = PBXGroup;
 			children = (
+				4F046788216683EE00E12914 /* SimulationView.m */,
+				4F046787216683DD00E12914 /* SimulationView.h */,
 				2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */,
 				2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */,
 				2A61CCA220BCFDB00014BF08 /* GameViewController.h */,
@@ -125,6 +132,14 @@
 				2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */,
 			);
 			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		4F04678A2166D14300E12914 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				4F04678B2166D19700E12914 /* defaultOverlay.html */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -198,6 +213,7 @@
 				2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */,
 				2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */,
 				2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */,
+				4F046789216683EE00E12914 /* SimulationView.m in Sources */,
 				2A7BEAF4214EE0D2007CA6A3 /* MotionControllerOrbit.cpp in Sources */,
 				2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */,
 				2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */,

@@ -8,6 +8,7 @@
 
 #import "GameViewController.h"
 #import "Renderer.h"
+#import "SimulationView.h"
 
 #import <simd/simd.h>
 #import <ModelIO/ModelIO.h>
@@ -17,11 +18,12 @@
 
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
-
+#import <Webkit/WKWebView.h>
+#import <Webkit/WKWebViewConfiguration.h>
 
 @implementation GameViewController
 {
-   NSView* _view;
+   SimulationView* _view;
    CAMetalLayer* _renderLayer;
    Renderer* _renderer;
    
@@ -30,21 +32,30 @@
    
    id<CAMetalDrawable> _drawable;
    MTLRenderPassDescriptor* _renderPass;
+    
+    WKWebView* _uiOverlay;
    
    bool finishedLoading;
 }
 
 - (void)loadView {
    finishedLoading = false;
-   _view = self.view = [[NSView alloc] init];
+   self.view = (NSView*)[[SimulationView alloc] init];
+    _view = (SimulationView*)self.view;
+    [_view setAutoresizesSubviews:true];
    CGRect newFrame = CGRectMake( _view.frame.origin.x, _view.frame.origin.y, 1920, 1080);
    _view.frame = newFrame;
+    
+    WKWebViewConfiguration* config = [WKWebViewConfiguration alloc];
+    _uiOverlay = [[WKWebView alloc] initWithFrame:newFrame configuration:config];
+    [_uiOverlay setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [_uiOverlay setValue:@NO forKey:@"drawsBackground"];
 }
 
 - (void)viewDidLoad {
    [super viewDidLoad];
    
-   _renderLayer = [CAMetalLayer layer];
+   _renderLayer = _view.metalLayer;
    _device = MTLCreateSystemDefaultDevice();
    
    if(!_device)
@@ -61,7 +72,11 @@
    _renderLayer.displaySyncEnabled = NO;
    _renderLayer.drawableSize = _view.frame.size;
    
-   [_view.layer addSublayer:_renderLayer];
+   [_view addSubview:_uiOverlay];
+    
+    NSURL* url = [NSURL fileURLWithPath:@"/Users/tlareywi/Source/Infinitarium/UI/defaultOverlay.html"];
+    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    [_uiOverlay loadRequest:request];
    
    _commandQueue = [_device newCommandQueue];
    

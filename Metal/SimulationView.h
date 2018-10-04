@@ -11,5 +11,5 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 @interface SimulationView : NSView
-   @property CAMetalLayer* metalLayer;
+   @property (readonly) CAMetalLayer* metalLayer;
 @end
