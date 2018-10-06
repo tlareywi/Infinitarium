@@ -47,7 +47,10 @@
    _view.frame = newFrame;
     
     WKWebViewConfiguration* config = [WKWebViewConfiguration alloc];
-    _uiOverlay = [[WKWebView alloc] initWithFrame:newFrame configuration:config];
+    CGRect consoleFrame = newFrame;
+    consoleFrame.origin.y = 0;
+    consoleFrame.size.height =  1080 / 3.0;
+    _uiOverlay = [[WKWebView alloc] initWithFrame:consoleFrame configuration:config];
     [_uiOverlay setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [_uiOverlay setValue:@NO forKey:@"drawsBackground"];
 }
