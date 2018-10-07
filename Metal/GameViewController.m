@@ -77,7 +77,7 @@
    
    [_view addSubview:_uiOverlay];
     
-    NSURL* url = [NSURL fileURLWithPath:@"/Users/tlareywi/Source/Infinitarium/UI/defaultOverlay.html"];
+    NSURL* url = [NSURL fileURLWithPath:@"/Users/trystan/Source/Infinitarium/UI/defaultOverlay.html"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [_uiOverlay loadRequest:request];
    

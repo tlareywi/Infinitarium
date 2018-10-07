@@ -8,23 +8,36 @@
 
 /* Begin PBXBuildFile section */
 		2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0DD92A20D5C5D70011AF55 /* CameraMetal.mm */; };
+		2A423F582169609E0056EE5F /* MotionControllerOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */; };
+		2A423F592169609E0056EE5F /* MotionControllerOrbit.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2A7BEAF3214EE0D2007CA6A3 /* MotionControllerOrbit.hpp */; };
+		2A423F5F2169609E0056EE5F /* PointCloud.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AF2F4E321694F32003A5056 /* PointCloud.cpp */; };
+		2A423F602169609E0056EE5F /* PointCloud.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2AF2F4E421694F32003A5056 /* PointCloud.hpp */; };
+		2A423F62216962310056EE5F /* libInfinitaruim-Engine.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A423F54216960700056EE5F /* libInfinitaruim-Engine.dylib */; };
+		2A423F6421696E7A0056EE5F /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A423F6321696E7A0056EE5F /* PythonBridge.cpp */; };
+		2A423F66216984320056EE5F /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A423F65216984320056EE5F /* Python.framework */; };
+		2A423F6A216986570056EE5F /* libboost_python37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A423F69216986570056EE5F /* libboost_python37.dylib */; };
 		2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */; };
 		2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA320BCFDB00014BF08 /* GameViewController.m */; };
 		2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA520BCFDB00014BF08 /* Shaders.metal */; };
 		2A61CCA920BCFDB10014BF08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A61CCA820BCFDB10014BF08 /* Assets.xcassets */; };
 		2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCAE20BCFDB10014BF08 /* Stub.mm */; };
-		2A7BEAF4214EE0D2007CA6A3 /* MotionControllerOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */; };
 		2A7BEAFD214EEAE7007CA6A3 /* libOIS.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */; };
 		2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */; };
 		2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEB01214EF96D007CA6A3 /* Carbon.framework */; };
 		2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB03214F1565007CA6A3 /* main.cpp */; };
 		2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB05214F15B0007CA6A3 /* Platform.cpp */; };
+		2AF2F4E721695332003A5056 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AF2F4E621695332003A5056 /* README.md */; };
 		4F046789216683EE00E12914 /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F046788216683EE00E12914 /* SimulationView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2A0DD92A20D5C5D70011AF55 /* CameraMetal.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CameraMetal.mm; sourceTree = "<group>"; };
 		2A0DD92B20D5C5D70011AF55 /* CameraMetal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraMetal.h; sourceTree = "<group>"; };
+		2A423F54216960700056EE5F /* libInfinitaruim-Engine.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libInfinitaruim-Engine.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A423F6321696E7A0056EE5F /* PythonBridge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PythonBridge.cpp; sourceTree = "<group>"; };
+		2A423F65216984320056EE5F /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../usr/local/Cellar/python/3.7.0/Frameworks/Python.framework; sourceTree = "<group>"; };
+		2A423F69216986570056EE5F /* libboost_python37.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libboost_python37.dylib; sourceTree = "<group>"; };
+		2A423F6C2169AC230056EE5F /* DataPack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataPack.hpp; sourceTree = "<group>"; };
 		2A61CC9920BCFDB00014BF08 /* Infinitarium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Infinitarium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -45,33 +58,61 @@
 		2A7BEB03214F1565007CA6A3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2A7BEB05214F15B0007CA6A3 /* Platform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Platform.cpp; sourceTree = "<group>"; };
 		2A7BEB06214F15B0007CA6A3 /* Platform.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Platform.hpp; sourceTree = "<group>"; };
+		2AF2F4E321694F32003A5056 /* PointCloud.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PointCloud.cpp; sourceTree = "<group>"; };
+		2AF2F4E421694F32003A5056 /* PointCloud.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PointCloud.hpp; sourceTree = "<group>"; };
+		2AF2F4E621695332003A5056 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F046787216683DD00E12914 /* SimulationView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimulationView.h; sourceTree = "<group>"; };
 		4F046788216683EE00E12914 /* SimulationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimulationView.m; sourceTree = "<group>"; };
 		4F04678B2166D19700E12914 /* defaultOverlay.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = defaultOverlay.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2A423F52216960700056EE5F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A423F6A216986570056EE5F /* libboost_python37.dylib in Frameworks */,
+				2A423F66216984320056EE5F /* Python.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2A61CC9620BCFDB00014BF08 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */,
 				2A7BEAFD214EEAE7007CA6A3 /* libOIS.dylib in Frameworks */,
+				2A423F62216962310056EE5F /* libInfinitaruim-Engine.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A423F61216960F50056EE5F /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */,
+				2A7BEAF3214EE0D2007CA6A3 /* MotionControllerOrbit.hpp */,
+				2AF2F4E321694F32003A5056 /* PointCloud.cpp */,
+				2AF2F4E421694F32003A5056 /* PointCloud.hpp */,
+				2A423F6321696E7A0056EE5F /* PythonBridge.cpp */,
+				2A423F6C2169AC230056EE5F /* DataPack.hpp */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
 		2A61CC9020BCFDAF0014BF08 = {
 			isa = PBXGroup;
 			children = (
+				2A423F61216960F50056EE5F /* Engine */,
 				4F04678A2166D14300E12914 /* UI */,
 				2A7BEAF7214EE9B6007CA6A3 /* Frameworks */,
 				2A7BEAF6214EE5C2007CA6A3 /* Vulkan */,
-				2A7BEAF1214ED611007CA6A3 /* Engine */,
+				2A7BEAF1214ED611007CA6A3 /* Platform */,
 				2A61CC9B20BCFDB00014BF08 /* Metal */,
 				2A61CC9A20BCFDB00014BF08 /* Products */,
+				2AF2F4E621695332003A5056 /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -79,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				2A61CC9920BCFDB00014BF08 /* Infinitarium.app */,
+				2A423F54216960700056EE5F /* libInfinitaruim-Engine.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,18 +146,16 @@
 			path = Metal;
 			sourceTree = "<group>";
 		};
-		2A7BEAF1214ED611007CA6A3 /* Engine */ = {
+		2A7BEAF1214ED611007CA6A3 /* Platform */ = {
 			isa = PBXGroup;
 			children = (
-				2A7BEAF2214EE0D2007CA6A3 /* MotionControllerOrbit.cpp */,
-				2A7BEAF3214EE0D2007CA6A3 /* MotionControllerOrbit.hpp */,
-				2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */,
 				2A7BEAFF214EF7A1007CA6A3 /* OISBridge.hpp */,
+				2A7BEAFE214EF7A1007CA6A3 /* OISBridge.mm */,
 				2A7BEB03214F1565007CA6A3 /* main.cpp */,
 				2A7BEB05214F15B0007CA6A3 /* Platform.cpp */,
 				2A7BEB06214F15B0007CA6A3 /* Platform.hpp */,
 			);
-			path = Engine;
+			path = Platform;
 			sourceTree = "<group>";
 		};
 		2A7BEAF6214EE5C2007CA6A3 /* Vulkan */ = {
@@ -128,6 +168,8 @@
 		2A7BEAF7214EE9B6007CA6A3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2A423F69216986570056EE5F /* libboost_python37.dylib */,
+				2A423F65216984320056EE5F /* Python.framework */,
 				2A7BEB01214EF96D007CA6A3 /* Carbon.framework */,
 				2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */,
 			);
@@ -144,7 +186,36 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		2A423F50216960700056EE5F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A423F592169609E0056EE5F /* MotionControllerOrbit.hpp in Headers */,
+				2A423F602169609E0056EE5F /* PointCloud.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		2A423F53216960700056EE5F /* Infinitaruim-Engine */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A423F57216960700056EE5F /* Build configuration list for PBXNativeTarget "Infinitaruim-Engine" */;
+			buildPhases = (
+				2A423F50216960700056EE5F /* Headers */,
+				2A423F51216960700056EE5F /* Sources */,
+				2A423F52216960700056EE5F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Infinitaruim-Engine";
+			productName = "Infinitaruim-Engine";
+			productReference = 2A423F54216960700056EE5F /* libInfinitaruim-Engine.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		2A61CC9820BCFDB00014BF08 /* Infinitarium */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2A61CCB320BCFDB10014BF08 /* Build configuration list for PBXNativeTarget "Infinitarium" */;
@@ -171,6 +242,9 @@
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					2A423F53216960700056EE5F = {
+						CreatedOnToolsVersion = 10.0;
+					};
 					2A61CC9820BCFDB00014BF08 = {
 						CreatedOnToolsVersion = 9.3.1;
 					};
@@ -190,6 +264,7 @@
 			projectRoot = "";
 			targets = (
 				2A61CC9820BCFDB00014BF08 /* Infinitarium */,
+				2A423F53216960700056EE5F /* Infinitaruim-Engine */,
 			);
 		};
 /* End PBXProject section */
@@ -199,6 +274,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AF2F4E721695332003A5056 /* README.md in Resources */,
 				2A61CCA920BCFDB10014BF08 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +282,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2A423F51216960700056EE5F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A423F582169609E0056EE5F /* MotionControllerOrbit.cpp in Sources */,
+				2A423F5F2169609E0056EE5F /* PointCloud.cpp in Sources */,
+				2A423F6421696E7A0056EE5F /* PythonBridge.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2A61CC9520BCFDB00014BF08 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,7 +300,6 @@
 				2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */,
 				2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */,
 				4F046789216683EE00E12914 /* SimulationView.m in Sources */,
-				2A7BEAF4214EE0D2007CA6A3 /* MotionControllerOrbit.cpp in Sources */,
 				2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */,
 				2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */,
 				2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */,
@@ -226,6 +311,67 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		2A423F55216960700056EE5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/python/3.7.0/Frameworks,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SKIP_INSTALL = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/include/python3.7m,
+				);
+				USER_HEADER_SEARCH_PATHS = /usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/include/python3.7m;
+			};
+			name = Debug;
+		};
+		2A423F56216960700056EE5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/python/3.7.0/Frameworks,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SKIP_INSTALL = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/include/python3.7m,
+				);
+				USER_HEADER_SEARCH_PATHS = /usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/include/python3.7m;
+			};
+			name = Release;
+		};
 		2A61CCB120BCFDB10014BF08 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -384,6 +530,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2A423F57216960700056EE5F /* Build configuration list for PBXNativeTarget "Infinitaruim-Engine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A423F55216960700056EE5F /* Debug */,
+				2A423F56216960700056EE5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2A61CC9420BCFDAF0014BF08 /* Build configuration list for PBXProject "Infinitarium" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
