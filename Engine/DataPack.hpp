@@ -8,9 +8,18 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <variant>
 
 template<typename T, int S> class DataPack {
 public:
+   enum PixelFormat {
+      RGBAF32,
+      RGBF32,
+      RGBU8,
+      RGBAU8
+   };
+   
    DataPack( unsigned int numPoints ) {
       switch( pixelFormat ) {
          case RGBAF32:
@@ -31,14 +40,12 @@ public:
    DataPack( const DataPack& ) { };
    DataPack( const DataPack&& ) { };
    
-   enum PixelFormat {
-      RGBAF32,
-      RGBF32,
-      RGBU8,
-      RGBAU8
-   };
+   void setSampler( const std::string& name ) {
+      sampler = name;
+   }
    
 private:
+   std::string sampler;
    DataPack() {}
    PixelFormat pixelFormat;
    std::unique_ptr<T> data;
@@ -48,3 +55,9 @@ typedef DataPack<uint8_t, DataPack<void, 0>::PixelFormat::RGBAU8> DataPack_RGBAU
 typedef DataPack<float, DataPack<void, 0>::PixelFormat::RGBAF32> DataPack_RGBAF32;
 typedef DataPack<uint8_t, DataPack<void, 0>::PixelFormat::RGBU8> DataPack_RGBU8;
 typedef DataPack<float, DataPack<void, 0>::PixelFormat::RGBF32> DataPack_RGBF32;
+
+typedef std::variant<DataPack_RGBAU8,
+   DataPack_RGBAF32,
+   DataPack_RGBU8,
+   DataPack_RGBF32> DataPackContainer;
+

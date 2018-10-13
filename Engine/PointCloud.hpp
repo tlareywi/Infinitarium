@@ -9,6 +9,8 @@
 
 #include <vector>
 
+#include "DataPack.hpp"
+#include "Renderable.hpp"
 
 class IPointInstance {
    // TODO: Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
@@ -17,7 +19,7 @@ private:
    std::vector<std::unique_ptr<IPointInstance>> instances;
 };
 
-class PointCloud {
+class PointCloud : public IRenderable {
 public:
    PointCloud() {}
    PointCloud( const PointCloud& ) {
@@ -25,7 +27,7 @@ public:
    }
    
 private:
-   
+   std::vector<DataPackContainer> samplers;
    
    std::unique_ptr<IPointInstance> instanceMgr;
 };
