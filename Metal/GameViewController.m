@@ -25,7 +25,6 @@
 {
    SimulationView* _view;
    CAMetalLayer* _renderLayer;
-   Renderer* _renderer;
    
    id <MTLDevice> _device;
    id <MTLCommandQueue> _commandQueue;
@@ -36,6 +35,10 @@
     WKWebView* _uiOverlay;
    
    bool finishedLoading;
+}
+
+-(id<MTLDevice>) getDevice {
+   return _device;
 }
 
 - (void)loadView {

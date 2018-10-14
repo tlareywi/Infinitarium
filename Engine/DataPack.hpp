@@ -11,53 +11,66 @@
 #include <string>
 #include <variant>
 
-template<typename T, int S> class DataPack {
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+
+template<typename T> class DataPack;
+
+typedef DataPack<float> DataPack_FLOAT32;
+typedef DataPack<uint32_t> DataPack_UINT32;
+typedef DataPack<uint16_t> DataPack_UINT16;
+
+typedef std::variant<
+DataPack_FLOAT32,
+DataPack_UINT32,
+DataPack_UINT16> DataPackContainer;
+
+template<typename T> class DataPack {
 public:
-   enum PixelFormat {
-      RGBAF32,
-      RGBF32,
-      RGBU8,
-      RGBAU8
-   };
-   
-   DataPack( unsigned int numPoints ) {
-      switch( pixelFormat ) {
-         case RGBAF32:
-            data = std::make_unique<T>(numPoints * 4);
-            break;
-         case RGBF32:
-            data = std::make_unique<T>(numPoints * 3);
-            break;
-         case RGBU8:
-            data = std::make_unique<T>(numPoints * 3);
-            break;
-         case RGBAU8:
-         default:
-            data = std::make_unique<T>(numPoints * 4);
-            break;
+   DataPack( unsigned int num ) : numElements(num) {
+      data = std::make_unique<T[]>(numElements);
+   }
+   DataPack( const DataPack<T>& obj ) {
+      if( data ) {
+         data = std::make_unique<T[]>(obj.numElements);
       }
+      numElements = obj.numElements;
+      memcpy(&data, &(obj.data), sizeBytes());
    }
-   DataPack( const DataPack& ) { };
-   DataPack( const DataPack&& ) { };
+   DataPack( DataPack<T>&& obj ) {
+      data = std::move(obj.data);
+      numElements = obj.numElements;
+   }
    
-   void setSampler( const std::string& name ) {
-      sampler = name;
+   unsigned int sizeBytes() const {
+      return numElements * sizeof(T);
    }
+   
+   void set( const T ptr[] ) {
+      memcpy(&data, ptr, sizeBytes());
+   }
+   
+   T* release() {
+      return data.release();
+      data = nullptr;
+      numElements = 0;
+   }
+   
+   operator DataPackContainer() const { return DataPackContainer{this}; } // TODO: this invoke copy?
    
 private:
-   std::string sampler;
-   DataPack() {}
-   PixelFormat pixelFormat;
-   std::unique_ptr<T> data;
+   DataPack() : data(nullptr) {}
+   
+   friend class boost::serialization::access;
+   template<class Archive> void serialize(Archive & ar, const unsigned int version)
+   {
+      ar & data;
+      ar & numElements;
+   }
+   
+   unsigned int numElements;
+   std::unique_ptr<T[]> data;
 };
 
-typedef DataPack<uint8_t, DataPack<void, 0>::PixelFormat::RGBAU8> DataPack_RGBAU8;
-typedef DataPack<float, DataPack<void, 0>::PixelFormat::RGBAF32> DataPack_RGBAF32;
-typedef DataPack<uint8_t, DataPack<void, 0>::PixelFormat::RGBU8> DataPack_RGBU8;
-typedef DataPack<float, DataPack<void, 0>::PixelFormat::RGBF32> DataPack_RGBF32;
 
-typedef std::variant<DataPack_RGBAU8,
-   DataPack_RGBAF32,
-   DataPack_RGBU8,
-   DataPack_RGBF32> DataPackContainer;
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <vector>
+#include <map>
 
 #include "DataPack.hpp"
 #include "Renderable.hpp"
@@ -26,8 +26,15 @@ public:
       
    }
    
-private:
-   std::vector<DataPackContainer> samplers;
+   void addVertexBuffer( const DataPackContainer&, const std::string& name );
    
+private:
+   std::map<std::string, DataPackContainer> vertexBuffers;
    std::unique_ptr<IPointInstance> instanceMgr;
+   
+   friend class boost::serialization::access;
+   template<class Archive> void serialize(Archive & ar, const unsigned int version)
+   {
+      ar & vertexBuffers;
+   }
 };

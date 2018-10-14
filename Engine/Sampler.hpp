@@ -11,6 +11,11 @@
 
 class Sampler {
 public:
+   enum Type {
+      VERTEX,
+      FRAGMENT
+   };
+   
 private:
     
 };
