@@ -27,19 +27,31 @@ DataPack_UINT16> DataPackContainer;
 
 template<typename T> class DataPack {
 public:
-   DataPack( unsigned int num ) : numElements(num) {
+   DataPack( unsigned int num ) : numElements(num), container(nullptr) {
       data = std::make_unique<T[]>(numElements);
    }
-   DataPack( const DataPack<T>& obj ) {
+   DataPack( const DataPack<T>& obj ) : container(nullptr) {
       if( data ) {
          data = std::make_unique<T[]>(obj.numElements);
       }
       numElements = obj.numElements;
       memcpy(&data, &(obj.data), sizeBytes());
    }
-   DataPack( DataPack<T>&& obj ) {
+   DataPack( DataPack<T>&& obj ) : container(nullptr) {
       data = std::move(obj.data);
       numElements = obj.numElements;
+      obj.numElements = 0;
+   }
+   
+   DataPack<T>& operator=( DataPack<T>&& obj ) {
+      if( container ) {
+         delete container;
+         container = nullptr;
+      }
+      data = std::move(obj.data);
+      numElements = obj.numElements;
+      obj.numElements = 0;
+      return *this;
    }
    
    unsigned int sizeBytes() const {
@@ -56,10 +68,20 @@ public:
       numElements = 0;
    }
    
-   operator DataPackContainer() const { return DataPackContainer{this}; } // TODO: this invoke copy?
+   operator DataPackContainer() {
+      return DataPackContainer{ std::move(*this) };
+   }
+   
+   DataPackContainer* container;
+   operator DataPackContainer&() {
+      if( !container )
+         container = new DataPackContainer{std::move(*this)};
+      
+      return *container;
+   }
    
 private:
-   DataPack() : data(nullptr) {}
+   DataPack() : data(nullptr), numElements(0) {}
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version)
@@ -70,6 +92,7 @@ private:
    
    unsigned int numElements;
    std::unique_ptr<T[]> data;
+
 };
 
 

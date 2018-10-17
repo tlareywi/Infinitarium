@@ -19,5 +19,162 @@
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Engine/DataPack.hpp"
+            timestampString = "561439848.764317"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "DataPack( const DataPack&lt;T&gt;&amp; obj )"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;float&gt;::DataPack(DataPack&lt;float&gt; const&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.284568"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "34"
+                  endingLineNumber = "34"
+                  offsetFromSymbolStart = "210">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;unsigned short&gt;::DataPack(DataPack&lt;unsigned short&gt; const&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.287006"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "34"
+                  endingLineNumber = "34"
+                  offsetFromSymbolStart = "210">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;unsigned int&gt;::DataPack(DataPack&lt;unsigned int&gt; const&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.289062"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "34"
+                  endingLineNumber = "34"
+                  offsetFromSymbolStart = "210">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Engine/DataPack.hpp"
+            timestampString = "561439848.764944"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "operator=( DataPack&lt;T&gt;&amp;&amp; obj )"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Engine/DataPack.hpp"
+            timestampString = "561439848.76522"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
+            landmarkName = "DataPack( DataPack&lt;T&gt;&amp;&amp; obj )"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;unsigned int&gt;::DataPack(DataPack&lt;unsigned int&gt;&amp;&amp;)"
+                  moduleName = "Infinitarium"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Platform/../Engine/DataPack.hpp"
+                  timestampString = "561439849.072278"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "210">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;float&gt;::DataPack(DataPack&lt;float&gt;&amp;&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.292482"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "210">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;unsigned short&gt;::DataPack(DataPack&lt;unsigned short&gt;&amp;&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.29427"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "210">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "DataPack&lt;unsigned int&gt;::DataPack(DataPack&lt;unsigned int&gt;&amp;&amp;)"
+                  moduleName = "libInfinitariumEngineDL.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/trystan/Source/Infinitarium/Engine/DataPack.hpp"
+                  timestampString = "561439849.296026"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "210">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

@@ -26,7 +26,7 @@ public:
       
    }
    
-   void addVertexBuffer( const DataPackContainer&, const std::string& name );
+   void addVertexBuffer( DataPackContainer&, const std::string& name );
    
 private:
    std::map<std::string, DataPackContainer> vertexBuffers;

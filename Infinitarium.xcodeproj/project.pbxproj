@@ -33,8 +33,8 @@
 		2A4240482172D6A10056EE5F /* Serializers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A423F8821729C950056EE5F /* Serializers.cpp */; };
 		2A4240492172D6A10056EE5F /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A423F8A21729FC20056EE5F /* Scene.cpp */; };
 		2A42404A2172D6A10056EE5F /* EngineImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A423F6D2172576B0056EE5F /* EngineImpl.mm */; };
-		2A42404F2172DAAC0056EE5F /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A42404B2172D91D0056EE5F /* Python.framework */; };
 		2A4240532172E25F0056EE5F /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4240522172E25F0056EE5F /* Python */; };
+		2A424054217655290056EE5F /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4240522172E25F0056EE5F /* Python */; };
 		2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */; };
 		2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA320BCFDB00014BF08 /* GameViewController.m */; };
 		2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA520BCFDB00014BF08 /* Shaders.metal */; };
@@ -66,7 +66,6 @@
 		2A423FEA2172C8B80056EE5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2A4240182172D1070056EE5F /* InfinitariumEngine.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = InfinitariumEngine.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A4240392172D5A20056EE5F /* libInfinitariumEngineDL.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libInfinitariumEngineDL.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		2A42404B2172D91D0056EE5F /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = ../../../../../usr/local/Cellar/python/3.7.0/Frameworks/Python.framework; sourceTree = "<group>"; };
 		2A4240522172E25F0056EE5F /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../../usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/Python; sourceTree = "<group>"; };
 		2A61CC9920BCFDB00014BF08 /* Infinitarium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Infinitarium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -118,7 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2A42404F2172DAAC0056EE5F /* Python.framework in Frameworks */,
+				2A424054217655290056EE5F /* Python in Frameworks */,
 				2A4240402172D6710056EE5F /* libboost_python37.dylib in Frameworks */,
 				2A42403E2172D66C0056EE5F /* libboost_serialization.dylib in Frameworks */,
 				2A42403F2172D66E0056EE5F /* AppKit.framework in Frameworks */,
@@ -239,7 +238,6 @@
 			isa = PBXGroup;
 			children = (
 				2A4240522172E25F0056EE5F /* Python */,
-				2A42404B2172D91D0056EE5F /* Python.framework */,
 				2A423FB12172A9DE0056EE5F /* libboost_serialization.dylib */,
 				2A423F7921728DB80056EE5F /* AppKit.framework */,
 				2A423F7721728D910056EE5F /* Foundation.framework */,
@@ -499,6 +497,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.67.0_1/lib,
 					"$(PROJECT_DIR)/Frameworks",
+					/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7,
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -525,6 +524,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.67.0_1/lib,
 					"$(PROJECT_DIR)/Frameworks",
+					/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7,
 				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

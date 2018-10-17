@@ -16,13 +16,21 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(InfinitariumEngine)
 {
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
+      .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
+      .def("container", &DataPack_UINT16::operator DataPackContainer&, return_internal_reference<>())
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
+      .def("container", &DataPack_UINT32::operator DataPackContainer&, return_internal_reference<>())
    ;
    
-   class_<PointCloud>("PointCloud", init<>())
+   class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)
+   ;
+   
+   class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
+   ;
+   class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
    ;
    
@@ -31,6 +39,8 @@ BOOST_PYTHON_MODULE(InfinitariumEngine)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
    ;
+   
+   register_ptr_to_python<std::shared_ptr<IRenderable>>();
 }
 
 
