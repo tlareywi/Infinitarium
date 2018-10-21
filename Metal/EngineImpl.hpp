@@ -8,6 +8,9 @@
 #pragma once
 
 #include "../Engine/DataBuffer.hpp"
+#include "../Engine/PipelineState.hpp"
+#include "../Engine/RenderPass.hpp"
+#include "../Engine/RenderCommand.hpp"
 
 
 

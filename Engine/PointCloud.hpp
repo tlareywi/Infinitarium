@@ -12,13 +12,20 @@
 #include "DataPack.hpp"
 #include "Renderable.hpp"
 
+#include <boost/serialization/map.hpp>
+
+///
+/// \brief Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
+///
 class IPointInstance {
-   // TODO: Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
    
 private:
    std::vector<std::unique_ptr<IPointInstance>> instances;
 };
 
+///
+/// \brief Collection of renderable points with arbirtary properties defined by buffers/DataPacks.
+///
 class PointCloud : public IRenderable {
 public:
    PointCloud() {}
@@ -26,15 +33,26 @@ public:
       
    }
    
+   virtual ~PointCloud() {}
+   
+   void prepare() override;
+   void render( IRenderPass& ) override;
+   
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
 private:
-   std::map<std::string, DataPackContainer> vertexBuffers;
    std::unique_ptr<IPointInstance> instanceMgr;
+   
+   std::map<std::string, DataPackContainer> vertexBuffers;
+   
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version)
    {
+      std::cout<<"Serializing Pointcloud"<<std::endl;
+      boost::serialization::void_cast_register<PointCloud,IRenderable>();
+      boost::serialization::base_object<IRenderable>(*this);
       ar & vertexBuffers;
    }
 };
+

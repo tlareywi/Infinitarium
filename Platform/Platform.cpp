@@ -54,7 +54,7 @@ void PlatformOSX::run() {
 
 void PlatformOSX::drawFrame() {
 #if __APPLE__
-   dispatch_sync( dispatch_get_main_queue(), ^{ DrawFrameOSX(); } );
+   dispatch_sync( dispatch_get_main_queue(), ^{ scene->draw(); } );
 #endif
 }
 

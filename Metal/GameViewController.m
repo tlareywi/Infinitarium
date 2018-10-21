@@ -27,22 +27,19 @@
    CAMetalLayer* _renderLayer;
    
    id <MTLDevice> _device;
-   id <MTLCommandQueue> _commandQueue;
-   
-   id<CAMetalDrawable> _drawable;
-   MTLRenderPassDescriptor* _renderPass;
     
-    WKWebView* _uiOverlay;
-   
-   bool finishedLoading;
+   WKWebView* _uiOverlay;
 }
 
 -(id<MTLDevice>) getDevice {
    return _device;
 }
 
+-(CAMetalLayer*) getLayer {
+   return _renderLayer;
+}
+
 - (void)loadView {
-   finishedLoading = false;
    self.view = (NSView*)[[SimulationView alloc] init];
     _view = (SimulationView*)self.view;
     [_view setAutoresizesSubviews:true];
@@ -83,58 +80,10 @@
     NSURL* url = [NSURL fileURLWithPath:@"/Users/trystan/Source/Infinitarium/UI/defaultOverlay.html"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [_uiOverlay loadRequest:request];
-   
-   _commandQueue = [_device newCommandQueue];
-   
-   finishedLoading = true;
 }
 
--(id<CAMetalDrawable>) currentDrawable {
-   while( !_drawable )
-      _drawable = [_renderLayer nextDrawable];
+- (void)drawFrame {
    
-   return _drawable;
-}
-
--(MTLRenderPassDescriptor*) currentFramebuffer {
-   if( _renderPass )
-      return _renderPass;
-   
-   id<CAMetalDrawable> drawable = [self currentDrawable];
-   if( drawable ) {
-      _renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
-      _renderPass.colorAttachments[0].texture = drawable.texture;
-      _renderPass.colorAttachments[0].loadAction = MTLLoadActionClear;
-      _renderPass.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 1.0, 1.0);
-      _renderPass.colorAttachments[0].storeAction = MTLStoreActionStore;
-   }
-   
-   return _renderPass;
-}
-
-- (void)drawFrame
-{
-   /// Per frame updates here
-   if( !finishedLoading ) return;
-   
-   id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-   commandBuffer.label = @"MyCommand";
-   
-   MTLRenderPassDescriptor* renderPassDescriptor = [self currentFramebuffer];
-   
-   if(renderPassDescriptor != nil) {
-      
-      id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-      renderEncoder.label = @"MyRenderEncoder";
-      
-      [renderEncoder endEncoding];
-      [commandBuffer presentDrawable:[self currentDrawable]];
-   }
-   
-   [commandBuffer commit];
-   
-   _renderPass = nil;
-   _drawable = nil;
 }
 
 - (void)keyDown:(NSEvent *)theEvent {

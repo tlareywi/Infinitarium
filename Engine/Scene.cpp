@@ -10,6 +10,10 @@
 #include <fstream>
 #include <iostream>
 
+Scene::Scene() {
+    renderPass = IRenderPass::Create();
+}
+
 void Scene::load( const std::string& filename ) {
    std::ifstream ifs( filename, std::ofstream::binary );
    if( !ifs.is_open() ) {
@@ -32,6 +36,16 @@ void Scene::save( const std::string& filename ) const {
 
 void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
    renderables.push_back( renderable );
+}
+
+void Scene::draw() {
+   renderPass->begin();
+   
+   for( auto& renderable : renderables ) {
+      renderable->render( *renderPass );
+   }
+   
+   renderPass->end();
 }
 
 

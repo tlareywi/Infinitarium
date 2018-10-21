@@ -8,6 +8,7 @@
 #pragma once
 
 #include <thread>
+#include "../Engine/Scene.hpp"
 
 namespace Infinitarium {
    
@@ -26,11 +27,17 @@ namespace Infinitarium {
          exiting = true;
       }
       
+      void setScene( std::shared_ptr<Scene>& s ) {
+         scene = s;
+      }
+      
       virtual void run() = 0;
       
    protected:
       virtual void simLoop();
       virtual void drawFrame() = 0;
+      
+      std::shared_ptr<Scene> scene;
       
    private:
       std::unique_ptr<std::thread> simulation;

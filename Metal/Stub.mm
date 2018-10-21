@@ -10,13 +10,13 @@
 #import "AppDelegate.h"
 #import "GameViewController.h"
 
-void DrawFrameOSX() {
+/* void DrawFrameOSX() {
    NSViewController* ctrl = [[[NSApplication sharedApplication] mainWindow] contentViewController];
    if( !ctrl )
       return;
    
    [(GameViewController*)ctrl drawFrame];
-}
+} */
 
 void EntryPointOSXMainThread() {
     NSApplication* app = [NSApplication sharedApplication];
