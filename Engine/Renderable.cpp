@@ -13,6 +13,6 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderable)
 BOOST_CLASS_EXPORT_GUID(IRenderable, "IRenderable")
 
 IRenderable::IRenderable() : dirty(true) {
-   pipelineState = IPipelineState::Create();
+   pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
 }

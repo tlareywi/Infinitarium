@@ -38,7 +38,11 @@ void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
    renderables.push_back( renderable );
 }
 
+std::mutex drawMutex;
+
 void Scene::draw() {
+   std::lock_guard<std::mutex> lock(drawMutex);
+   
    renderPass->begin();
    
    for( auto& renderable : renderables ) {

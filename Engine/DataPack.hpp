@@ -91,6 +91,10 @@ public:
       data.push_back(z);
    }
    
+   void add( T v ) {
+      data.push_back(v);
+   }
+   
    void addVec( T r, T g, T b, T a ) {
       data.push_back(r);
       data.push_back(g);

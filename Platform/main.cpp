@@ -15,9 +15,9 @@ using namespace Infinitarium;
 int main(int argc, const char * argv[]) {
    IPlatform* impl = IPlatform::Create();
    
-   
-   Scene s;
-   s.load("/Users/trystan/tyco2.ieb");
+   std::shared_ptr<Scene> s = std::make_shared<Scene>();
+   s->load("/Users/trystan/tyco2.ieb");
+   impl->setScene( s );
    
    impl->run();
    impl->terminate();

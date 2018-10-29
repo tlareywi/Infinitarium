@@ -82,10 +82,6 @@
     [_uiOverlay loadRequest:request];
 }
 
-- (void)drawFrame {
-   
-}
-
 - (void)keyDown:(NSEvent *)theEvent {
    NSLog(@"keyDown Detected");
 }

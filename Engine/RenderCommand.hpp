@@ -9,6 +9,7 @@
 
 #include "DataBuffer.hpp"
 #include "RenderPass.hpp"
+#include "RenderState.hpp"
 
 class IRenderCommand {
 public:
@@ -16,7 +17,7 @@ public:
    
    void add( std::shared_ptr<IDataBuffer>& );
    
-   virtual void encode( IRenderPass& ) = 0;
+   virtual void encode( IRenderPass&, const IRenderState& ) = 0;
    
 protected:
    std::vector<std::shared_ptr<IDataBuffer>> dataBuffers;

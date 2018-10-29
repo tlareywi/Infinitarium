@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "RenderCommand.hpp"
-#include "PipelineState.hpp"
+#include "RenderState.hpp"
 #include "RenderPass.hpp"
 
 class IRenderable {
@@ -23,7 +23,7 @@ public:
    virtual void prepare() = 0;
    
 protected:
-   std::shared_ptr<IPipelineState> pipelineState;
+   std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
    bool dirty;
    

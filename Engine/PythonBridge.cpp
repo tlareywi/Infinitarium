@@ -23,16 +23,19 @@ BOOST_PYTHON_MODULE(InfinitariumEngine)
 {
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
       .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
+      .def("add", &DataPack_FLOAT32::add)
       .def("addVec3", addVec3f)
       .def("addVec4", addVec3f)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
       .def("container", &DataPack_UINT16::operator DataPackContainer&, return_internal_reference<>())
+      .def("add", &DataPack_UINT16::add)
       .def("addVec3", addVec3u16)
       .def("addVec4", addVec3u16)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
       .def("container", &DataPack_UINT32::operator DataPackContainer&, return_internal_reference<>())
+      .def("add", &DataPack_UINT32::add)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec3u32)
    ;

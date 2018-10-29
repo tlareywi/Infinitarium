@@ -16,39 +16,87 @@
 
 using namespace metal;
 
-typedef struct
-{
-    float3 position [[attribute(VertexAttributePosition)]];
-    float2 texCoord [[attribute(VertexAttributeTexcoord)]];
-} Vertex;
+typedef struct {
+   float3 xyz;
+} CartesianPosition;
 
+typedef struct {
+   float3 rgb;
+} ColorRGB;
+
+typedef struct {
+   float m;
+} Magnitude;
+
+typedef struct {
+   float3 xyz;
+} InVertex;
+
+struct VertexOut {
+   float4 position [[position]];
+   float pointSize [[point_size]];
+   float4 color;
+   float brightness;
+};
+
+constant float epsilon = 0.0000000001;
+constant float diskDensity = 0.025;
+constant float haloDensity = 400.0;
+
+vertex VertexOut staticInstancedStarsVert(// device InVertex* point [[buffer(0)]],
+                                      constant CartesianPosition* pos [[buffer(2)]],
+                                      constant Magnitude* V [[buffer(1)]],
+                                      constant ColorRGB* color [[buffer(0)]],
+                                      constant ConstUniforms& uniforms [[buffer(3)]],
+                                      uint instance [[instance_id]]
+) {
+   VertexOut out;
+   out.position = uniforms.modelViewProjectionMatrix * float4( pos[instance].xyz, 1.0 );
+   float3 rgb = color[instance].rgb;
+   out.color = float4( rgb, 1.0 );
+
+   out.brightness = pow( 10.0, (-14.18 - V[instance].m) / 2.54 ) * 6000000.0;
+   
+   float diskRadius = -log( epsilon / out.brightness ) * diskDensity;
+   float blurRadius = pow( (out.brightness / epsilon - 1.0) / haloDensity, 1.0 / 2.0 );
+   
+   out.pointSize = max(diskRadius, blurRadius) * 2.0;
+   out.pointSize = min(out.pointSize, 40.0);
+   
+   return out;
+}
+
+fragment float4 staticInstancedStarsFrag( VertexOut point [[stage_in]],
+                                         float2 pointCoord [[point_coord]],
+                                         constant ConstUniforms& uniforms [[buffer(4)]]
+) {
+   float lengthSquared = distance(float2(0.5f), pointCoord);
+   
+   float disk = point.brightness * exp(-lengthSquared / diskDensity);
+   float psf = point.brightness / (haloDensity * pow(lengthSquared, 2.0) + 1.0);
+   
+   return float4( point.color.r, point.color.g, point.color.b, psf + disk);
+}
+
+//
+// Minimal passthrough shaders
+//
 typedef struct
 {
     float4 position [[position]];
-    float2 texCoord;
 } ColorInOut;
 
-vertex ColorInOut vertexShader(Vertex in [[stage_in]],
-                               constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]])
+vertex ColorInOut vertexShader()
 {
     ColorInOut out;
 
-    float4 position = float4(in.position, 1.0);
-    out.position = uniforms.projectionMatrix * uniforms.modelViewMatrix * position;
-    out.texCoord = in.texCoord;
+    float4 position = float4(0.0,0.0,0.0,1.0);
+    out.position = position;
 
     return out;
 }
 
-fragment float4 fragmentShader(ColorInOut in [[stage_in]],
-                               constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]],
-                               texture2d<half> colorMap     [[ texture(TextureIndexColor) ]])
+fragment float4 fragmentShader(ColorInOut in [[stage_in]])
 {
-    constexpr sampler colorSampler(mip_filter::linear,
-                                   mag_filter::linear,
-                                   min_filter::linear);
-
-    half4 colorSample   = colorMap.sample(colorSampler, in.texCoord.xy);
-
-    return float4(colorSample);
+    return float4(1.0);
 }

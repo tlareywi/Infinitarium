@@ -31,17 +31,20 @@
 		2A42404A2172D6A10056EE5F /* EngineImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A423F6D2172576B0056EE5F /* EngineImpl.mm */; };
 		2A4240532172E25F0056EE5F /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4240522172E25F0056EE5F /* Python */; };
 		2A424054217655290056EE5F /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A4240522172E25F0056EE5F /* Python */; };
-		2A424057217C14B80056EE5F /* PipelineState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424055217C14B80056EE5F /* PipelineState.cpp */; };
-		2A424058217C14B80056EE5F /* PipelineState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424055217C14B80056EE5F /* PipelineState.cpp */; };
+		2A424057217C14B80056EE5F /* RenderState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424055217C14B80056EE5F /* RenderState.cpp */; };
+		2A424058217C14B80056EE5F /* RenderState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424055217C14B80056EE5F /* RenderState.cpp */; };
 		2A42405D217C177E0056EE5F /* RenderPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A42405B217C177E0056EE5F /* RenderPass.cpp */; };
 		2A42405E217C177E0056EE5F /* RenderPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A42405B217C177E0056EE5F /* RenderPass.cpp */; };
 		2A424062217C272F0056EE5F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A424061217C272F0056EE5F /* Metal.framework */; };
 		2A424063217C27370056EE5F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A424061217C272F0056EE5F /* Metal.framework */; };
 		2A424066217C3A3D0056EE5F /* RenderCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424064217C3A3D0056EE5F /* RenderCommand.cpp */; };
 		2A424067217C3A3D0056EE5F /* RenderCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A424064217C3A3D0056EE5F /* RenderCommand.cpp */; };
+		2A42406C217D0ED80056EE5F /* RenderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A42406A217D0ED80056EE5F /* RenderProgram.cpp */; };
+		2A42406D217D0ED80056EE5F /* RenderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A42406A217D0ED80056EE5F /* RenderProgram.cpp */; };
+		2A42406E217D0ED80056EE5F /* RenderProgram.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2A42406B217D0ED80056EE5F /* RenderProgram.hpp */; };
+		2A42406F217D0ED80056EE5F /* RenderProgram.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2A42406B217D0ED80056EE5F /* RenderProgram.hpp */; };
 		2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */; };
 		2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA320BCFDB00014BF08 /* GameViewController.m */; };
-		2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA520BCFDB00014BF08 /* Shaders.metal */; };
 		2A61CCA920BCFDB10014BF08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A61CCA820BCFDB10014BF08 /* Assets.xcassets */; };
 		2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCAE20BCFDB10014BF08 /* Stub.mm */; };
 		2A7BEAFD214EEAE7007CA6A3 /* libOIS.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEAFC214EEAE7007CA6A3 /* libOIS.dylib */; };
@@ -49,6 +52,7 @@
 		2A7BEB02214EF96D007CA6A3 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A7BEB01214EF96D007CA6A3 /* Carbon.framework */; };
 		2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB03214F1565007CA6A3 /* main.cpp */; };
 		2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A7BEB05214F15B0007CA6A3 /* Platform.cpp */; };
+		2A9A45682184EB33009AA346 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2A61CCA520BCFDB00014BF08 /* Shaders.metal */; };
 		2AF2F4E721695332003A5056 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AF2F4E621695332003A5056 /* README.md */; };
 		4F046789216683EE00E12914 /* SimulationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F046788216683EE00E12914 /* SimulationView.m */; };
 /* End PBXBuildFile section */
@@ -70,13 +74,15 @@
 		2A4240182172D1070056EE5F /* InfinitariumEngine.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = InfinitariumEngine.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A4240392172D5A20056EE5F /* libInfinitariumEngineDL.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libInfinitariumEngineDL.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A4240522172E25F0056EE5F /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../../usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/Python; sourceTree = "<group>"; };
-		2A424055217C14B80056EE5F /* PipelineState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PipelineState.cpp; sourceTree = "<group>"; };
-		2A424056217C14B80056EE5F /* PipelineState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PipelineState.hpp; sourceTree = "<group>"; };
+		2A424055217C14B80056EE5F /* RenderState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderState.cpp; sourceTree = "<group>"; };
+		2A424056217C14B80056EE5F /* RenderState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderState.hpp; sourceTree = "<group>"; };
 		2A42405B217C177E0056EE5F /* RenderPass.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderPass.cpp; sourceTree = "<group>"; };
 		2A42405C217C177E0056EE5F /* RenderPass.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderPass.hpp; sourceTree = "<group>"; };
 		2A424061217C272F0056EE5F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		2A424064217C3A3D0056EE5F /* RenderCommand.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderCommand.cpp; sourceTree = "<group>"; };
 		2A424065217C3A3D0056EE5F /* RenderCommand.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderCommand.hpp; sourceTree = "<group>"; };
+		2A42406A217D0ED80056EE5F /* RenderProgram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderProgram.cpp; sourceTree = "<group>"; };
+		2A42406B217D0ED80056EE5F /* RenderProgram.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderProgram.hpp; sourceTree = "<group>"; };
 		2A61CC9920BCFDB00014BF08 /* Infinitarium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Infinitarium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A61CC9C20BCFDB00014BF08 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2A61CC9D20BCFDB00014BF08 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -162,12 +168,14 @@
 				4F0F8C3021710EC10054B3A1 /* DataBuffer.hpp */,
 				2A423F8A21729FC20056EE5F /* Scene.cpp */,
 				2A423F8B21729FC20056EE5F /* Scene.hpp */,
-				2A424055217C14B80056EE5F /* PipelineState.cpp */,
-				2A424056217C14B80056EE5F /* PipelineState.hpp */,
+				2A424055217C14B80056EE5F /* RenderState.cpp */,
+				2A424056217C14B80056EE5F /* RenderState.hpp */,
 				2A42405B217C177E0056EE5F /* RenderPass.cpp */,
 				2A42405C217C177E0056EE5F /* RenderPass.hpp */,
 				2A424064217C3A3D0056EE5F /* RenderCommand.cpp */,
 				2A424065217C3A3D0056EE5F /* RenderCommand.hpp */,
+				2A42406A217D0ED80056EE5F /* RenderProgram.cpp */,
+				2A42406B217D0ED80056EE5F /* RenderProgram.hpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -277,6 +285,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A42406E217D0ED80056EE5F /* RenderProgram.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +293,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A42406F217D0ED80056EE5F /* RenderProgram.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,12 +409,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A4240292172D1EB0056EE5F /* EngineImpl.mm in Sources */,
-				2A424057217C14B80056EE5F /* PipelineState.cpp in Sources */,
+				2A424057217C14B80056EE5F /* RenderState.cpp in Sources */,
 				2A4240282172D1EB0056EE5F /* Scene.cpp in Sources */,
 				2A42405D217C177E0056EE5F /* RenderPass.cpp in Sources */,
 				2A4240222172D1EB0056EE5F /* PythonBridge.cpp in Sources */,
 				2A424066217C3A3D0056EE5F /* RenderCommand.cpp in Sources */,
 				2A4240252172D1EB0056EE5F /* Renderable.cpp in Sources */,
+				2A42406C217D0ED80056EE5F /* RenderProgram.cpp in Sources */,
 				2A4240262172D1EB0056EE5F /* DataBuffer.cpp in Sources */,
 				2A4240232172D1EB0056EE5F /* PointCloud.cpp in Sources */,
 				2A4240212172D1EB0056EE5F /* MotionControllerOrbit.cpp in Sources */,
@@ -416,12 +427,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A42404A2172D6A10056EE5F /* EngineImpl.mm in Sources */,
-				2A424058217C14B80056EE5F /* PipelineState.cpp in Sources */,
+				2A424058217C14B80056EE5F /* RenderState.cpp in Sources */,
 				2A4240492172D6A10056EE5F /* Scene.cpp in Sources */,
 				2A42405E217C177E0056EE5F /* RenderPass.cpp in Sources */,
 				2A4240432172D6A10056EE5F /* PythonBridge.cpp in Sources */,
 				2A424067217C3A3D0056EE5F /* RenderCommand.cpp in Sources */,
 				2A4240462172D6A10056EE5F /* Renderable.cpp in Sources */,
+				2A42406D217D0ED80056EE5F /* RenderProgram.cpp in Sources */,
 				2A4240472172D6A10056EE5F /* DataBuffer.cpp in Sources */,
 				2A4240442172D6A10056EE5F /* PointCloud.cpp in Sources */,
 				2A4240422172D6A10056EE5F /* MotionControllerOrbit.cpp in Sources */,
@@ -433,12 +445,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A61CCAF20BCFDB10014BF08 /* Stub.mm in Sources */,
-				2A61CCA620BCFDB00014BF08 /* Shaders.metal in Sources */,
 				2A61CCA420BCFDB00014BF08 /* GameViewController.m in Sources */,
 				4F046789216683EE00E12914 /* SimulationView.m in Sources */,
 				2A0DD92C20D5C5D70011AF55 /* CameraMetal.mm in Sources */,
 				2A7BEB00214EF7A1007CA6A3 /* OISBridge.mm in Sources */,
 				2A7BEB04214F1565007CA6A3 /* main.cpp in Sources */,
+				2A9A45682184EB33009AA346 /* Shaders.metal in Sources */,
 				2A61CC9E20BCFDB00014BF08 /* AppDelegate.m in Sources */,
 				2A7BEB07214F15B0007CA6A3 /* Platform.cpp in Sources */,
 			);

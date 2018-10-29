@@ -45,5 +45,9 @@ typedef struct
     matrix_float4x4 modelViewMatrix;
 } Uniforms;
 
+struct ConstUniforms {
+   matrix_float4x4 modelViewProjectionMatrix;
+};
+
 #endif /* ShaderTypes_h */
 

@@ -5,10 +5,10 @@
 //  Created by Trystan Larey-Williams on 10/20/18.
 //
 
-#include "PipelineState.hpp"
+#include "RenderState.hpp"
 
-extern std::shared_ptr<IPipelineState> CreateMetalPipelineState();
+extern std::shared_ptr<IRenderState> CreateMetalRenderState();
 
-std::shared_ptr<IPipelineState> IPipelineState::Create() {
-   return CreateMetalPipelineState();
+std::shared_ptr<IRenderState> IRenderState::Create() {
+   return CreateMetalRenderState();
 }
