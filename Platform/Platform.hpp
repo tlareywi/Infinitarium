@@ -34,8 +34,12 @@ namespace Infinitarium {
       virtual void run() = 0;
       
    protected:
+      void update() {
+         if( scene )
+            scene->update();
+      }
       virtual void simLoop();
-      virtual void drawFrame() = 0;
+      virtual void render() = 0;
       
       std::shared_ptr<Scene> scene;
       
@@ -50,7 +54,7 @@ namespace Infinitarium {
       void run() override {}
       
    protected:
-      void drawFrame() override {}
+      void render() override {}
    };
    
    class PlatformOSX : public IPlatform {
@@ -59,7 +63,7 @@ namespace Infinitarium {
       void run() override;
       
    protected:
-      void drawFrame() override;
+      void render() override;
    };
    
 }

@@ -7,34 +7,41 @@
 
 #pragma once
 
-#include <cstdint>
+#include <iostream>
 
-namespace Infinitarium {
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "EventSampler.hpp"
    
-   namespace MotionController {
-      enum MouseButton {
-         LEFT,
-         MIDDLE,
-         RIGHT
-      };
+class IMotionController {
+public:
+   IMotionController();
+   virtual ~IMotionController() {}
       
-      class Interface {
-      public:
-         virtual void onKeyDown( uint16_t code ) {};
-         virtual void onKeyUp( uint16_t code ) {};
-         virtual void onMouseDown( MouseButton btn ) {};
-         virtual void onMouseDrag( double dx, double dy, MouseButton btn ) {};
-         
-      private:
-         
-      };
+   void processEvents();
+   void getViewMatrix( glm::mat4& );
       
-      class Orbit : public MotionController::Interface {
-         void onKeyDown( uint16_t code ) override {};
-         void onKeyUp( uint16_t code ) override {};
-         void onMouseDown( MouseButton btn ) override {};
-         void onMouseDrag( double dx, double dy, MouseButton btn ) override {};
-      };
+protected:
+   virtual void onKeyDown( const IEventSampler::Key& ) {}
+   virtual void onKeyUp( const IEventSampler::Key& ) {}
+   virtual void onMouseButtonDown( const IEventSampler::MouseButton& ) {}
+   virtual void onMouseButtonUp( const IEventSampler::MouseButton& ) {}
+   virtual void onMouseMove( const IEventSampler::MouseMove& ) {}
+   virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
+   virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
+
+   glm::mat4 view;
+};
+
+
+class Orbit : public IMotionController {
+public:
+   Orbit() {}
+   virtual ~Orbit() {}
       
-   } // END namespace MotionController
-} // END namespace Infinitarium
+protected:
+   void onKeyDown( const IEventSampler::Key& ) override;
+   void onMouseMove( const IEventSampler::MouseMove& ) override;
+   void onMouseDrag( const IEventSampler::MouseDrag& ) override;
+   
+};

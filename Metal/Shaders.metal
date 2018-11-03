@@ -43,8 +43,7 @@ constant float epsilon = 0.0000000001;
 constant float diskDensity = 0.025;
 constant float haloDensity = 400.0;
 
-vertex VertexOut staticInstancedStarsVert(// device InVertex* point [[buffer(0)]],
-                                      constant CartesianPosition* pos [[buffer(2)]],
+vertex VertexOut staticInstancedStarsVert( constant CartesianPosition* pos [[buffer(2)]],
                                       constant Magnitude* V [[buffer(1)]],
                                       constant ColorRGB* color [[buffer(0)]],
                                       constant ConstUniforms& uniforms [[buffer(3)]],
@@ -61,7 +60,7 @@ vertex VertexOut staticInstancedStarsVert(// device InVertex* point [[buffer(0)]
    float blurRadius = pow( (out.brightness / epsilon - 1.0) / haloDensity, 1.0 / 2.0 );
    
    out.pointSize = max(diskRadius, blurRadius) * 2.0;
-   out.pointSize = min(out.pointSize, 40.0);
+   out.pointSize = min(out.pointSize, 30.0);
    
    return out;
 }
@@ -75,7 +74,7 @@ fragment float4 staticInstancedStarsFrag( VertexOut point [[stage_in]],
    float disk = point.brightness * exp(-lengthSquared / diskDensity);
    float psf = point.brightness / (haloDensity * pow(lengthSquared, 2.0) + 1.0);
    
-   return float4( point.color.r, point.color.g, point.color.b, psf + disk);
+   return float4( point.color.b, point.color.g, point.color.r, psf + disk);
 }
 
 //

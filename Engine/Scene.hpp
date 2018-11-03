@@ -14,8 +14,11 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Renderable.hpp"
 #include "RenderPass.hpp"
+#include "MotionControllerOrbit.hpp"
 
 class Scene {
 public:
@@ -24,10 +27,15 @@ public:
    void load( const std::string& );
    void add( const std::shared_ptr<IRenderable>& );
    
-   void update() {};
+   void setMotionController( std::shared_ptr<IMotionController>& ctrl ) {
+      motionController = ctrl;
+   }
+   
+   void update();
    void draw();
    
 private:
+   std::shared_ptr<IMotionController> motionController;
    std::shared_ptr<IRenderPass> renderPass;
    std::vector<std::shared_ptr<IRenderable>> renderables;
    
@@ -36,4 +44,6 @@ private:
       std::cout<<"Serializing Scene"<<std::endl;
       ar & renderables;
    }
+
+   glm::mat4 projection;
 };

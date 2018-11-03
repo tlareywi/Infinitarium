@@ -15,4 +15,19 @@ BOOST_CLASS_EXPORT_GUID(IRenderable, "IRenderable")
 IRenderable::IRenderable() : dirty(true) {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
+   uniforms = nullptr;
 }
+
+void IRenderable::update( const glm::mat4& mvp ) {
+   if( uniforms )
+      uniforms->set( &mvp, sizeof(mvp) );
+}
+
+void IRenderable::prepare() {
+   uniforms = IDataBuffer::Create();
+   glm::mat4 identity;
+   uniforms->set( &identity, sizeof(identity) );
+   renderCommand->add( uniforms );
+}
+
+

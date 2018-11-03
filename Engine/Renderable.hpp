@@ -20,11 +20,13 @@ public:
    IRenderable();
    virtual ~IRenderable() {}
    virtual void render( IRenderPass& ) = 0;
-   virtual void prepare() = 0;
+   virtual void prepare();
+   virtual void update( const glm::mat4& );
    
 protected:
    std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
+   std::shared_ptr<IDataBuffer> uniforms;
    bool dirty;
    
 private:

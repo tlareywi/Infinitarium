@@ -31,8 +31,19 @@ IPlatform::IPlatform() : exiting(false) {
 }
 
 void IPlatform::simLoop() {
+   clock_t time{ 0 };
+   const double clocks_per_ms { CLOCKS_PER_SEC / 1000.0 };
+   
    while( 1 ) {
-      drawFrame();
+      time += clock();
+      if( time / clocks_per_ms < 16.6666666667 ) {
+         sleep(0);
+         continue;
+      }
+      
+      time = 0;
+      update();
+      render();
       
       {
          std::unique_lock<std::mutex> lock(simMutex);
@@ -52,11 +63,13 @@ void PlatformOSX::run() {
 #endif
 }
 
-void PlatformOSX::drawFrame() {
+void PlatformOSX::render() {
 #if __APPLE__
-   dispatch_sync( dispatch_get_main_queue() , ^{ scene->draw(); } );
+   if( scene )
+      dispatch_sync( dispatch_get_main_queue() , ^{ scene->draw(); } );
 #endif
 }
+
 
 
 

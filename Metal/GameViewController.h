@@ -15,5 +15,6 @@
 // Our macOS view controller.
 @interface GameViewController : NSViewController
 - (id<MTLDevice>)getDevice;
+- (id<MTLCommandQueue>)getCommandQ;
 - (CAMetalLayer*)getLayer;
 @end

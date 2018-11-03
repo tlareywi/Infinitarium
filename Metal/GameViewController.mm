@@ -27,12 +27,17 @@
    CAMetalLayer* _renderLayer;
    
    id <MTLDevice> _device;
+   id <MTLCommandQueue> _commandQ;
     
    WKWebView* _uiOverlay;
 }
 
 -(id<MTLDevice>) getDevice {
    return _device;
+}
+
+-(id<MTLCommandQueue>) getCommandQ {
+   return _commandQ;
 }
 
 -(CAMetalLayer*) getLayer {
@@ -68,6 +73,8 @@
       return;
    }
    
+   _commandQ = [_device newCommandQueue];
+   
    _renderLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
    _renderLayer.device = _device;
    _renderLayer.framebufferOnly = YES;
@@ -75,23 +82,11 @@
    _renderLayer.displaySyncEnabled = NO;
    _renderLayer.drawableSize = _view.frame.size;
    
-   [_view addSubview:_uiOverlay];
+ //  [_view addSubview:_uiOverlay];
     
-    NSURL* url = [NSURL fileURLWithPath:@"/Users/trystan/Source/Infinitarium/UI/defaultOverlay.html"];
-    NSURLRequest* request = [NSURLRequest requestWithURL:url];
-    [_uiOverlay loadRequest:request];
-}
-
-- (void)keyDown:(NSEvent *)theEvent {
-   NSLog(@"keyDown Detected");
-}
-
-- (void)mouseDown:(NSEvent *)theEvent {
-   NSLog(@"mouseDown Detected");
-}
-
-- (BOOL)acceptsFirstResponder {
-   return YES;
+ //   NSURL* url = [NSURL fileURLWithPath:@"/Users/trystan/Source/Infinitarium/UI/defaultOverlay.html"];
+ //   NSURLRequest* request = [NSURLRequest requestWithURL:url];
+  //  [_uiOverlay loadRequest:request];
 }
 
 @end

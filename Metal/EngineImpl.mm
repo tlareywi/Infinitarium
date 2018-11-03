@@ -10,10 +10,15 @@
 #import <Metal/Metal.h>
 #import <Cocoa/Cocoa.h>
 
-#import "AppDelegate.h"
 #include "GameViewController.h"
 
 #include "ShaderTypes.h"
+
+#include "../Engine/DataBuffer.hpp"
+#include "../Engine/RenderState.hpp"
+#include "../Engine/RenderPass.hpp"
+#include "../Engine/RenderCommand.hpp"
+#include "../Engine/RenderProgram.hpp"
 
 // TODO: Refector all this to runtime loaded library
 
@@ -27,6 +32,26 @@ id<MTLDevice> GetMTLDevice() {
    return device;
 }
 
+id<MTLCommandQueue> GetMTLCommandQ() {
+   NSViewController* ctrl = [[[NSApplication sharedApplication] mainWindow] contentViewController];
+   if( !ctrl )
+      return nullptr;
+   
+   id<MTLCommandQueue> cmdQ = [(GameViewController*)ctrl getCommandQ];
+   
+   return cmdQ;
+}
+
+CAMetalLayer* GetMTLLayer() {
+   NSViewController* ctrl = [[[NSApplication sharedApplication] mainWindow] contentViewController];
+   if( !ctrl )
+      return nullptr;
+   
+   CAMetalLayer* layer = [(GameViewController*)ctrl getLayer];
+   
+   return layer;
+}
+
 
 ///
 /// brief Metal implementation of DataBuffer
@@ -35,33 +60,64 @@ class MetalDataBuffer : public IDataBuffer {
 public:
    void set( DataPackContainer& container ) override {
       id<MTLDevice> device = GetMTLDevice();
-      if( !device ) return;
+      if( !device ) {
+         std::cout<<"Warning: No device ready for call to IDataBuffer:set(...)."<<std::endl;
+         return;
+      }
       
       std::visit( [device, this](auto& e) { // TODO: move visit to caller level and pass DataPack instead?
-         buffer = [device newBufferWithBytes:e.get() length:e.sizeBytes() options:MTLResourceStorageModeManaged];
+         @autoreleasepool {
+            id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:e.get() length:e.sizeBytes() options:MTLResourceStorageModeManaged];
+            
+            GPU = [device newBufferWithLength:e.sizeBytes() options:MTLResourceStorageModePrivate];
+            
+            id<MTLCommandBuffer> cmdBuf = [GetMTLCommandQ() commandBuffer];
+            id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+            [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:e.sizeBytes()];
+            [bltEncoder endEncoding];
+            [cmdBuf commit];
+         }
       }, container );
    };
    
    void reserve( unsigned int sizeBytes ) override {
       id<MTLDevice> device = GetMTLDevice();
-      if( !device ) return;
-      
-      buffer = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModeManaged];
+      if( !device ) {
+         std::cout<<"Warning: No device ready for call to IDataBuffer:reserve(...)."<<std::endl;
+         return;
+      }
+   
+      GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
    }
    
-   void set( void* data, unsigned int sizeBytes ) override {
+   void set( const void* const data, unsigned int sizeBytes ) override {
       id<MTLDevice> device = GetMTLDevice();
-      if( !device ) return;
+      if( !device ) {
+         std::cout<<"Warning: No device ready for call to IDataBuffer:set(...)."<<std::endl;
+         return;
+      }
       
-      buffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
+      @autoreleasepool {
+         if( !GPU ) {
+            GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
+         }
+         
+         id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
+         
+         id<MTLCommandBuffer> cmdBuf = [GetMTLCommandQ() commandBuffer];
+         id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+         [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:sizeBytes];
+         [bltEncoder endEncoding];
+         [cmdBuf commit];
+      }
    }
    
    id<MTLBuffer> getMTLBuffer() {
-      return buffer;
+      return GPU;
    }
    
 private:
-   id<MTLBuffer> buffer;
+   id<MTLBuffer> GPU{nullptr};
 };
 
 std::shared_ptr<IDataBuffer> CreateMetalDataBuffer() {
@@ -76,21 +132,14 @@ std::shared_ptr<IDataBuffer> CreateMetalDataBuffer() {
 class MetalRenderPass : public IRenderPass {
 public:
    void begin() override {
-      NSViewController* ctrl = [[[NSApplication sharedApplication] mainWindow] contentViewController];
-      if( !ctrl ) return;
-      
-      if( commandQ == nullptr ) { // TODO: refactor
-         id<MTLDevice> device = [(GameViewController*)ctrl getDevice];
-         commandQ = [device newCommandQueue];
-      }
+      id<MTLCommandQueue> commandQ = GetMTLCommandQ();
       
       commandBuffer = [commandQ commandBuffer];
       commandBuffer.label = @"IRenderPass";
       
-      CAMetalLayer* layer = [(GameViewController*)ctrl getLayer];
+      CAMetalLayer* layer = GetMTLLayer();
       
-      while( !drawable )
-         drawable = [layer nextDrawable];
+      drawable = [layer nextDrawable];
       
       renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
       renderPass.colorAttachments[0].texture = drawable.texture;
@@ -100,6 +149,7 @@ public:
    }
    
    void end() override {
+      if( !drawable ) return;
       [commandBuffer presentDrawable:drawable];
       [commandBuffer commit];
       drawable = nil;
@@ -115,13 +165,10 @@ public:
    }
    
 private:
-   static id<MTLCommandQueue> commandQ; // TODO: refactor
    MTLRenderPassDescriptor* renderPass;
    id<CAMetalDrawable> drawable;
    id <MTLCommandBuffer> commandBuffer;
 };
-id<MTLCommandQueue> MetalRenderPass::commandQ = nullptr;
-
 std::shared_ptr<IRenderPass> CreateMetalRenderPass() {
    return std::make_shared<MetalRenderPass>();
 }
@@ -244,7 +291,11 @@ public:
          return;
       }
       
-      id <MTLRenderCommandEncoder> commandEncoder = [metalRenderPass->getCommandBuffer() renderCommandEncoderWithDescriptor:metalRenderPass->getPassDescriptor()];
+      MTLRenderPassDescriptor* desc = metalRenderPass->getPassDescriptor();
+      if( !desc )
+         return;
+      
+      id <MTLRenderCommandEncoder> commandEncoder = [metalRenderPass->getCommandBuffer() renderCommandEncoderWithDescriptor:desc];
       commandEncoder.label = @"MyRenderEncoder";
       
       id<MTLRenderPipelineState> renderState = metalRenderState.getPipelineState();
@@ -268,6 +319,12 @@ private:
 };
 std::shared_ptr<IRenderCommand> CreateMetalRenderCommand() {
    return std::make_shared<MetalRenderCommand>();
+}
+
+
+
+std::unique_ptr<IEventSampler> CreateOSXEventSampler() {
+   return std::make_unique<OSXEventSampler>();
 }
 
 

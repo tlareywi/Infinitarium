@@ -19,5 +19,5 @@ public:
    
    virtual void set( DataPackContainer& ) = 0;
    virtual void reserve( unsigned int sizeBytes ) = 0;
-   virtual void set( void*, unsigned int sizeBytes ) = 0;
+   virtual void set( const void* const, unsigned int sizeBytes ) = 0;
 };

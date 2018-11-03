@@ -7,12 +7,17 @@
 
 #pragma once
 
-#include "../Engine/DataBuffer.hpp"
-#include "../Engine/RenderState.hpp"
-#include "../Engine/RenderPass.hpp"
-#include "../Engine/RenderCommand.hpp"
-#include "../Engine/RenderProgram.hpp"
+#include "../Engine/EventSampler.hpp"
 
+///
+/// brief OSX implementation of IEventSampler
+///
+class OSXEventSampler : public IEventSampler {
+public:
+   
+private:
+   
+};
 
 
 

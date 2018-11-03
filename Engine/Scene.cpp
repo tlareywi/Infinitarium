@@ -11,7 +11,10 @@
 #include <iostream>
 
 Scene::Scene() {
-    renderPass = IRenderPass::Create();
+   motionController = nullptr;
+   renderPass = IRenderPass::Create();
+   
+   projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
 }
 
 void Scene::load( const std::string& filename ) {
@@ -38,10 +41,22 @@ void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
    renderables.push_back( renderable );
 }
 
-std::mutex drawMutex;
+void Scene::update() {
+   glm::mat4 view;
+   
+   if( motionController ) {
+      motionController->processEvents();
+      motionController->getViewMatrix( view );
+   }
+   
+   glm::mat4 mvp = projection * view;
+
+   for( auto& renderable : renderables ) {
+      renderable->update( mvp );
+   }
+}
 
 void Scene::draw() {
-   std::lock_guard<std::mutex> lock(drawMutex);
    
    renderPass->begin();
    
