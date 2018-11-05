@@ -17,26 +17,22 @@
 using namespace metal;
 
 typedef struct {
-   float3 xyz;
+   packed_float3 xyz;
 } CartesianPosition;
 
 typedef struct {
-   float3 rgb;
+   packed_float3 rgb;
 } ColorRGB;
 
 typedef struct {
    float m;
 } Magnitude;
 
-typedef struct {
-   float3 xyz;
-} InVertex;
-
 struct VertexOut {
    float4 position [[position]];
    float pointSize [[point_size]];
-   float4 color;
-   float brightness;
+   float4 color [[flat]];
+   float brightness [[flat]];
 };
 
 constant float epsilon = 0.0000000001;
@@ -60,14 +56,14 @@ vertex VertexOut staticInstancedStarsVert( constant CartesianPosition* pos [[buf
    float blurRadius = pow( (out.brightness / epsilon - 1.0) / haloDensity, 1.0 / 2.0 );
    
    out.pointSize = max(diskRadius, blurRadius) * 2.0;
-   out.pointSize = min(out.pointSize, 30.0);
+   out.pointSize = min(out.pointSize, 60.0);
    
    return out;
 }
 
 fragment float4 staticInstancedStarsFrag( VertexOut point [[stage_in]],
                                          float2 pointCoord [[point_coord]],
-                                         constant ConstUniforms& uniforms [[buffer(4)]]
+                                         constant ConstUniforms& uniforms [[buffer(3)]]
 ) {
    float lengthSquared = distance(float2(0.5f), pointCoord);
    
