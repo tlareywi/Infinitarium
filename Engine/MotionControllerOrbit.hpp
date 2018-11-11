@@ -31,6 +31,8 @@ protected:
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
 
    glm::mat4 view;
+   
+   std::shared_ptr<IEventSampler> eventSampler;
 };
 
 

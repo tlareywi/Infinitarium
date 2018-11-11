@@ -6,10 +6,8 @@
 //
 
 #include "DataBuffer.hpp"
+#include "Module.hpp"
 
-// TODO Move to runtime loaded lib. Once that's done, remove dependency on AppKit framework.
-extern std::shared_ptr<IDataBuffer> CreateMetalDataBuffer();
-
-std::shared_ptr<IDataBuffer> IDataBuffer::Create() {
-   return CreateMetalDataBuffer();
+std::shared_ptr<IDataBuffer> IDataBuffer::Create( IRenderContext& context ) {
+   return ModuleFactory<RendererFactory>::Instance()->createDataBuffer( context );
 }

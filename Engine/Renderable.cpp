@@ -23,8 +23,8 @@ void IRenderable::update( const glm::mat4& mvp ) {
       uniforms->set( &mvp, sizeof(mvp) );
 }
 
-void IRenderable::prepare() {
-   uniforms = IDataBuffer::Create();
+void IRenderable::prepare( IRenderContext& context ) {
+   uniforms = IDataBuffer::Create( context );
    glm::mat4 identity;
    uniforms->set( &identity, sizeof(identity) );
    renderCommand->add( uniforms );

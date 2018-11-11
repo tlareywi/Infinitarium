@@ -35,7 +35,7 @@ public:
    
    virtual ~PointCloud() {}
    
-   void prepare() override;
+   void prepare( IRenderContext& ) override;
    void render( IRenderPass& ) override;
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );

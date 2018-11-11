@@ -9,10 +9,14 @@
 
 #include <memory>
 
+#include "RenderContext.hpp"
+
 class IRenderPass {
 public:
    static std::shared_ptr<IRenderPass> Create();
    
    virtual void begin() = 0;
    virtual void end() = 0;
+   
+   std::shared_ptr<IRenderContext> renderContext;
 };

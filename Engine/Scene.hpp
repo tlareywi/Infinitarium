@@ -19,6 +19,7 @@
 #include "Renderable.hpp"
 #include "RenderPass.hpp"
 #include "MotionControllerOrbit.hpp"
+#include "RenderContext.hpp"
 
 class Scene {
 public:
@@ -31,10 +32,15 @@ public:
       motionController = ctrl;
    }
    
+   void setRenderContext( std::shared_ptr<IRenderContext>& r ) {
+      renderContext = r;
+   }
+   
    void update();
    void draw();
    
 private:
+   std::shared_ptr<IRenderContext> renderContext;
    std::shared_ptr<IMotionController> motionController;
    std::shared_ptr<IRenderPass> renderPass;
    std::vector<std::shared_ptr<IRenderable>> renderables;

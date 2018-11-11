@@ -6,11 +6,10 @@
 //
 
 #include "RenderCommand.hpp"
-
-extern std::shared_ptr<IRenderCommand> CreateMetalRenderCommand();
+#include "Module.hpp"
 
 std::shared_ptr<IRenderCommand> IRenderCommand::Create() {
-   return CreateMetalRenderCommand();
+   return ModuleFactory<RendererFactory>::Instance()->createRenderCommand();
 }
 
 void IRenderCommand::add( std::shared_ptr<IDataBuffer>& buf ) {

@@ -14,13 +14,14 @@
 #include "RenderCommand.hpp"
 #include "RenderState.hpp"
 #include "RenderPass.hpp"
+#include "RenderContext.hpp"
 
 class IRenderable {
 public:
    IRenderable();
    virtual ~IRenderable() {}
    virtual void render( IRenderPass& ) = 0;
-   virtual void prepare();
+   virtual void prepare( IRenderContext& );
    virtual void update( const glm::mat4& );
    
 protected:

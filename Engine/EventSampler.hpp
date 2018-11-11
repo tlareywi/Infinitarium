@@ -10,8 +10,6 @@
 #include <vector>
 #include <mutex>
 
-std::unique_ptr<class IEventSampler> CreateOSXEventSampler();
-
 class IEventSampler {
 public:
    enum State {
@@ -55,12 +53,7 @@ public:
    }
    virtual ~IEventSampler() {}
    
-   static std::unique_ptr<IEventSampler>& Instance() {
-      if( !instance )
-         instance = CreateOSXEventSampler();
-      
-      return instance;
-   }
+   static std::shared_ptr<IEventSampler> Create();
    
    void push( const Key& k ) {
       std::lock_guard<std::mutex> lock(eventMutex);
@@ -96,5 +89,4 @@ private:
    std::vector<MouseMove> mmove;
    std::vector<MouseDrag> mdrag;
    std::vector<MouseButton> mbutton;
-   static std::unique_ptr<IEventSampler> instance;
 };

@@ -6,11 +6,10 @@
 //
 
 #include "RenderPass.hpp"
-
-extern std::shared_ptr<IRenderPass> CreateMetalRenderPass();
+#include "Module.hpp"
 
 std::shared_ptr<IRenderPass> IRenderPass::Create() {
-   return CreateMetalRenderPass();
+   return ModuleFactory<RendererFactory>::Instance()->createRenderPass();
 }
 
 

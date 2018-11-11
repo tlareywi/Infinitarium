@@ -6,9 +6,8 @@
 //
 
 #include "RenderState.hpp"
-
-extern std::shared_ptr<IRenderState> CreateMetalRenderState();
+#include "Module.hpp"
 
 std::shared_ptr<IRenderState> IRenderState::Create() {
-   return CreateMetalRenderState();
+   return ModuleFactory<RendererFactory>::Instance()->createRenderState();
 }

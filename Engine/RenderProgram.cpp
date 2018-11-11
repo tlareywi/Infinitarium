@@ -6,11 +6,10 @@
 //
 
 #include "RenderProgram.hpp"
-
-extern std::shared_ptr<IRenderProgram> CreateMetalRenderProgram();
+#include "Module.hpp"
 
 std::shared_ptr<IRenderProgram> IRenderProgram::Create() {
-   return CreateMetalRenderProgram();
+   return ModuleFactory<RendererFactory>::Instance()->createRenderProgram();
 }
 
 

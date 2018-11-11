@@ -49,7 +49,7 @@ public:
    DataPack( unsigned int num ) : container(nullptr) {
       data.reserve( num );
    }
-   DataPack( const DataPack<T>& obj ) : data(obj.data), container(nullptr) {
+   DataPack( const DataPack<T>& obj ) : container(nullptr), data(obj.data) {
       
    }
    DataPack( DataPack<T>&& obj ) : data(std::move(obj.data)) {

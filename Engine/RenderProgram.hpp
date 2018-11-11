@@ -11,6 +11,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "RenderContext.hpp"
+
 class IRenderState;
 
 class IRenderProgram {
@@ -18,7 +20,7 @@ public:
    IRenderProgram() : dirty(true) {}
    static std::shared_ptr<IRenderProgram> Create();
    
-   virtual void prepare( IRenderState& ) = 0;
+   virtual void prepare( IRenderState&, IRenderContext& ) = 0;
    virtual void apply( IRenderState& ) = 0;
    
 protected:

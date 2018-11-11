@@ -21,18 +21,18 @@ public:
       dirty = true;
    }
    
-   void prepare() {
+   void prepare( IRenderContext& context ) {
       if( !dirty ) return;
       
       if( renderProgram )
-         renderProgram->prepare( *this );
+         renderProgram->prepare( *this, context );
       
       dirty = false;
       
-      commit();
+      commit( context );
    }
    
-   virtual void commit() = 0;
+   virtual void commit( IRenderContext& ) = 0;
    
    void apply() {
       if( renderProgram )

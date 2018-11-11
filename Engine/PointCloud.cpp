@@ -18,9 +18,9 @@ void PointCloud::addVertexBuffer( DataPackContainer& datapack, const std::string
    }, datapack );
 }
 
-void PointCloud::prepare() {
+void PointCloud::prepare( IRenderContext& context ) {
    for( auto& dataBuf : vertexBuffers ) {
-      std::shared_ptr<IDataBuffer> buf = IDataBuffer::Create();
+      std::shared_ptr<IDataBuffer> buf = IDataBuffer::Create( context );
       buf->set( dataBuf.second );
       std::cout<<"Adding data buffer "<<dataBuf.first<<std::endl;
       renderCommand->add( buf );
@@ -28,15 +28,15 @@ void PointCloud::prepare() {
    
    std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
    pipelineState->setProgram( shader );
-   pipelineState->prepare();
+   pipelineState->prepare( context );
    
-   IRenderable::prepare();
+   IRenderable::prepare( context );
    
    dirty = false;
 }
 
 void PointCloud::render( IRenderPass& renderPass ) { // TODO: Move to base class?
-   if( dirty ) prepare();
+   if( dirty ) prepare( *(renderPass.renderContext) );
    
    pipelineState->apply();
    renderCommand->encode( renderPass, *pipelineState );

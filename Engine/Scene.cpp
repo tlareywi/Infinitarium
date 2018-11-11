@@ -58,6 +58,8 @@ void Scene::update() {
 
 void Scene::draw() {
    
+   renderPass->renderContext = renderContext;
+   
    renderPass->begin();
    
    for( auto& renderable : renderables ) {
