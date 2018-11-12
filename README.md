@@ -8,14 +8,13 @@ Only OSX Mojave with XCode 10 has been tested and is currently supported. Future
 Install homebrew; /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # Build Dependencies
-brew install glm
-brew install boost
-brew install boost-python3
-https://github.com/wgois/OIS (already included in XCode workspace as framework)
+brew install glm. 
+brew install boost. 
+brew install boost-python3. 
 
 # Runtime Dependencies
-brew install python
-pip3 install astropy
+brew install python. 
+pip3 install astropy. 
 
 
 
