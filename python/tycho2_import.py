@@ -1,6 +1,12 @@
-# exec(open("/Users/trystan/Documents/unit_test.py").read())
+# To run this file in command line interpreter ...
+# exec(open("./unit_test.py").read())
 
-exec(open('/Users/trystan/Documents/BlackBodyParser.py').read())
+# You'll need the tycho2 catalog as one dat file along with the readme.
+# These can be obtained from http://cdsarc.u-strasbg.fr/viz-bin/cat/I/259
+# Individual catalog parts can be joined into one dat file via the command
+# `zcat tyc2.dat.??.gz >tycho2.dat`.
+
+exec(open('./BlackBodyParser.py').read())
 
 import math
 import importlib
@@ -28,8 +34,8 @@ from astropy.table import Table
 engine = InfinitariumEngine
 
 print('\nReading Tycho 2 Catalog ...')
-t = Table.read("/Users/trystan/Downloads/tyc2.dat",
-readme="/Users/trystan/Downloads/readme.tyc2",
+t = Table.read("tyc2.dat",
+readme="readme.tyc2",
 format="ascii.cds")
 
 t['BTmag'].fill_value = 0
