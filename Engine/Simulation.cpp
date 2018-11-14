@@ -25,6 +25,15 @@ void Simulation::setScene( std::shared_ptr<Scene>& s ) {
    scene = s;
 }
 
+void Simulation::update() {
+   if( scene )
+      scene->update();
+}
+void Simulation::render() {
+   if( scene )
+      scene->draw();
+}
+
 void Simulation::simLoop() {
    clock_t time{ 0 };
    const double clocks_per_ms { CLOCKS_PER_SEC / 1000.0 };

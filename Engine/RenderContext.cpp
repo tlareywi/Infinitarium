@@ -11,3 +11,4 @@
 std::shared_ptr<IRenderContext> IRenderContext::Create( unsigned int x, unsigned int y, unsigned int w, unsigned int h ) {
    return ModuleFactory<RendererFactory>::Instance()->createRenderContext(x, y, w, h);
 }
+

@@ -8,7 +8,7 @@
 #include "ApplicationWindow.hpp"
 
 #import <Cocoa/Cocoa.h>
-#import "GameViewController.hpp"
+#import "ViewController.hpp"
 
 #include "../../Engine/EventSampler.hpp"
 #include "../../Engine/RenderContext.hpp"

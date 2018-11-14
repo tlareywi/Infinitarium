@@ -16,3 +16,7 @@ target_link_libraries( Infinitarium InfinitariumEngine )
 
 add_subdirectory( Renderers/Metal )
 add_subdirectory( Platforms/OSX )
+
+add_subdirectory( data )
+
+configure_file( config.in ${CMAKE_SOURCE_DIR}/config.h )

@@ -28,13 +28,8 @@ public:
    void load( const std::string& );
    void add( const std::shared_ptr<IRenderable>& );
    
-   void setMotionController( std::shared_ptr<IMotionController>& ctrl ) {
-      motionController = ctrl;
-   }
-   
-   void setRenderContext( std::shared_ptr<IRenderContext>& r ) {
-      renderContext = r;
-   }
+   void setMotionController( std::shared_ptr<IMotionController>& );
+   void setRenderContext( std::shared_ptr<IRenderContext>& );
    
    void update();
    void draw();

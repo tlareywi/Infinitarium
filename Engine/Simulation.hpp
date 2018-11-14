@@ -20,14 +20,8 @@ public:
    void setScene( std::shared_ptr<Scene>& s );
    
 protected:
-   void update() {
-      if( scene )
-         scene->update();
-   }
-   void render() {
-      if( scene )
-         scene->draw();
-   }
+   void update();
+   void render();
    
    void simLoop();
 

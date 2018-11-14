@@ -37,6 +37,14 @@ void Scene::save( const std::string& filename ) const {
    ofs.close();
 }
 
+void Scene::setMotionController( std::shared_ptr<IMotionController>& ctrl ) {
+   motionController = ctrl;
+}
+
+void Scene::setRenderContext( std::shared_ptr<IRenderContext>& r ) {
+   renderContext = r;
+}
+
 void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
    renderables.push_back( renderable );
 }

@@ -16,28 +16,13 @@ public:
    IRenderState() : dirty(true) {}
    static std::shared_ptr<IRenderState> Create();
    
-   void setProgram( std::shared_ptr<IRenderProgram>& p ) {
-      renderProgram = p;
-      dirty = true;
-   }
+   void setProgram( std::shared_ptr<IRenderProgram>& p );
    
-   void prepare( IRenderContext& context ) {
-      if( !dirty ) return;
-      
-      if( renderProgram )
-         renderProgram->prepare( *this, context );
-      
-      dirty = false;
-      
-      commit( context );
-   }
+   void prepare( IRenderContext& context );
    
    virtual void commit( IRenderContext& ) = 0;
    
-   void apply() {
-      if( renderProgram )
-         renderProgram->apply( *this );
-   }
+   void apply();
 private:
    std::shared_ptr<IRenderProgram> renderProgram;
    bool dirty;
