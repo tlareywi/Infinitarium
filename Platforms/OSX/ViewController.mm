@@ -32,7 +32,7 @@
    consoleFrame.origin.y = 0;
    consoleFrame.size.height =  newFrame.size.height / 3.0;
    _uiOverlay = [[WKWebView alloc] initWithFrame:consoleFrame configuration:config];
-   [_uiOverlay setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+   [_uiOverlay setAutoresizingMask:NSViewWidthSizable];
    [_uiOverlay setValue:@NO forKey:@"drawsBackground"];
 }
 
@@ -40,10 +40,10 @@
    [super viewDidLoad];
    
  //  [_view addSubview:_uiOverlay];
-    
- //   NSURL* url = [NSURL fileURLWithPath:@"/Users/trystan/Source/Infinitarium/UI/defaultOverlay.html"];
- //   NSURLRequest* request = [NSURLRequest requestWithURL:url];
-  //  [_uiOverlay loadRequest:request];
+   
+ //  NSURL* url = [NSURL fileURLWithPath:@"/usr/local/share/Infinitarium/defaultOverlay.html"];
+ //  NSURLRequest* request = [NSURLRequest requestWithURL:url];
+ //  [_uiOverlay loadRequest:request];
 }
 
 @end
