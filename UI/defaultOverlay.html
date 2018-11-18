@@ -1,6 +1,40 @@
-<html>
-    <body style="background-color: rgba(1,1,1,0.25);"></body>
-    <p>
-    <font color="white">Testing some text weeeeeeee!</font>
-    </p>
-</html>
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+	<title>Simple Console</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="simple-console.css">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+</head>
+<body class="dark">
+	<style>
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			display: flex;
+			flex: 1;
+		}
+		h1, p {
+			margin: 0.5rem 0;
+		}
+		h1 {
+			font-family: "Open Sans", sans-serif;
+			font-weight: normal;
+		}
+		a {
+			color: #4078c0;
+		}
+		a:not(:hover) {
+			text-decoration: none;
+		}
+		code {
+			font-family: inherit;
+			padding: 0.1em 0.2em;
+			border: 1px solid rgba(128, 128, 128, 0.5);
+			border-radius: 0.1em;
+		}
+	</style>
+	<script src="simple-console.js"></script>
+	<script src="interpreter.js"></script>
+</body>

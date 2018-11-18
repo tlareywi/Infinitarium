@@ -13,7 +13,7 @@
 
 int main(int argc, const char * argv[]) {
    std::shared_ptr<IApplication> app = IApplication::Create();
-   std::shared_ptr<IRenderContext> context = IRenderContext::Create( 100, 100, 1920, 1080, false );
+   std::shared_ptr<IRenderContext> context = IRenderContext::Create( 0, 0, 1920, 1080, false );
    std::shared_ptr<IApplicationWindow> window = IApplicationWindow::Create( *context );
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();

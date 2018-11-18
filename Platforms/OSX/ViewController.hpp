@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <Webkit/WKUIDelegate.h>
 
 #include "../../Engine/RenderContext.hpp"
 
@@ -18,3 +17,5 @@
 @property CGRect rect;
 
 @end
+
+

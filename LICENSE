@@ -1,18 +1,30 @@
-Non-Commercial Software License Agreement
+--------------------------------------------------------------------------------
+Blue Canvas Studios LLC, Non-Commercial Software License Agreement
+--------------------------------------------------------------------------------
 
 Copyright (c) 2018 Blue Canvas Studios LLC
 
-SCOPE. The term Software refers to both the source code and executable code produced thereof. 
+SCOPE. The term Software refers to both the source code and executable code
+produced thereof.
 
-LICENSE. Subject to the other terms of this Agreement, Blue Canvas Studios LLC grants User a perpetual, free-of-charge, non-exclusive, non-transferable, non-commercial license to:  
- 
-a. Use the Software only (i) in an educational institution environment, (ii) in a personal capacity, or (iii) for non-commercial, evaluation purposes in User’s internal business operations, subject to restrictions below;  b. Make derivative works of the source code snippets provided with the Software, and to operate and distribute such derivative works, under the same license as this Software. c. Make copies of the Software for archival and backup purposes. 
- 
-RESTRICTIONS. User is specifically prohibited from:  
- 
-a. Transferring, assigning, sublicensing, or renting the Software or using it in any type of software service provider or outsourcing environment where the functionality of the Software is provided to a third party.
- 
-Blue Canvas Studios LLC reserves all rights not expressly granted. 
+LICENSE. Subject to the other terms of this Agreement, Blue Canvas Studios LLC
+grants User a perpetual, free-of-charge, non-exclusive, non-transferable,
+non-commercial license to:
+
+a. Use the Software only (i) in an educational institution environment, (ii) in
+a personal capacity, or (iii) for non-commercial, evaluation purposes in User’s
+internal business operations, subject to restrictions below;  b. Make derivative
+works of the source code snippets provided with the Software, and to operate and
+distribute such derivative works, under the same license as this Software. c.
+Make copies of the Software for archival and backup purposes.
+
+RESTRICTIONS. User is specifically prohibited from:
+
+a. Transferring, assigning, sublicensing, or renting the Software or using it in
+any type of software service provider or outsourcing environment where the
+functionality of the Software is provided to a third party.
+
+Blue Canvas Studios LLC reserves all rights not expressly granted.
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -24,3 +36,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+3rd Party Software Acknowledgements
+--------------------------------------------------------------------------------
+Simple Console - Copyright (c) 2016 Isaiah Odhner - MIT License
+Boost - Boost Software License - Version 1.0 - August 17th, 2003
