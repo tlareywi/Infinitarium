@@ -14,5 +14,6 @@
 
 class OSXSimulationWindow : public IApplicationWindow {
 public:
-   OSXSimulationWindow( IRenderContext&  );
+   OSXSimulationWindow( IRenderContext& );
+
 };

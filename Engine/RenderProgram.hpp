@@ -18,6 +18,8 @@ class IRenderState;
 class IRenderProgram {
 public:
    IRenderProgram() : dirty(true) {}
+   virtual ~IRenderProgram() {}
+   
    static std::shared_ptr<IRenderProgram> Create();
    
    virtual void prepare( IRenderState&, IRenderContext& ) = 0;

@@ -13,6 +13,8 @@
 
 class IRenderPass {
 public:
+   virtual ~IRenderPass() {}
+   
    static std::shared_ptr<IRenderPass> Create();
    
    virtual void begin() = 0;

@@ -14,6 +14,8 @@
 class IRenderState {
 public:
    IRenderState() : dirty(true) {}
+   virtual ~IRenderState() {}
+   
    static std::shared_ptr<IRenderState> Create();
    
    void setProgram( std::shared_ptr<IRenderProgram>& p );

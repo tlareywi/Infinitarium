@@ -11,10 +11,12 @@
 
 class IRenderContext {
 public:
-   IRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h) : _x(x), _y(y), _width(w), _height(h) {
+   IRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs ) : _x(x), _y(y), _width(w), _height(h), _fullScreen(fs) {
       
    }
-   static std::shared_ptr<IRenderContext> Create( unsigned int, unsigned int, unsigned int, unsigned int );
+   virtual ~IRenderContext() {}
+   
+   static std::shared_ptr<IRenderContext> Create( unsigned int, unsigned int, unsigned int, unsigned int, bool );
    
    virtual void* getSurface() = 0;
    
@@ -34,9 +36,14 @@ public:
       return _height;
    }
    
+   bool fullScreen() {
+      return _fullScreen;
+   }
+   
 private:
    unsigned int _x;
    unsigned int _y;
    unsigned int _width;
    unsigned int _height;
+   bool _fullScreen;
 };

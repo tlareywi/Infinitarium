@@ -65,7 +65,7 @@ public:
    typedef std::shared_ptr<IRenderPass> (*RenderPassImpl)();
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
-   typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int );
+   typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;

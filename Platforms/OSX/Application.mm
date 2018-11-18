@@ -9,11 +9,37 @@
 
 #include "../../Engine/Application.hpp"
 
+#include <iostream>
+
+@interface AppDelegate : NSObject<NSApplicationDelegate>
+
+@end
+
+
+@implementation AppDelegate
+-(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
+   return YES;
+}
+
+-(void)applicationDidFinishLaunching:(NSNotification *)notification {
+   NSApplication* app = [NSApplication sharedApplication];
+
+   NSWindow* window = [app windows][0];
+
+   [window makeKeyAndOrderFront:nil];
+   [window makeFirstResponder:nil];
+   [window setLevel:NSNormalWindowLevel];
+   [app activateIgnoringOtherApps:YES];
+}
+@end
+
 // TODO: This probably needs to be a singleton. Enforce at engine level?
 class OSXApplication : public IApplication {
 public:
    OSXApplication() {
       NSApplication* app = [NSApplication sharedApplication];
+      [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+      [app setDelegate: [AppDelegate new]];
       
       id menubar    = [NSMenu new];
       id appMenuItem = [NSMenuItem new];
@@ -26,16 +52,17 @@ public:
       [appMenu addItem:quitMenuItem];
       [appMenuItem setSubmenu:appMenu];
       
-      [app activateIgnoringOtherApps:YES];
+      [app setPresentationOptions:NSApplicationPresentationAutoHideDock|NSApplicationPresentationAutoHideMenuBar|NSApplicationPresentationFullScreen];
    }
    
    void run() override {
-      [[NSApplication sharedApplication] run];
+     [[NSApplication sharedApplication] run];
    }
    
    void stop() override {
       [[NSApplication sharedApplication] stop:nullptr];
    }
+
 };
 
 extern "C" {

@@ -12,12 +12,6 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/CAMetalLayer.h>
 
-#include <iostream>
-#include <memory>
-
-#include "../../Engine/DataBuffer.hpp"
-#include "../../Engine/RenderState.hpp"
-#include "../../Engine/RenderPass.hpp"
 #include "../../Engine/RenderCommand.hpp"
 #include "../../Engine/RenderProgram.hpp"
 #include "../../Engine/RenderContext.hpp"
@@ -27,7 +21,7 @@
 ///
 class MetalRenderContext : public IRenderContext {
 public:
-   MetalRenderContext( unsigned int x, unsigned int y, unsigned int w, unsigned int h ) : IRenderContext(x, y, w, h) {
+   MetalRenderContext( unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs ) : IRenderContext(x, y, w, h, fs) {
       device = MTLCreateSystemDefaultDevice();
       surface = [[CAMetalLayer new] init];
       CGRect newFrame = CGRectMake( x, y, w, h );
@@ -70,8 +64,8 @@ private:
 };
 
 extern "C" {
-   std::shared_ptr<IRenderContext> CreateRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h) {
-      std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(x, y, w, h);
+   std::shared_ptr<IRenderContext> CreateRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs) {
+      std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(x, y, w, h, fs);
       return context;
    }
 }

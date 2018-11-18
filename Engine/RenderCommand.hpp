@@ -13,6 +13,8 @@
 
 class IRenderCommand {
 public:
+   virtual ~IRenderCommand() {}
+   
    static std::shared_ptr<IRenderCommand> Create();
    
    void add( std::shared_ptr<IDataBuffer>& );

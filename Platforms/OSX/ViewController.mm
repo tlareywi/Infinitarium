@@ -23,6 +23,7 @@
    _view = self.view;
    _view.layer = self.backingLayer;
    [_view setAutoresizesSubviews:true];
+   [_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
    CGRect newFrame = CGRectMake( self.rect.origin.x, self.rect.origin.x, self.rect.size.width, self.rect.size.height );
    _view.frame = newFrame;
     

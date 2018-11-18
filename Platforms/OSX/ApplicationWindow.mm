@@ -13,6 +13,7 @@
 #include "../../Engine/EventSampler.hpp"
 #include "../../Engine/RenderContext.hpp"
 
+#include <iostream>
 ///
 /// brief OSX implementation of IEventSampler
 ///
@@ -32,13 +33,24 @@ extern "C" {
 }
 
 @interface BorderlessWindow : NSWindow {} @end
+
 @implementation BorderlessWindow
+
+- (BOOL)acceptsFirstResponder {
+   return YES;
+}
+
 - (BOOL)canBecomeKeyWindow {
    return YES;
 }
 
 - (BOOL)canBecomeMainWindow {
    return YES;
+}
+
+- (void)cancelOperation:(id)sender
+{
+   [self toggleFullScreen:nullptr];
 }
 
 - (BOOL)acceptsMouseMovedEvents {
@@ -73,15 +85,53 @@ extern "C" {
 
 @end
 
+@interface WindowDelegate : NSObject<NSWindowDelegate> {}
+   @property (strong) NSWindow* window;
+   @property NSRect origRect;
+@end
+@implementation WindowDelegate
+- (NSSize)window:(NSWindow *)window willUseFullScreenContentSize:(NSSize)proposedSize {
+   return proposedSize;
+}
+
+- (void)windowWillEnterFullScreen:(NSNotification *)notification {
+   _origRect = self.window.frame;
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification *)notification {
+
+}
+
+- (void)windowDidExitFullScreen:(NSNotification *)notification {
+   [_window setFrame:_origRect display:YES animate:YES];
+}
+
+- (void)windowDidResize:(NSNotification *)notification {
+
+}
+@end
+
 
 OSXSimulationWindow::OSXSimulationWindow( IRenderContext& context ) {
    GameViewController* controller = [[GameViewController alloc] init];
+   
    controller.rect = CGRectMake( context.x(), context.y(), context.width(), context.height() );
+   
    controller.backingLayer = (CALayer*)context.getSurface();
    NSWindow* window = [BorderlessWindow windowWithContentViewController:controller];
    
+   WindowDelegate* winDelegate = [[WindowDelegate new] init];
+   window.delegate = winDelegate;
+   winDelegate.window = window;
+   
+   [window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+
+   [window setStyleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable)];
+   
    [window setTitle:@"Infinitarium"];
-   [window makeKeyAndOrderFront:nullptr];
+   
+   if( context.fullScreen() )
+      [window toggleFullScreen:nullptr];
 }
 
 extern "C" {

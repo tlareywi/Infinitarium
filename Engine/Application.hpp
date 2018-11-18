@@ -7,10 +7,13 @@
 
 #pragma once
 
+#include "ApplicationWindow.hpp"
 #include <memory>
 
 class IApplication {
 public:
+   virtual ~IApplication() {}
+   
    static std::shared_ptr<IApplication> Create();
    
    virtual void run() = 0;

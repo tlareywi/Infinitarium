@@ -16,6 +16,8 @@ class IDataBuffer;
 
 class IDataBuffer {
 public:
+   virtual ~IDataBuffer() {}
+   
    static std::shared_ptr<IDataBuffer> Create( IRenderContext& );
    
    virtual void set( DataPackContainer& ) = 0;
