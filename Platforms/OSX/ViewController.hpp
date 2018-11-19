@@ -7,11 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <WebKit/WKScriptMessageHandler.h>
 
 #include "../../Engine/RenderContext.hpp"
 
 // Our macOS view controller.
-@interface GameViewController : NSViewController
+@interface GameViewController : NSViewController<WKScriptMessageHandler>
 
 @property (strong) CALayer* backingLayer;
 @property CGRect rect;

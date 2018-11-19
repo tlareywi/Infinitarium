@@ -11,18 +11,10 @@ con.logHTML(
 );
 
 function handle_command(command){
-	var err;
 	try {
-		var result = eval(command);
+		window.webkit.messageHandlers.command.postMessage(command);
 	}
 	catch(error) {
-		err = error;
-	}
-
-	if(err) {
-		con.error(err);
-	}
-	else {
-		con.log(result).classList.add("result");
+		con.error(error)
 	}
 };

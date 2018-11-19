@@ -11,6 +11,9 @@ set_property(TARGET Infinitarium PROPERTY CXX_STANDARD_REQUIRED ON)
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
+find_package(Python3 COMPONENTS Development)
+include_directories(${Python3_INCLUDE_DIRS})
+
 add_subdirectory( Engine )
 target_link_libraries( Infinitarium InfinitariumEngine )
 

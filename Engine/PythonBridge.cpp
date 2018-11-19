@@ -8,8 +8,11 @@
 #include "DataPack.hpp"
 #include "PointCloud.hpp"
 #include "Scene.hpp"
+#include "PythonBridge.hpp"
 
 #include <boost/python.hpp>
+#include <boost/lexical_cast.hpp>
+
 using namespace boost::python;
 
 void (DataPack_FLOAT32::*addVec3f)(float,float,float) = &DataPack_FLOAT32::addVec;
@@ -56,6 +59,47 @@ BOOST_PYTHON_MODULE(InfinitariumEngine)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
+}
+
+PythonInterpreter::PythonInterpreter() {
+   Py_Initialize();
+   main_module = import("__main__");
+   main_namespace = main_module.attr("__dict__");
+}
+
+PythonInterpreter::~PythonInterpreter() {
+   Py_Finalize();
+}
+   
+std::string PythonInterpreter::eval( const std::string& expr ) {
+   try {
+      object result = ::eval( str(expr), main_namespace);
+      double val = extract<double>(result);
+      return boost::lexical_cast<std::string>(val);
+   }
+   catch( error_already_set const & ) {
+      PyObject *ptype, *pvalue, *ptraceback;
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+      
+      handle<> hType(ptype);
+      object extype(hType);
+      handle<> hTraceback(ptraceback);
+      object traceback(hTraceback);
+      
+      //Extract error message
+      std::string strErrorMessage = extract<std::string>(pvalue);
+      
+      //Extract line number (top entry of call stack)
+      // if you want to extract another levels of call stack
+      // also process traceback.attr("tb_next") recurently
+      
+      //long lineno = extract<long> (traceback.attr("tb_lineno"));
+      //std::string filename = extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_filename"));
+      //std::string funcname = extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_name"));
+      
+      // For now, just return top level error
+      return strErrorMessage;
+   }
 }
 
 

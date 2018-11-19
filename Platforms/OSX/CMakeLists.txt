@@ -2,7 +2,7 @@ cmake_minimum_required( VERSION "3.12" )
 project( IEPlatform )
 
 add_library( IEPlatform SHARED ViewController.mm ApplicationWindow.mm
-  ViewController.hpp ApplicationWindow.hpp Application.mm
+  ViewController.hpp ApplicationWindow.hpp Application.mm Application.hpp
 )
 
 set_property(TARGET IEPlatform PROPERTY CXX_STANDARD 17)

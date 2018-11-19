@@ -10,9 +10,14 @@
 #include "Engine/Application.hpp"
 #include "Engine/Simulation.hpp"
 #include "Engine/MotionControllerOrbit.hpp"
+#include "Engine/PythonBridge.hpp"
 
 int main(int argc, const char * argv[]) {
+   std::shared_ptr<IPythonInterpreter> pyInterp = std::make_shared<PythonInterpreter>();
+   
+   // Move these guys (the abstract interface part) into EngineInterface.hp as well. Helps keep concrete code from sneaking into the libs. 
    std::shared_ptr<IApplication> app = IApplication::Create();
+   app->setPythonInterpreter( pyInterp );
    std::shared_ptr<IRenderContext> context = IRenderContext::Create( 0, 0, 1920, 1080, false );
    std::shared_ptr<IApplicationWindow> window = IApplicationWindow::Create( *context );
    

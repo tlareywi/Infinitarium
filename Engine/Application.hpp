@@ -10,6 +10,7 @@
 #include "../config.h"
 
 #include "ApplicationWindow.hpp"
+#include "EngineInterface.hpp"
 #include <memory>
 #include <string>
 
@@ -23,6 +24,17 @@ public:
       return(INSTALL_ROOT);
    }
    
+   std::shared_ptr<IPythonInterpreter> getPythonInterpreter() {
+      return pyInterp;
+   }
+   
+   void setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp ) {
+      pyInterp = interp;
+   }
+   
    virtual void run() = 0;
    virtual void stop() = 0;
+   
+private:
+   std::shared_ptr<IPythonInterpreter> pyInterp;
 };

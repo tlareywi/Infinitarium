@@ -7,15 +7,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "../../Engine/Application.hpp"
+#include "Application.hpp"
 
 #include <iostream>
 
 @interface AppDelegate : NSObject<NSApplicationDelegate>
 
 @end
-
-
 @implementation AppDelegate
 -(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
    return YES;
@@ -33,42 +31,46 @@
 }
 @end
 
-// TODO: This probably needs to be a singleton. Enforce at engine level?
-class OSXApplication : public IApplication {
-public:
-   OSXApplication() {
-      NSApplication* app = [NSApplication sharedApplication];
-      [app setActivationPolicy:NSApplicationActivationPolicyRegular];
-      [app setDelegate: [AppDelegate new]];
+OSXApplication::OSXApplication() {
+   NSApplication* app = [NSApplication sharedApplication];
+   [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+   [app setDelegate: [AppDelegate new]];
       
-      id menubar    = [NSMenu new];
-      id appMenuItem = [NSMenuItem new];
-      [menubar addItem:appMenuItem];
-      [app setMainMenu:menubar];
-      id appMenu      = [NSMenu new];
-      id appName      = [[NSProcessInfo processInfo] processName];
-      id quitTitle   = [@"Quit " stringByAppendingString:appName];
-      id quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
-      [appMenu addItem:quitMenuItem];
-      [appMenuItem setSubmenu:appMenu];
+   id menubar    = [NSMenu new];
+   id appMenuItem = [NSMenuItem new];
+   [menubar addItem:appMenuItem];
+   [app setMainMenu:menubar];
+   id appMenu      = [NSMenu new];
+   id appName      = [[NSProcessInfo processInfo] processName];
+   id quitTitle   = [@"Quit " stringByAppendingString:appName];
+   id quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
+   [appMenu addItem:quitMenuItem];
+   [appMenuItem setSubmenu:appMenu];
       
-      [app setPresentationOptions:NSApplicationPresentationAutoHideDock|NSApplicationPresentationAutoHideMenuBar|NSApplicationPresentationFullScreen];
-   }
-   
-   void run() override {
-     [[NSApplication sharedApplication] run];
-   }
-   
-   void stop() override {
-      [[NSApplication sharedApplication] stop:nullptr];
-   }
+   [app setPresentationOptions:NSApplicationPresentationAutoHideDock|NSApplicationPresentationAutoHideMenuBar|NSApplicationPresentationFullScreen];
+}
 
-};
+std::shared_ptr<IApplication> OSXApplication::instance {nullptr};
+
+std::shared_ptr<IApplication> OSXApplication::Instance() {
+   if( !instance )
+      instance = std::make_shared<OSXApplication>();
+   
+   return instance;
+}
+   
+void OSXApplication::run() {
+     [[NSApplication sharedApplication] run];
+}
+   
+void OSXApplication::stop() {
+      [[NSApplication sharedApplication] stop:nullptr];
+}
+
 
 extern "C" {
    std::shared_ptr<IApplication> CreateApplication() {
-      std::shared_ptr<IApplication> app = std::make_shared<OSXApplication>();
-      return app;
+      return OSXApplication::Instance();
    }
 }
 
