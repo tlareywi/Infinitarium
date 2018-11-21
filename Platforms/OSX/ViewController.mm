@@ -83,7 +83,6 @@
    
    NSString* toJS = [NSString stringWithUTF8String:js.c_str()];
    [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
- //  NSLog(@"Received event %@", message.body);
 }
 
 @end

@@ -9,10 +9,10 @@
 // File for Metal kernel and shader functions
 
 #include <metal_stdlib>
-#include <simd/simd.h>
+//#include <simd/simd.h>
 
 // Including header shared between this Metal shader code and Swift/C code executing Metal API commands
-#import "ShaderTypes.h"
+//#import "ShaderTypes.h"
 
 using namespace metal;
 
@@ -33,6 +33,10 @@ struct VertexOut {
    float pointSize [[point_size]];
    float4 color [[flat]];
    float brightness [[flat]];
+};
+
+struct ConstUniforms {
+   float4x4 modelViewProjectionMatrix;
 };
 
 constant float epsilon = 0.0000000001;

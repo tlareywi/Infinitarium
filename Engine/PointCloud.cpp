@@ -8,9 +8,14 @@
 #include "PointCloud.hpp"
 #include "DataBuffer.hpp"
 
+#include "../config.h"
+
 #include <boost/serialization/export.hpp>
 
 BOOST_CLASS_EXPORT_GUID(PointCloud, "PointCloud")
+
+PointCloud::PointCloud() {
+}
 
 void PointCloud::addVertexBuffer( DataPackContainer& datapack, const std::string& name ) {
    std::visit( [this, name](auto& e) {
@@ -27,6 +32,7 @@ void PointCloud::prepare( IRenderContext& context ) {
    }
    
    std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
+   shader->compile("Shaders", context );
    pipelineState->setProgram( shader );
    pipelineState->prepare( context );
    

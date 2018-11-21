@@ -16,6 +16,11 @@
 #include "../../Engine/RenderProgram.hpp"
 #include "../../Engine/RenderContext.hpp"
 
+#include <sstream>
+#include <fstream>
+
+#include "../../config.h"
+
 ///
 ///
 ///
@@ -258,12 +263,9 @@ extern "C" {
 /// brief Metal implementation of RenderProgram
 ///
 class MetalRenderProgram : public IRenderProgram {
-   void prepare( IRenderState& state, IRenderContext& context ) override {
-      MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
-      id<MTLDevice> device = c->getMTLDevice();
-      
-      id<MTLLibrary> program = [device newDefaultLibrary];
-      
+   void prepare( IRenderState& state ) override {
+      // Separating this out from compile allows function switching within a library
+      // without recompiling the shader source.
       vertex = [program newFunctionWithName:@"staticInstancedStarsVert"];
       fragment = [program newFunctionWithName:@"staticInstancedStarsFrag"];
       
@@ -275,9 +277,30 @@ class MetalRenderProgram : public IRenderProgram {
    void apply( IRenderState& state ) override {
    }
    
+   void compile( const std::string& name, IRenderContext& context ) override {
+      MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
+      id<MTLDevice> device = c->getMTLDevice();
+      
+      std::string path {std::string(INSTALL_ROOT) + std::string("/share/Infinitarium/shaders/metal/") + name + ".metal"};
+      
+      std::ifstream infile(path);
+      std::stringstream buffer;
+      buffer << infile.rdbuf();
+      
+      NSError* err {nullptr};
+      program = [device newLibraryWithSource:[NSString stringWithUTF8String:buffer.str().c_str()] options:nullptr error:&err];
+      
+      infile.close();
+      
+      if( err ) {
+         std::cout<<"Error compiling "<<path<<" "<<[err.localizedDescription UTF8String]<<std::endl;
+      }
+   }
+   
 private:
    id<MTLFunction> vertex;
    id<MTLFunction> fragment;
+   id<MTLLibrary> program;
 };
 
 extern "C" {

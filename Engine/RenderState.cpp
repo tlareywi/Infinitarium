@@ -21,7 +21,7 @@ void IRenderState::prepare( IRenderContext& context ) {
    if( !dirty ) return;
    
    if( renderProgram )
-      renderProgram->prepare( *this, context );
+      renderProgram->prepare( *this );
    
    dirty = false;
    

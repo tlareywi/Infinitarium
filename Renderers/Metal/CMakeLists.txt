@@ -19,3 +19,5 @@ find_library(QUARTZ_LIB QuartzCore)
 target_link_libraries(IERenderer ${QUARTZ_LIB})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
+
+install(FILES ShaderTypes.h Shaders.metal DESTINATION share/Infinitarium/shaders/metal) 

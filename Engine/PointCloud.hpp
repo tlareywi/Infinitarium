@@ -28,7 +28,7 @@ private:
 ///
 class PointCloud : public IRenderable {
 public:
-   PointCloud() {}
+   PointCloud();
    PointCloud( const PointCloud& ) {
       
    }

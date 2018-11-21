@@ -22,8 +22,9 @@ public:
    
    static std::shared_ptr<IRenderProgram> Create();
    
-   virtual void prepare( IRenderState&, IRenderContext& ) = 0;
+   virtual void prepare( IRenderState& ) = 0;
    virtual void apply( IRenderState& ) = 0;
+   virtual void compile( const std::string& path, IRenderContext& ) = 0;
    
 protected:
    bool dirty;
