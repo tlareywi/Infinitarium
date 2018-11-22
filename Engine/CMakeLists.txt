@@ -1,6 +1,8 @@
 cmake_minimum_required( VERSION "3.12" ) # For python3 find module
 project( InfinitariumEngine )
 
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+
 add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   PointCloud.cpp PythonBridge.cpp Renderable.cpp RenderCommand.cpp RenderPass.cpp
   RenderProgram.cpp RenderState.cpp Scene.cpp Module.cpp DataPack.hpp Module.hpp
@@ -24,3 +26,5 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(Python3 COMPONENTS Development)
 target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
+
+install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)

@@ -10,8 +10,8 @@
 #include "Scene.hpp"
 #include "PythonBridge.hpp"
 
-#include <boost/python.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 using namespace boost::python;
 
@@ -22,7 +22,7 @@ void (DataPack_UINT16::*addVec4u16)(uint16_t,uint16_t,uint16_t,uint16_t) = &Data
 void (DataPack_UINT32::*addVec3u32)(uint32_t,uint32_t,uint32_t) = &DataPack_UINT32::addVec;
 void (DataPack_UINT32::*addVec4u32)(uint32_t,uint32_t,uint32_t,uint32_t) = &DataPack_UINT32::addVec;
 
-BOOST_PYTHON_MODULE(InfinitariumEngine)
+BOOST_PYTHON_MODULE(libInfinitariumEngine)
 {
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
       .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
@@ -61,10 +61,54 @@ BOOST_PYTHON_MODULE(InfinitariumEngine)
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PyConsoleRedirect
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+boost::circular_buffer<std::string> PyConsoleRedirect::m_outputs;
+   
+PyConsoleRedirect::PyConsoleRedirect() {
+   m_outputs.set_capacity(100);
+}
+   
+void PyConsoleRedirect::write( std::string const& str ) {
+   m_outputs.push_back(str);
+}
+
+std::string PyConsoleRedirect::GetOutput() {
+   std::stringstream ss;
+      
+   for( auto& item : m_outputs )
+      ss << item;
+   
+   m_outputs.clear();
+   std::string out( ss.str() );
+   boost::replace_all(out, "\n", "\\n");
+   boost::replace_all(out, "\"", "\\\"");
+   
+   return out;
+}
+
+static PyConsoleRedirect python_stdio_redirector;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PythonInterpreter
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 PythonInterpreter::PythonInterpreter() {
    Py_Initialize();
    main_module = import("__main__");
    main_namespace = main_module.attr("__dict__");
+   
+   main_namespace["PyConsoleRedirect"] = class_<PyConsoleRedirect>("PyConsoleRedirect", init<>())
+      .def("write", &PyConsoleRedirect::write);
+   
+   import("sys").attr("stderr") = python_stdio_redirector;
+   import("sys").attr("stdout") = python_stdio_redirector;
+   
+   eval("import sys");
+   eval("sys.path.append('/usr/local/lib')");
+   eval("import libInfinitariumEngine");
+   eval("engine = libInfinitariumEngine");
 }
 
 PythonInterpreter::~PythonInterpreter() {
@@ -72,34 +116,65 @@ PythonInterpreter::~PythonInterpreter() {
 }
    
 std::string PythonInterpreter::eval( const std::string& expr ) {
+   std::string retVal {""};
+   std::string inStr {expr};
+   
+   boost::replace_all(inStr, "‘", "'");
+   
    try {
-      object result = ::eval( str(expr), main_namespace);
-      double val = extract<double>(result);
-      return boost::lexical_cast<std::string>(val);
+      object result = exec( str(inStr), main_namespace );
+      
+      retVal = python_stdio_redirector.GetOutput();
+      
+  /*    boost::python::extract<double> num(result);
+      if( num.check() ) {
+         double val = extract<double>(result);
+         retVal += boost::lexical_cast<std::string>(val);
+      }
+      
+      boost::python::extract<std::string> str(result);
+      if( str.check() ) {
+         retVal += extract<std::string>(result);
+      } */
    }
-   catch( error_already_set const & ) {
+   catch( boost::python::error_already_set const& ) {
       PyObject *ptype, *pvalue, *ptraceback;
       PyErr_Fetch(&ptype, &pvalue, &ptraceback);
       
-      handle<> hType(ptype);
-      object extype(hType);
-      handle<> hTraceback(ptraceback);
-      object traceback(hTraceback);
+      if( pvalue ) {
+         handle<> h_val(pvalue);
+         str a(h_val);
+         extract<std::string> returned(a);
+         if( returned.check() )
+            retVal +=  ": " + returned();
+         else
+            retVal += std::string(": Unparseable Python error: ");
+      }
       
-      //Extract error message
-      std::string strErrorMessage = extract<std::string>(pvalue);
+      if( ptraceback ) {
+         handle<> hTraceback(ptraceback);
+         object tb( import("traceback") );
+         object fmt_tb(tb.attr("format_tb"));
+         // Call format_tb to get a list of traceback strings
+         object tb_list(fmt_tb(hTraceback));
+         // Join the traceback strings into a single string
+         object tb_str(str("\n\\").join(tb_list));
+         // Extract the string, check the extraction, and fallback in necessary
+         extract<std::string> returned(tb_str);
+         if(returned.check())
+            retVal += ": " + returned();
+         else
+            retVal += std::string(": Unparseable Python traceback");
+      }
       
-      //Extract line number (top entry of call stack)
-      // if you want to extract another levels of call stack
-      // also process traceback.attr("tb_next") recurently
-      
-      //long lineno = extract<long> (traceback.attr("tb_lineno"));
-      //std::string filename = extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_filename"));
-      //std::string funcname = extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_name"));
-      
-      // For now, just return top level error
-      return strErrorMessage;
+      boost::replace_all(retVal, "\n", "\\n");
+      boost::replace_all(retVal, "\"", "\\\"");
    }
+   catch( ... ) {
+      retVal = "PythonInterpreter::eval encountered unexpected exception.";
+   }
+   
+   return retVal;
 }
 
 

@@ -75,11 +75,17 @@
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-   std::string result = OSXApplication::Instance()->getPythonInterpreter()->eval( [message.body UTF8String] );
+   std::string cmd {[message.body UTF8String]};
+   std::string result = OSXApplication::Instance()->getPythonInterpreter()->eval( cmd );
+   
+   if( result.empty() )
+      return;
    
    std::string js("con.log(\"");
    js += result;
    js += "\").classList.add(\"result\");";
+   
+   std::cout<<js<<std::endl;
    
    NSString* toJS = [NSString stringWithUTF8String:js.c_str()];
    [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
