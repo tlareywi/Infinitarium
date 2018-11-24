@@ -6,6 +6,7 @@
 //
 
 #include "Scene.hpp"
+#include "PythonBridge.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -75,6 +76,14 @@ void Scene::draw() {
    }
    
    renderPass->end();
+}
+
+void Scene::info() const {
+   PyConsoleRedirect console;
+   console.write("Scene Object ...\n");
+   
+   for( auto& obj : renderables )
+      obj->info();
 }
 
 

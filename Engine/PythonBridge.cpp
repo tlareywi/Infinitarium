@@ -5,6 +5,7 @@
 //  Created by Trystan Larey-Williams on 10/6/18.
 //
 
+#include "../config.h"
 #include "DataPack.hpp"
 #include "PointCloud.hpp"
 #include "Scene.hpp"
@@ -56,9 +57,11 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("load", &Scene::load)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
+      .def("info", &Scene::info)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
+   register_ptr_to_python<std::shared_ptr<Scene>>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,8 +108,10 @@ PythonInterpreter::PythonInterpreter() {
    import("sys").attr("stderr") = python_stdio_redirector;
    import("sys").attr("stdout") = python_stdio_redirector;
    
+   std::string enginePath {INSTALL_ROOT};
+   enginePath += "/lib";
    eval("import sys");
-   eval("sys.path.append('/usr/local/lib')");
+   eval(std::string("sys.path.append('") + enginePath + "')");
    eval("import libInfinitariumEngine");
    eval("engine = libInfinitariumEngine");
 }
@@ -175,6 +180,10 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
    }
    
    return retVal;
+}
+
+void PythonInterpreter::setScene( std::shared_ptr<Scene>& scene ) {
+   boost::python::import("__main__").attr("activeScene") = scene;
 }
 
 

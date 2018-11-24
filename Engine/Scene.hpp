@@ -34,6 +34,8 @@ public:
    void update();
    void draw();
    
+   void info() const;
+   
 private:
    std::shared_ptr<IRenderContext> renderContext;
    std::shared_ptr<IMotionController> motionController;

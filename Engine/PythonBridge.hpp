@@ -8,6 +8,7 @@
 #pragma once
 
 #include "EngineInterface.hpp"
+#include "Scene.hpp"
 
 #include <boost/python.hpp>
 #include <boost/circular_buffer.hpp>
@@ -15,7 +16,7 @@
 class PyConsoleRedirect {
 public:
    PyConsoleRedirect();
-   
+
    void write( std::string const& str );
    std::string GetOutput();
    
@@ -29,6 +30,8 @@ public:
    virtual ~PythonInterpreter();
    
    std::string eval( const std::string& ) override;
+   
+   void setScene( std::shared_ptr<Scene>& );
 
 private:
    boost::python::object main_module;

@@ -7,6 +7,7 @@
 
 #include "PointCloud.hpp"
 #include "DataBuffer.hpp"
+#include "PythonBridge.hpp"
 
 #include "../config.h"
 
@@ -46,6 +47,14 @@ void PointCloud::render( IRenderPass& renderPass ) { // TODO: Move to base class
    
    pipelineState->apply();
    renderCommand->encode( renderPass, *pipelineState );
+}
+
+void PointCloud::info() const {
+   PyConsoleRedirect console;
+   console.write("PointCloud vertex buffers ...\n");
+   for( auto& dataBuf : vertexBuffers ) {
+      console.write(dataBuf.first + "\n");
+   }
 }
 
 

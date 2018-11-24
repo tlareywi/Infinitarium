@@ -12,7 +12,6 @@ public:
    IPythonInterpreter() {};
    virtual ~IPythonInterpreter() {};
 
-   
    virtual std::string eval( const std::string& ) = 0;
 };
 
