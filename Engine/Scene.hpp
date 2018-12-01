@@ -20,10 +20,12 @@
 #include "RenderPass.hpp"
 #include "MotionControllerOrbit.hpp"
 #include "RenderContext.hpp"
+#include "ConsoleInterface.hpp"
 
-class Scene {
+class Scene : public IConsole {
 public:
    Scene();
+   virtual ~Scene() {}
    void save( const std::string& ) const;
    void load( const std::string& );
    void add( const std::shared_ptr<IRenderable>& );
@@ -34,7 +36,11 @@ public:
    void update();
    void draw();
    
-   void info() const;
+   // IConsole //////////////
+   void info() const override;
+   void values() const override;
+   void manipulate( const std::string& ) override;
+   //////////////////////////
    
 private:
    std::shared_ptr<IRenderContext> renderContext;

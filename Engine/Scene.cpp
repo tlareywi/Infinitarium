@@ -86,4 +86,12 @@ void Scene::info() const {
       obj->info();
 }
 
+void Scene::values() const {
+   
+};
+
+void Scene::manipulate( const std::string& ) {
+   
+};
+
 
