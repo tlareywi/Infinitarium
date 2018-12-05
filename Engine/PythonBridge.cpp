@@ -57,7 +57,6 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("load", &Scene::load)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
-      .def("info", &Scene::info)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderable>>();

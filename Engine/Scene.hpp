@@ -36,11 +36,9 @@ public:
    void update();
    void draw();
    
-   // IConsole //////////////
-   void info() const override;
-   void values() const override;
-   void manipulate( const std::string& ) override;
-   //////////////////////////
+protected:
+   // IConsole //////////////////////////////////////////
+   void reflectPub() override;
    
 private:
    std::shared_ptr<IRenderContext> renderContext;

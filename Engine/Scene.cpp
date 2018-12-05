@@ -78,20 +78,10 @@ void Scene::draw() {
    renderPass->end();
 }
 
-void Scene::info() const {
-   PyConsoleRedirect console;
-   console.write("Scene Object ...\n");
-   
-   for( auto& obj : renderables )
-      obj->info();
+void Scene::reflectPub() {
+   Scene& s = *this;
+   make_tuple( REFLECT_MEMBER(s, renderables) );
 }
 
-void Scene::values() const {
-   
-};
-
-void Scene::manipulate( const std::string& ) {
-   
-};
 
 
