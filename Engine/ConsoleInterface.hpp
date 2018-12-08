@@ -7,14 +7,8 @@
 
 #pragma once
 
-#include <string>
 #include <tuple>
-
-struct Node {
-   std::string key;
-   int value;
-   int value2;
-};
+#include <utility>
 
 #define STRINGIZE_2(A) #A
 #define STRINGIZE(A) STRINGIZE_2(A)
@@ -26,9 +20,11 @@ void reflect_impl( T& obj, F fun, std::index_sequence<Is...> ) {
    int x[] = { (fun(std::get<Is>(obj).first, std::get<Is>(obj).second), 0)... };
 }
 
-template<typename T, typename F> void reflect( T& obj, F fun ) {
-   auto tup = reflect_tuple( obj );
-   reflect_impl( tup, fun, std::make_index_sequence<std::tuple_size<decltype(tup)>::value>{} );
+template<typename T, typename S, typename F> auto reflect( T& obj, S& tup, F fun ) {
+   auto t{ tup };
+   return [tup, fun] () {
+      reflect_impl( tup, fun, std::make_index_sequence<std::tuple_size<decltype(t)>::value>{} );
+   };
 }
 
 class IConsole {
@@ -39,4 +35,5 @@ public:
    
 protected:
    virtual void reflect() = 0;
+   virtual void contains() = 0;
 };

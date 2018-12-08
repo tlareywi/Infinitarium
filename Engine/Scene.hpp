@@ -38,7 +38,7 @@ public:
    
 protected:
    // IConsole //////////////////////////////////////////
-   void reflectPub() override;
+   void reflect() override;
    
 private:
    std::shared_ptr<IRenderContext> renderContext;
@@ -53,4 +53,5 @@ private:
    }
 
    glm::mat4 projection;
+   int foo;
 };
