@@ -23,7 +23,6 @@ public:
    virtual void render( IRenderPass& ) = 0;
    virtual void prepare( IRenderContext& );
    virtual void update( const glm::mat4& );
-   virtual void info() const = 0;
    
 protected:
    std::shared_ptr<IRenderState> pipelineState;

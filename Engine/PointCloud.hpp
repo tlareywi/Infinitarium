@@ -38,8 +38,6 @@ public:
    void prepare( IRenderContext& ) override;
    void render( IRenderPass& ) override;
    
-   virtual void info() const override;
-   
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
 private:

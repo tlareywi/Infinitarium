@@ -22,7 +22,7 @@
 #include "RenderContext.hpp"
 #include "ConsoleInterface.hpp"
 
-class Scene : public IConsole {
+class Scene : public Reflection::IConsole<Scene> {
 public:
    Scene();
    virtual ~Scene() {}
@@ -36,9 +36,16 @@ public:
    void update();
    void draw();
    
-protected:
    // IConsole //////////////////////////////////////////
-   void reflect() override;
+   auto reflect() {
+      Scene& s = *this;
+      static auto tup = make_tuple(
+         REFLECT_MEMBER(s, projection),
+         REFLECT_MEMBER(s, renderables)
+      );
+      
+      return tup;
+   }
    
 private:
    std::shared_ptr<IRenderContext> renderContext;
@@ -53,5 +60,4 @@ private:
    }
 
    glm::mat4 projection;
-   int foo;
 };

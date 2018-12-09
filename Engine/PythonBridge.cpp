@@ -9,7 +9,9 @@
 #include "DataPack.hpp"
 #include "PointCloud.hpp"
 #include "Scene.hpp"
+#include "ConsoleInterface.hpp"
 #include "PythonBridge.hpp"
+#include "PyUtil.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -57,6 +59,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("load", &Scene::load)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
+      .def("propList", &Scene::propList)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
@@ -130,6 +133,7 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
       
       retVal = python_stdio_redirector.GetOutput();
       
+      // May eventually want expression evaluation support, i.e. 1+1, which currently won't work.
   /*    boost::python::extract<double> num(result);
       if( num.check() ) {
          double val = extract<double>(result);

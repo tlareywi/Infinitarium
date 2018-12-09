@@ -6,6 +6,3 @@
 //
 
 #include "ConsoleInterface.hpp"
-
-
-

@@ -85,8 +85,6 @@
    js += result;
    js += "\").classList.add(\"result\");";
    
-   std::cout<<js<<std::endl;
-   
    NSString* toJS = [NSString stringWithUTF8String:js.c_str()];
    [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
 }

@@ -11,18 +11,6 @@
 #include "Scene.hpp"
 
 #include <boost/python.hpp>
-#include <boost/circular_buffer.hpp>
-
-class PyConsoleRedirect {
-public:
-   PyConsoleRedirect();
-
-   void write( std::string const& str );
-   std::string GetOutput();
-   
-private:
-   static boost::circular_buffer<std::string> m_outputs;
-};
 
 class PythonInterpreter : public IPythonInterpreter {
 public:
