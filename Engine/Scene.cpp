@@ -77,6 +77,14 @@ void Scene::draw() {
    renderPass->end();
 }
 
+unsigned int Scene::numRenderables() {
+   return renderables.size();
+}
+
+std::shared_ptr<IRenderable> Scene::getRenderable( unsigned int indx ) {
+   return renderables[indx];
+}
+
 
 
 

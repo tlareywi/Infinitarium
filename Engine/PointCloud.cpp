@@ -38,8 +38,6 @@ void PointCloud::prepare( IRenderContext& context ) {
    pipelineState->prepare( context );
    
    IRenderable::prepare( context );
-   
-   dirty = false;
 }
 
 void PointCloud::render( IRenderPass& renderPass ) { // TODO: Move to base class?

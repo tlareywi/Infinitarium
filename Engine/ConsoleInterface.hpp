@@ -53,6 +53,7 @@ namespace Reflection {
 #define STRINGIZE(A) STRINGIZE_2(A)
 
 #define REFLECT_MEMBER(OBJ, MEMBER) std::make_pair(STRINGIZE(MEMBER), std::ref(OBJ.MEMBER))
+#define REFLECT_METHOD(MEMBER, NAME) std::make_pair(STRINGIZE(NAME), MEMBER)
    
 template<typename T> void ignore( const T& ) {}
    

@@ -28,7 +28,10 @@ public:
    virtual ~Scene() {}
    void save( const std::string& ) const;
    void load( const std::string& );
+   
    void add( const std::shared_ptr<IRenderable>& );
+   std::shared_ptr<IRenderable> getRenderable( unsigned int indx );
+   unsigned int numRenderables();
    
    void setMotionController( std::shared_ptr<IMotionController>& );
    void setRenderContext( std::shared_ptr<IRenderContext>& );
@@ -36,12 +39,13 @@ public:
    void update();
    void draw();
    
-   // IConsole //////////////////////////////////////////
-   auto reflect() {
-      Scene& s = *this;
+   auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
-         REFLECT_MEMBER(s, projection),
-         REFLECT_MEMBER(s, renderables)
+         REFLECT_METHOD(&Scene::save, save),
+         REFLECT_METHOD(&Scene::load, load),
+         REFLECT_METHOD(&Scene::add, add),
+         REFLECT_METHOD(&Scene::getRenderable, getRenderable),
+         REFLECT_METHOD(&Scene::numRenderables, numRenderables)
       );
       
       return tup;

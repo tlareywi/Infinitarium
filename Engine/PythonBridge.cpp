@@ -49,7 +49,23 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)
    ;
    
+   /* import ctypes
+   >>> ctypes.c_ulong(-1)  # stuff Python's -1 into a C unsigned long
+   c_ulong(4294967295L)
+   >>> _.value
+   4294967295L */
+   
+   class_<UniformType>("UniformType", init<double>())
+      .def(init<float>())
+      .def(init<int>())
+      .def(init<unsigned int>())
+   ;
+   
    class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
+      .def("propList", &IRenderable::propList)
+      .def("listUniforms", &IRenderable::listUniforms)
+      .def("setUniform", &IRenderable::setUniform)
+      .def("removeUniform", &IRenderable::removeUniform)
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
@@ -60,6 +76,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
       .def("propList", &Scene::propList)
+      .def("numRenderables", &Scene::numRenderables)
+      .def("getRenderable", &Scene::getRenderable)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
