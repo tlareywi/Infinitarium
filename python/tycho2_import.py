@@ -4,12 +4,15 @@
 # You'll need the tycho2 catalog as one dat file along with the readme.
 # These can be obtained from http://cdsarc.u-strasbg.fr/viz-bin/cat/I/259
 # Individual catalog parts can be joined into one dat file via the command
-# `zcat tyc2.dat.??.gz >tycho2.dat`.
+# `zcat tyc2.dat.??.gz >tyc2.dat`.
 
 exec(open('./BlackBodyParser.py').read())
 
 import math
 import importlib
+import sys
+
+sys.path.append('/usr/local/lib')
 
 def degreesToRadians(x):
     return x * math.pi / 180.0;
@@ -26,12 +29,12 @@ def apparentMagColor( bt, vt ):
      bv = 0.850 * (bt - vt)
      return v, bv
 
-import InfinitariumEngine
-importlib.reload(InfinitariumEngine)
+import libInfinitariumEngine
+importlib.reload(libInfinitariumEngine)
 
 from astropy.table import Table
 
-engine = InfinitariumEngine
+engine = libInfinitariumEngine
 
 print('\nReading Tycho 2 Catalog ...')
 t = Table.read("tyc2.dat",
@@ -73,6 +76,6 @@ tychoCloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 tychoCloud.addVertexBuffer( color.container(), 'color' )
 scene.add( tychoCloud )
 
-exportPath = '/Users/trystan/tyco2.ieb'
+exportPath = './tyco2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

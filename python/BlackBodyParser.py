@@ -29,7 +29,7 @@ class BlackBodyParser(HTMLParser):
 
         return rgb
 
-fh = open('/Users/trystan/Documents/bbr_color_D58.html', 'r')
+fh = open('bbr_color_D58.html', 'r')
 
 parser = BlackBodyParser()
 

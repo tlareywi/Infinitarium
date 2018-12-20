@@ -60,7 +60,7 @@ vertex VertexOut staticInstancedStarsVert( constant CartesianPosition* pos [[buf
    float blurRadius = pow( (out.brightness / epsilon - 1.0) / haloDensity, 1.0 / 2.0 );
    
    out.pointSize = max(diskRadius, blurRadius) * 2.0;
-   out.pointSize = min(out.pointSize, 80.0);
+   out.pointSize = min(out.pointSize, 20.0);
    
    return out;
 }

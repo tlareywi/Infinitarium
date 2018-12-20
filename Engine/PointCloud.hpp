@@ -47,12 +47,12 @@ private:
    
    
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version)
-   {
+   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Pointcloud"<<std::endl;
       boost::serialization::void_cast_register<PointCloud,IRenderable>();
-      boost::serialization::base_object<IRenderable>(*this);
+      ar & boost::serialization::base_object<IRenderable>(*this);
       ar & vertexBuffers;
    }
 };
+
 

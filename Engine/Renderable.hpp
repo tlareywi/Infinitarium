@@ -28,7 +28,7 @@ class IRenderable : public Reflection::IConsole<IRenderable> {
 public:
    IRenderable();
    virtual ~IRenderable() {}
-   virtual void render( IRenderPass& ) = 0;
+   virtual void render( IRenderPass& ) {};
    virtual void prepare( IRenderContext& );
    virtual void update( const glm::mat4& );
    
@@ -57,6 +57,6 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing IRenderable"<<std::endl;
-      //ar & uniforms;
+      ar & uniforms;
    }
 };

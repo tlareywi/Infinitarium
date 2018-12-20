@@ -13,7 +13,7 @@
 
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT_GUID(PointCloud, "PointCloud")
+BOOST_CLASS_EXPORT(PointCloud)
 
 PointCloud::PointCloud() {
 }
