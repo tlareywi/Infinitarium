@@ -40,12 +40,6 @@ void PointCloud::prepare( IRenderContext& context ) {
    IRenderable::prepare( context );
 }
 
-void PointCloud::render( IRenderPass& renderPass ) { // TODO: Move to base class?
-   if( dirty ) prepare( *(renderPass.renderContext) );
-   
-   pipelineState->apply();
-   renderCommand->encode( renderPass, *pipelineState );
-}
 
 
 

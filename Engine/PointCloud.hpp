@@ -29,14 +29,11 @@ private:
 class PointCloud : public IRenderable {
 public:
    PointCloud();
-   PointCloud( const PointCloud& ) {
-      
-   }
+   PointCloud( const PointCloud& ) {}
    
    virtual ~PointCloud() {}
    
    void prepare( IRenderContext& ) override;
-   void render( IRenderPass& ) override;
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
@@ -44,7 +41,6 @@ private:
    std::unique_ptr<IPointInstance> instanceMgr;
    
    std::map<std::string, DataPackContainer> vertexBuffers;
-   
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {

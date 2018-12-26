@@ -28,7 +28,7 @@ class IRenderable : public Reflection::IConsole<IRenderable> {
 public:
    IRenderable();
    virtual ~IRenderable() {}
-   virtual void render( IRenderPass& ) {};
+   virtual void render( IRenderPass& );
    virtual void prepare( IRenderContext& );
    virtual void update( const glm::mat4& );
    

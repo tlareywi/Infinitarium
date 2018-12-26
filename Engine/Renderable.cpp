@@ -17,20 +17,33 @@ IRenderable::IRenderable() : dirty(true) {
 void IRenderable::update( const glm::mat4& mvp ) {
    if( uniformData )
       uniformData->set( &mvp, sizeof(mvp) );
+   
+   
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
    uniformData = IDataBuffer::Create( context );
-   glm::mat4 identity;
-   uniformData->set( &identity, sizeof(identity) );
    renderCommand->add( uniformData );
+   
+   unsigned int sizeBytes {sizeof(glm::mat4)};
+   for( auto& i : uniforms ) {
+      sizeBytes += sizeof(i);
+   }
+   
+   // Reserve enough GPU memory for all uniforms.
+   uniformData->reserve( sizeof(sizeBytes) );
    
    dirty = false;
 }
 
+void IRenderable::render( IRenderPass& renderPass ) {
+   if( dirty ) prepare( *(renderPass.renderContext) );
+
+   pipelineState->apply();
+   renderCommand->encode( renderPass, *pipelineState );
+}
+
 void IRenderable::setUniform( const std::string& name, UniformType value ) {
-   dirty = true;
-   
    for( auto& i : uniforms ) {
       if( i.first == name ) {
          i.second = value;
@@ -39,15 +52,15 @@ void IRenderable::setUniform( const std::string& name, UniformType value ) {
    }
    
    // Not found, create new
+   dirty = true;
    uniforms.push_back( std::make_pair(name, value) );
 }
 
-void IRenderable::removeUniform( const std::string& name ) {
-   dirty = true;
-   
+void IRenderable::removeUniform( const std::string& name ) {   
    for( auto itr = uniforms.begin(); itr != uniforms.end(); ++itr ) {
       if( itr->first == name ) {
          uniforms.erase(itr);
+         dirty = true;
          break;
       }
    }

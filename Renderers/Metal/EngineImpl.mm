@@ -89,10 +89,11 @@ public:
    
    void set( DataPackContainer& container ) override {
       std::visit( [this](auto& e) { // TODO: move visit to caller level and pass DataPack instead?
+         [GPU release];
+         GPU = [device newBufferWithLength:e.sizeBytes() options:MTLResourceStorageModePrivate];
+         
          @autoreleasepool {
             id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:e.get() length:e.sizeBytes() options:MTLResourceStorageModeManaged];
-            
-            GPU = [device newBufferWithLength:e.sizeBytes() options:MTLResourceStorageModePrivate];
             
             id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
             id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
@@ -104,15 +105,16 @@ public:
    };
    
    void reserve( unsigned int sizeBytes ) override {
-      GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
+      if( !GPU || [GPU length] < sizeBytes ) {
+         [GPU release];
+         GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
+      }
    }
    
    void set( const void* const data, unsigned int sizeBytes ) override {
+      reserve( sizeBytes );
+      
       @autoreleasepool {
-         if( !GPU ) {
-            GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
-         }
-         
          id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
          
          id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
