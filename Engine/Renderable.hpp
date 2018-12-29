@@ -24,10 +24,17 @@
 
 #include <glm/glm.hpp>
 
+///
+/// \brief Base class for anything visible rendered by the underlying 3D graphics API
+///
 class IRenderable : public Reflection::IConsole<IRenderable> {
 public:
    IRenderable();
-   virtual ~IRenderable() {}
+   virtual ~IRenderable() {
+      pipelineState = nullptr;
+      renderCommand = nullptr;
+      uniformData = nullptr;
+   }
    virtual void render( IRenderPass& );
    virtual void prepare( IRenderContext& );
    virtual void update( const glm::mat4& );
@@ -59,4 +66,8 @@ private:
       std::cout<<"Serializing IRenderable"<<std::endl;
       ar & uniforms;
    }
+};
+
+class ClearScreen : public IRenderable {
+   
 };

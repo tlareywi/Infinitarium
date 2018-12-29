@@ -13,10 +13,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
-Scene::Scene() {
-   motionController = nullptr;
-   renderPass = IRenderPass::Create();
-   
+Scene::Scene() : motionController(nullptr) {
+   clear();
    projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
 }
 
@@ -25,14 +23,30 @@ template<class Archive> void Scene::serialize(Archive & ar, const unsigned int v
    ar & renderables;
 }
 
+void Scene::clear() {
+   {
+      std::lock_guard<std::mutex> lock( loadLock );
+      renderPass = IRenderPass::Create();
+      renderables.clear();
+   }
+   
+   add( std::make_shared<ClearScreen>() );
+}
+
 void Scene::load( const std::string& filename ) {
+   clear();
+   
    std::ifstream ifs( filename, std::ofstream::binary );
    if( !ifs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have read permissions?"<<std::endl;
    }
    
    boost::archive::binary_iarchive ia( ifs );
-   ia >> *this;
+   
+   {
+      std::lock_guard<std::mutex> lock( loadLock );
+      ia >> *this;
+   }
    
    ifs.close();
 }
@@ -58,6 +72,7 @@ void Scene::setRenderContext( std::shared_ptr<IRenderContext>& r ) {
 }
 
 void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
+   std::lock_guard<std::mutex> lock( loadLock );
    renderables.push_back( renderable );
 }
 
@@ -71,12 +86,16 @@ void Scene::update() {
    
    glm::mat4 mvp = projection * view;
 
-   for( auto& renderable : renderables ) {
-      renderable->update( mvp );
+   {
+      std::lock_guard<std::mutex> lock( loadLock );
+      for( auto& renderable : renderables ) {
+         renderable->update( mvp );
+      }
    }
 }
 
 void Scene::draw() {
+   std::lock_guard<std::mutex> lock( loadLock );
    
    renderPass->renderContext = renderContext;
    

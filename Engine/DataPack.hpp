@@ -46,6 +46,10 @@ public:
       
    }
    
+   ~DataPack() {
+      data.clear();
+   }
+   
    DataPack( unsigned int num ) : container(nullptr) {
       data.reserve( num );
    }

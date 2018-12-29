@@ -71,10 +71,11 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
    ;
    
-   class_<Scene>("Scene", init<>())
+   class_<Scene, boost::noncopyable>("Scene", init<>())
       .def("load", &Scene::load)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
+      .def("clear", &Scene::clear)
       .def("propList", &Scene::propList)
       .def("numRenderables", &Scene::numRenderables)
       .def("getRenderable", &Scene::getRenderable)

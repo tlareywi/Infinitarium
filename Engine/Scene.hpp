@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
@@ -26,6 +27,7 @@ public:
    virtual ~Scene() {}
    void save( const std::string& ) const;
    void load( const std::string& );
+   void clear();
    
    void add( const std::shared_ptr<IRenderable>& );
    std::shared_ptr<IRenderable> getRenderable( unsigned int indx );
@@ -41,6 +43,7 @@ public:
       static auto tup = make_tuple(
          REFLECT_METHOD(&Scene::save, save),
          REFLECT_METHOD(&Scene::load, load),
+         REFLECT_METHOD(&Scene::clear, clear),
          REFLECT_METHOD(&Scene::add, add),
          REFLECT_METHOD(&Scene::getRenderable, getRenderable),
          REFLECT_METHOD(&Scene::numRenderables, numRenderables)
@@ -59,4 +62,10 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version);
 
    glm::mat4 projection;
+   
+   std::mutex loadLock;
+   
+   // This object is non-copyable. Can be indirectly copied easilly by saving/loading new instance. 
+   Scene( const Scene& ) = delete;
+   Scene& operator=( const Scene& ) = delete;
 };

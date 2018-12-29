@@ -31,7 +31,9 @@ public:
    PointCloud();
    PointCloud( const PointCloud& ) {}
    
-   virtual ~PointCloud() {}
+   virtual ~PointCloud() {
+      vertexBuffers.clear();
+   }
    
    void prepare( IRenderContext& ) override;
    

@@ -17,11 +17,11 @@ IRenderable::IRenderable() : dirty(true) {
 void IRenderable::update( const glm::mat4& mvp ) {
    if( uniformData )
       uniformData->set( &mvp, sizeof(mvp) );
-   
-   
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
+   pipelineState->prepare( context );
+   
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    

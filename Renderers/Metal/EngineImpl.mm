@@ -58,7 +58,7 @@ public:
    }
    
    void* getSurface() override {
-      return (void*)surface;
+      return (__bridge void*)surface;
    }
    
 private:
@@ -85,6 +85,11 @@ public:
       MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
       device = c->getMTLDevice();
       commandQ = c->getMTLCommandQ();
+      GPU = nullptr;
+   }
+   
+   virtual ~MetalDataBuffer() {
+      [GPU release];
    }
    
    void set( DataPackContainer& container ) override {
@@ -92,15 +97,17 @@ public:
          [GPU release];
          GPU = [device newBufferWithLength:e.sizeBytes() options:MTLResourceStorageModePrivate];
          
-         @autoreleasepool {
-            id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:e.get() length:e.sizeBytes() options:MTLResourceStorageModeManaged];
-            
-            id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
-            id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
-            [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:e.sizeBytes()];
-            [bltEncoder endEncoding];
-            [cmdBuf commit];
-         }
+         id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:e.get() length:e.sizeBytes() options:MTLResourceStorageModeManaged];
+         id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
+         id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+         [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:e.sizeBytes()];
+         [bltEncoder endEncoding];
+         [cmdBuf commit];
+         
+         [tmpBuffer release];
+         [cmdBuf release];
+         [bltEncoder release];
+         
       }, container );
    };
    
@@ -114,15 +121,17 @@ public:
    void set( const void* const data, unsigned int sizeBytes ) override {
       reserve( sizeBytes );
       
-      @autoreleasepool {
-         id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
+      id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
          
-         id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
-         id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
-         [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:sizeBytes];
-         [bltEncoder endEncoding];
-         [cmdBuf commit];
-      }
+      id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
+      id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+      [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:sizeBytes];
+      [bltEncoder endEncoding];
+      [cmdBuf commit];
+      
+      [tmpBuffer release];
+      [cmdBuf release];
+      [bltEncoder release];
    }
    
    id<MTLBuffer> getMTLBuffer() {
@@ -150,13 +159,12 @@ class MetalRenderPass : public IRenderPass {
 public:
    void begin() override {
       MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+      CAMetalLayer* layer = context->getMTLLayer();
+      drawable = [layer nextDrawable];
+      if( !drawable ) return;
       
       commandBuffer = [context->getMTLCommandQ() commandBuffer];
       commandBuffer.label = @"IRenderPass";
-      
-      CAMetalLayer* layer = context->getMTLLayer();
-      
-      drawable = [layer nextDrawable];
       
       renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
       renderPass.colorAttachments[0].texture = drawable.texture;
@@ -167,13 +175,16 @@ public:
    
    void end() override {
       if( !drawable ) return;
+      
       [commandBuffer presentDrawable:drawable];
       [commandBuffer commit];
-      drawable = nil;
-      renderPass = nil;
+      
+      [commandBuffer release];
+      [drawable release];
+      [renderPass release];
    }
    
-   id <MTLCommandBuffer> getCommandBuffer() {
+   id<MTLCommandBuffer> getCommandBuffer() {
       return commandBuffer;
    }
    
@@ -193,6 +204,23 @@ extern "C" {
    }
 }
 
+// TODO: move this somewhere sensical
+id<MTLLibrary> compileShaderFile( id<MTLDevice> device, const std::string& path ) {
+   std::ifstream infile(path);
+   std::stringstream buffer;
+   buffer << infile.rdbuf();
+   
+   NSError* err {nullptr};
+   id<MTLLibrary> program = [device newLibraryWithSource:[NSString stringWithUTF8String:buffer.str().c_str()] options:nullptr error:&err];
+   
+   infile.close();
+   
+   if( err ) {
+      std::cout<<"Error compiling "<<path<<" "<<[err.localizedDescription UTF8String]<<std::endl;
+   }
+   
+   return program;
+}
 
 ///
 /// brief Metal implementation of RenderState
@@ -202,10 +230,12 @@ public:
    MetalRenderState() {
       renderDescriptor = [MTLRenderPipelineDescriptor new];
       [renderDescriptor reset];
+      renderState = nullptr;
    }
    
    virtual ~MetalRenderState() {
-      renderDescriptor = nullptr;
+      [renderState release];
+      [renderDescriptor release];
    }
    
    void commit( IRenderContext& context ) override {
@@ -224,6 +254,7 @@ public:
       attachement.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
       
       NSError* err {nullptr};
+      [renderState release];
       renderState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:&err];
       if( err ) {
          std::cout<<"Error creating PipelineState. "<<[err.localizedDescription UTF8String]<<std::endl;
@@ -232,7 +263,9 @@ public:
    
    void sanityCheck( id<MTLDevice> device ) { // Absolute minimal pipline specification to not SIGABRT on pipline state creation.
       if( !renderDescriptor.vertexFunction ) {
-         id<MTLLibrary> program = [device newDefaultLibrary];
+         std::string path {std::string(INSTALL_ROOT) + std::string("/share/Infinitarium/shaders/metal/default.metal")};
+         id<MTLLibrary> program = compileShaderFile( device, path );
+         
          renderDescriptor.vertexFunction = [program newFunctionWithName:@"vertexShader"];
          renderDescriptor.fragmentFunction = [program newFunctionWithName:@"fragmentShader"];
       }
@@ -249,6 +282,7 @@ public:
    id<MTLRenderPipelineState> getPipelineState() const {
       return renderState;
    }
+   
 private:
    MTLRenderPipelineDescriptor* renderDescriptor;
    id<MTLRenderPipelineState> renderState;
@@ -265,6 +299,11 @@ extern "C" {
 /// brief Metal implementation of RenderProgram
 ///
 class MetalRenderProgram : public IRenderProgram {
+public:
+   virtual ~MetalRenderProgram() {
+      [program release];
+   }
+   
    void prepare( IRenderState& state ) override {
       // Separating this out from compile allows function switching within a library
       // without recompiling the shader source.
@@ -284,19 +323,7 @@ class MetalRenderProgram : public IRenderProgram {
       id<MTLDevice> device = c->getMTLDevice();
       
       std::string path {std::string(INSTALL_ROOT) + std::string("/share/Infinitarium/shaders/metal/") + name + ".metal"};
-      
-      std::ifstream infile(path);
-      std::stringstream buffer;
-      buffer << infile.rdbuf();
-      
-      NSError* err {nullptr};
-      program = [device newLibraryWithSource:[NSString stringWithUTF8String:buffer.str().c_str()] options:nullptr error:&err];
-      
-      infile.close();
-      
-      if( err ) {
-         std::cout<<"Error compiling "<<path<<" "<<[err.localizedDescription UTF8String]<<std::endl;
-      }
+      program = compileShaderFile( device, path );
    }
    
 private:
@@ -325,35 +352,39 @@ template<typename T, typename U> const U static inline convert( const T& t ) {
 class MetalRenderCommand : public IRenderCommand {
 public:
    void encode( IRenderPass& renderPass, const IRenderState& state ) override {
-      MetalRenderPass* metalRenderPass = dynamic_cast<MetalRenderPass*>( &renderPass );
-      const MetalRenderState& metalRenderState = dynamic_cast<const MetalRenderState&>( state );
-      if( !metalRenderPass ) {
-         std::cout<<"WARNING, failed cast to MetalRenderCommand."<<std::endl;
-         return;
+      @autoreleasepool {
+         MetalRenderPass* metalRenderPass = dynamic_cast<MetalRenderPass*>( &renderPass );
+         const MetalRenderState& metalRenderState = dynamic_cast<const MetalRenderState&>( state );
+         if( !metalRenderPass ) {
+            std::cout<<"WARNING, failed cast to MetalRenderCommand."<<std::endl;
+            return;
+         }
+         
+         MTLRenderPassDescriptor* desc = metalRenderPass->getPassDescriptor();
+         if( !desc )
+            return;
+         
+         id<MTLCommandBuffer> cmdBuf = metalRenderPass->getCommandBuffer();
+         id <MTLRenderCommandEncoder> commandEncoder = [cmdBuf renderCommandEncoderWithDescriptor:desc];
+         
+         commandEncoder.label = @"MyRenderEncoder";
+         
+         id<MTLRenderPipelineState> renderState = metalRenderState.getPipelineState();
+         if( renderState )
+            [commandEncoder setRenderPipelineState:renderState];
+         
+         unsigned int indx {0};
+         for( auto& buffer : dataBuffers ) {
+            MetalDataBuffer* mtlBuf = dynamic_cast<MetalDataBuffer*>(buffer.get());
+            [commandEncoder setVertexBuffer:mtlBuf->getMTLBuffer() offset:0 atIndex:indx++];
+         }
+         
+         // TMP hack for testing
+         [commandEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1 instanceCount:2539802 baseInstance:0];
+         // end hack
+         
+         [commandEncoder endEncoding];
       }
-      
-      MTLRenderPassDescriptor* desc = metalRenderPass->getPassDescriptor();
-      if( !desc )
-         return;
-      
-      id <MTLRenderCommandEncoder> commandEncoder = [metalRenderPass->getCommandBuffer() renderCommandEncoderWithDescriptor:desc];
-      commandEncoder.label = @"MyRenderEncoder";
-      
-      id<MTLRenderPipelineState> renderState = metalRenderState.getPipelineState();
-      if( renderState )
-         [commandEncoder setRenderPipelineState:renderState];
-      
-      unsigned int indx {0};
-      for( auto& buffer : dataBuffers ) {
-         MetalDataBuffer* mtlBuf = dynamic_cast<MetalDataBuffer*>(buffer.get());
-         [commandEncoder setVertexBuffer:mtlBuf->getMTLBuffer() offset:0 atIndex:indx++];
-      }
-      
-      // TMP hack for testing
-      [commandEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1 instanceCount:2539802 baseInstance:0];
-      // end hack
-      
-      [commandEncoder endEncoding];
    }
 private:
    
