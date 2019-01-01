@@ -8,10 +8,6 @@
 
 // File for Metal kernel and shader functions
 
-#include <metal_stdlib>
-
-using namespace metal;
-
 typedef struct {
    packed_float3 xyz;
 } CartesianPosition;
@@ -31,20 +27,19 @@ struct VertexOut {
    float brightness [[flat]];
 };
 
-struct ConstUniforms {
-   float4x4 modelViewProjectionMatrix;
-};
+//struct ConstUniforms {
+//   float4x4 modelViewProjectionMatrix;
+//};
 
 constant float epsilon = 0.0000000001;
 constant float diskDensity = 0.025;
 constant float haloDensity = 400.0;
 
-vertex VertexOut staticInstancedStarsVert( constant CartesianPosition* pos [[buffer(2)]],
+vertex VertexOut vertexShader( constant CartesianPosition* pos [[buffer(2)]],
                                       constant Magnitude* V [[buffer(1)]],
                                       constant ColorRGB* color [[buffer(0)]],
                                       constant ConstUniforms& uniforms [[buffer(3)]],
-                                      uint instance [[instance_id]]
-) {
+                                      uint instance [[instance_id]]) {
    VertexOut out;
    out.position = uniforms.modelViewProjectionMatrix * float4( pos[instance].xyz, 1.0 );
    float3 rgb = color[instance].rgb;
@@ -56,15 +51,14 @@ vertex VertexOut staticInstancedStarsVert( constant CartesianPosition* pos [[buf
    float blurRadius = pow( (out.brightness / epsilon - 1.0) / haloDensity, 1.0 / 2.0 );
    
    out.pointSize = max(diskRadius, blurRadius) * 2.0;
-   out.pointSize = min(out.pointSize, 20.0);
+   out.pointSize = min(out.pointSize, 80.0);
    
    return out;
 }
 
-fragment float4 staticInstancedStarsFrag( VertexOut point [[stage_in]],
+fragment float4 fragmentShader( VertexOut point [[stage_in]],
                                          float2 pointCoord [[point_coord]],
-                                         constant ConstUniforms& uniforms [[buffer(3)]]
-) {
+                                         constant ConstUniforms& uniforms [[buffer(3)]]) {
    float lengthSquared = distance(float2(0.5f), pointCoord);
    
    float disk = point.brightness * exp(-lengthSquared / diskDensity);

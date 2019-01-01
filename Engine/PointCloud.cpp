@@ -32,10 +32,6 @@ void PointCloud::prepare( IRenderContext& context ) {
       renderCommand->add( buf );
    }
    
-   std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
-   shader->compile("Shaders", context );
-   pipelineState->setProgram( shader );
-   
    IRenderable::prepare( context );
 }
 

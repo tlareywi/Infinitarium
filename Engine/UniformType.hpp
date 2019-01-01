@@ -7,20 +7,25 @@
 
 #pragma once
 
+#include <variant>
+#include <iostream>
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/variant.hpp>
+
+#include <glm/glm.hpp>
+
 typedef std::variant<
-float, double, int, unsigned int,
-glm::dmat4x4,
-glm::dvec2, glm::dvec3, glm::dvec4,
+float, int, unsigned int,
 glm::ivec2, glm::ivec3, glm::ivec4,
 glm::mat4x4,
 glm::uvec2, glm::uvec3, glm::uvec4,
 glm::vec2, glm::vec3, glm::vec4
 > UniformType;
 
-BOOST_SERIALIZATION_SPLIT_FREE(glm::dmat4x4)
-BOOST_SERIALIZATION_SPLIT_FREE(glm::dvec2)
-BOOST_SERIALIZATION_SPLIT_FREE(glm::dvec3)
-BOOST_SERIALIZATION_SPLIT_FREE(glm::dvec4)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::uvec2)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::uvec3)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::uvec4)
@@ -51,3 +56,4 @@ namespace boost {
       }
    }
 }
+

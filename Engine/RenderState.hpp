@@ -19,6 +19,9 @@ public:
    static std::shared_ptr<IRenderState> Create();
    
    void setProgram( std::shared_ptr<IRenderProgram>& p );
+   IRenderProgram& getProgram() {
+      return *renderProgram;
+   }
    
    void prepare( IRenderContext& context );
    

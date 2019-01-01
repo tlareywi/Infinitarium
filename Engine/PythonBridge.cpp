@@ -55,8 +55,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    >>> _.value
    4294967295L */
    
-   class_<UniformType>("UniformType", init<double>())
-      .def(init<float>())
+   class_<UniformType>("UniformType", init<float>())
       .def(init<int>())
       .def(init<unsigned int>())
    ;

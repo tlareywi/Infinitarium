@@ -1,8 +1,7 @@
-#include <metal_stdlib>
-
 //
 // Minimal passthrough shaders
 //
+
 typedef struct
 {
    float4 position [[position]];

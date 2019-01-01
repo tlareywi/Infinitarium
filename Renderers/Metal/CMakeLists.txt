@@ -1,7 +1,8 @@
 cmake_minimum_required( VERSION "3.12" )
 project( IERenderer )
 
-add_library( IERenderer SHARED EngineImpl.mm EngineImpl.hpp ShaderTypes.h
+add_library( IERenderer SHARED RenderContext.mm RenderContext.h RenderCommand.mm RenderCommand.h RenderState.mm RenderState.h
+  RenderProgram.mm RenderProgram.h DataBuffer.mm DataBuffer.h RenderPass.mm RenderPass.h UniformMap.h
   Shaders.metal default.metal
 )
 

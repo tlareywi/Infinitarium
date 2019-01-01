@@ -20,8 +20,6 @@ void IRenderable::update( const glm::mat4& mvp ) {
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
-   pipelineState->prepare( context );
-   
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    
@@ -32,6 +30,17 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    // Reserve enough GPU memory for all uniforms.
    uniformData->reserve( sizeof(sizeBytes) );
+   
+   // Built-ins
+   uniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   
+   // TODO: Eventually this will just be serialized
+   std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
+   shader->injectUniformStruct( uniforms );
+   shader->compile("Shaders", context );
+   pipelineState->setProgram( shader );
+   
+   pipelineState->prepare( context );
    
    dirty = false;
 }
