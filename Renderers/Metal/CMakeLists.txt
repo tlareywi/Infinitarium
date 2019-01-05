@@ -24,4 +24,4 @@ target_link_libraries(IERenderer ${QUARTZ_LIB})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 
-install(FILES ShaderTypes.h Shaders.metal default.metal DESTINATION share/Infinitarium/shaders/metal)
+install(FILES Shaders.metal default.metal DESTINATION share/Infinitarium/shaders/metal)
