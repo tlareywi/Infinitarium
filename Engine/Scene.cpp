@@ -73,6 +73,13 @@ void Scene::setRenderContext( std::shared_ptr<IRenderContext>& r ) {
 
 void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
    std::lock_guard<std::mutex> lock( loadLock );
+   
+   // We don't want to retain the default clear screen renderable. Beyond being superfluous, we don't want to serialize it. 
+   if( renderables.size() == 1 ) {
+      ClearScreen* clr = dynamic_cast<ClearScreen*>(renderables[0].get());
+      if( clr ) renderables.clear();
+   }
+   
    renderables.push_back( renderable );
 }
 

@@ -9,11 +9,11 @@ MetalDataBuffer::MetalDataBuffer( IRenderContext& context ) {
    MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
    device = c->getMTLDevice();
    commandQ = c->getMTLCommandQ();
-   GPU = nullptr;
 }
 
 MetalDataBuffer::~MetalDataBuffer() {
    [GPU release];
+   [managed release];
 }
 
 void MetalDataBuffer::set( DataPackContainer& container ) {
@@ -36,6 +36,11 @@ void MetalDataBuffer::set( DataPackContainer& container ) {
 };
 
 void MetalDataBuffer::reserve( unsigned int sizeBytes ) {
+   if( !managed || [managed length] < sizeBytes ) {
+      [managed release];
+      managed = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModeManaged];
+   }
+   
    if( !GPU || [GPU length] < sizeBytes ) {
       [GPU release];
       GPU = [device newBufferWithLength:sizeBytes options:MTLResourceStorageModePrivate];
@@ -44,16 +49,23 @@ void MetalDataBuffer::reserve( unsigned int sizeBytes ) {
 
 void MetalDataBuffer::set( const void* const data, unsigned int sizeBytes ) {
    reserve( sizeBytes );
-   
-   id<MTLBuffer> tmpBuffer = [device newBufferWithBytes:data length:sizeBytes options:MTLResourceStorageModeManaged];
+   memcpy( managed.contents, data, sizeBytes );
+}
+
+void MetalDataBuffer::set( const void* const data, unsigned int offset, unsigned int sizeBytes ) {
+   // No sanity checking in this version. May be called many times in tight loop.
+   memcpy( (uint8*)(managed.contents) + offset, data, sizeBytes );
+}
+
+void MetalDataBuffer::commit() {
+   [managed didModifyRange:NSMakeRange(0, [managed length])];
    
    id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
    id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
-   [bltEncoder copyFromBuffer:tmpBuffer sourceOffset:0 toBuffer:GPU destinationOffset:0 size:sizeBytes];
+   [bltEncoder copyFromBuffer:managed sourceOffset:0 toBuffer:GPU destinationOffset:0 size:[managed length]];
    [bltEncoder endEncoding];
    [cmdBuf commit];
    
-   [tmpBuffer release];
    [cmdBuf release];
    [bltEncoder release];
 }

@@ -15,6 +15,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/variant.hpp>
+#include <boost/serialization/binary_object.hpp>
 
 #include <glm/glm.hpp>
 
@@ -45,14 +46,10 @@ namespace boost {
       }
       
       template<class Archive, class T> void save( Archive& ar, const T& t, const unsigned int version ) {
-         char buf[sizeof(t)];
-         memcpy( &buf, &t, sizeof(t) );
-         ar & buf;
+         ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
       template<class Archive, class T> void load( Archive& ar, T& t, const unsigned int version ) {
-         char buf[sizeof(t)];
-         ar & buf;
-         memcpy( &t, &buf, sizeof(t) );
+         ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
    }
 }

@@ -8,37 +8,63 @@
 #include "Renderable.hpp"
 #include "PyUtil.hpp"
 
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT(ClearScreen)
+
 IRenderable::IRenderable() : dirty(true) {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
+   
+   // Set built-in uniforms.
+   allUniforms.reserve(30);
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
 }
 
 void IRenderable::update( const glm::mat4& mvp ) {
-   if( uniformData )
-      uniformData->set( &mvp, sizeof(mvp) );
+   if( !uniformData ) return;
+
+   uint32_t offset {0};
+   
+   // Built-ins
+   uniformData->set( &mvp, offset, sizeof(mvp) );
+   offset += sizeof(mvp);
+   
+   // Update values for all uniforms
+   for( auto& i : uniforms ) {
+      std::visit( [&offset, this](auto& e) {
+         uint32_t sz {sizeof(e)};
+         uniformData->set( &e, offset, sz );
+         offset += sz;
+      }, i.second );
+   }
+   
+   uniformData->commit(); // Copy to GPU
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    
-   unsigned int sizeBytes {sizeof(glm::mat4)};
-   for( auto& i : uniforms ) {
-      sizeBytes += sizeof(i);
-   }
+   // Merge built-ins with user uniforms
+   allUniforms.clear();
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   allUniforms.insert( allUniforms.end(), uniforms.begin(), uniforms.end() );
+   
+   unsigned int sizeBytes {0};
+   for( auto& i : allUniforms )
+      std::visit( [&sizeBytes](auto& e){ sizeBytes += sizeof(e); }, i.second );
    
    // Reserve enough GPU memory for all uniforms.
-   uniformData->reserve( sizeof(sizeBytes) );
-   
-   // Built-ins
-   uniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
-   
-   // TODO: Eventually this will just be serialized
-   std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
-   shader->injectUniformStruct( uniforms );
-   shader->compile("Shaders", context );
-   pipelineState->setProgram( shader );
+   uniformData->reserve( sizeBytes );
+  
+   if( !programName.empty() ) {
+      std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
+      shader->injectUniformStruct( allUniforms );
+      shader->compile( programName, context );
+      pipelineState->setProgram( shader );
+   }
    
    pipelineState->prepare( context );
    
@@ -53,7 +79,7 @@ void IRenderable::render( IRenderPass& renderPass ) {
 }
 
 void IRenderable::setUniform( const std::string& name, UniformType value ) {
-   for( auto& i : uniforms ) {
+   for( auto& i : allUniforms ) {
       if( i.first == name ) {
          i.second = value;
          return;

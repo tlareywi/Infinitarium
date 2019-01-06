@@ -20,7 +20,9 @@ public:
    
    static std::shared_ptr<IDataBuffer> Create( IRenderContext& );
    
+   virtual void commit() = 0;
    virtual void set( DataPackContainer& ) = 0;
    virtual void reserve( unsigned int sizeBytes ) = 0;
    virtual void set( const void* const, unsigned int sizeBytes ) = 0;
+   virtual void set( const void* const, unsigned int offset, unsigned int sizeBytes ) = 0;
 };

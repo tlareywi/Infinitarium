@@ -50,6 +50,11 @@ position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
 apparentMagV = engine.DataPack_FLOAT32(len(t))
 
+tychoCloud.setProgram( 'starsDefault' )
+tychoCloud.setUniform( 'epsilon', engine.UniformType(0.0000000001) )
+tychoCloud.setUniform( 'diskDensity', engine.UniformType(0.025) )
+tychoCloud.setUniform( 'haloDensity', engine.UniformType(400.0) )
+
 print('Processing ...')
 
 skipped = 0

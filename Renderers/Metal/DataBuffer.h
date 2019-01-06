@@ -12,15 +12,18 @@ public:
    MetalDataBuffer( IRenderContext& context );
    virtual ~MetalDataBuffer();
    
-   void set( DataPackContainer& container ) override;
+   void commit() override;
    
    void reserve( unsigned int sizeBytes ) override;
    
-   void set( const void* const data, unsigned int sizeBytes ) override;
+   void set( DataPackContainer& container ) override;
+   void set( const void* const, unsigned int ) override;
+   void set( const void* const, unsigned int, unsigned int ) override;
    
    id<MTLBuffer> getMTLBuffer();
    
 private:
+   id<MTLBuffer> managed{nullptr};
    id<MTLBuffer> GPU{nullptr};
    id<MTLDevice> device;
    id<MTLCommandQueue> commandQ;
