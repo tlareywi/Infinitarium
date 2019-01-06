@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION "3.12" )
 
 install(FILES defaultOverlay.html simple-console.js simple-console.css
-  interpreter.js
+  interpreter.js manipulator.js
   DESTINATION share/Infinitarium/UI
 )

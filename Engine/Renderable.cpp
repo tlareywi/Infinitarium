@@ -79,7 +79,7 @@ void IRenderable::render( IRenderPass& renderPass ) {
 }
 
 void IRenderable::setUniform( const std::string& name, UniformType value ) {
-   for( auto& i : allUniforms ) {
+   for( auto& i : uniforms ) {
       if( i.first == name ) {
          i.second = value;
          return;

@@ -52,6 +52,7 @@
    
    WKUserContentController* controller = [[WKUserContentController alloc] init];
    [controller addScriptMessageHandler:self name:@"command"];
+   [controller addScriptMessageHandler:self name:@"manipulate"];
    config.userContentController = controller;
    
    CGRect consoleFrame = newFrame;
@@ -75,18 +76,23 @@
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-   std::string cmd {[message.body UTF8String]};
-   std::string result = OSXApplication::Instance()->getPythonInterpreter()->eval( cmd );
-   
-   if( result.empty() )
-      return;
-   
-   std::string js("con.log(\"");
-   js += result;
-   js += "\").classList.add(\"result\");";
-   
-   NSString* toJS = [NSString stringWithUTF8String:js.c_str()];
-   [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
+   if( [message.name compare:@"command"] == NSOrderedSame ) {
+      std::string cmd {[message.body UTF8String]};
+      std::string result = OSXApplication::Instance()->getPythonInterpreter()->eval( cmd );
+      
+      if( result.empty() )
+         return;
+      
+      std::string js("con.log(\"");
+      js += result;
+      js += "\").classList.add(\"result\");";
+      
+      NSString* toJS = [NSString stringWithUTF8String:js.c_str()];
+      [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
+   }
+   else if( [message.name compare:@"manipulate"] == NSOrderedSame ) {
+      
+   }
 }
 
 @end
