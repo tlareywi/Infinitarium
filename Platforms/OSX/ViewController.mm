@@ -91,7 +91,8 @@
       [_uiOverlay evaluateJavaScript:toJS completionHandler:nil];
    }
    else if( [message.name compare:@"manipulate"] == NSOrderedSame ) {
-      
+      std::string cmd {[message.body UTF8String]};
+      OSXApplication::Instance()->invoke( cmd );
    }
 }
 

@@ -43,7 +43,7 @@ vertex VertexOut vertexShader( constant CartesianPosition* pos [[buffer(2)]],
    float blurRadius = pow( (out.brightness / uniforms.epsilon - 1.0) / uniforms.haloDensity, 1.0 / 2.0 );
    
    out.pointSize = max(diskRadius, blurRadius) * 2.0;
-   out.pointSize = min(out.pointSize, 80.0);
+   out.pointSize = min(out.pointSize, 30.0);
    out.diskDensity = uniforms.diskDensity;
    out.haloDensity = uniforms.haloDensity;
    
