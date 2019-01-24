@@ -11,7 +11,7 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   EventSampler.cpp ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp
   Application.hpp Simulation.cpp Simulation.hpp RenderContext.cpp RenderContext.hpp
   PythonBridge.hpp EngineInterface.hpp ConsoleInterface.cpp ConsoleInterface.hpp
-  PyUtil.hpp UniformType.hpp
+  PyUtil.hpp UniformType.hpp Delegate.hpp
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)

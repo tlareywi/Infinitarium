@@ -7,6 +7,8 @@
 
 #include "Renderable.hpp"
 #include "PyUtil.hpp"
+#include "Application.hpp"
+#include "Delegate.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -89,6 +91,21 @@ void IRenderable::setUniform( const std::string& name, UniformType value ) {
    // Not found, create new
    dirty = true;
    uniforms.push_back( std::make_pair(name, value) );
+   
+   // Temp code for testing
+   {
+      auto fun = [](double d){ return; };
+      std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), double>>( fun );
+      IApplication::Create()->subscribe("manipulate", delegate);
+   }
+   
+   {
+      auto fun = [](std::string& d){ return; };
+      std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), std::string&>>( fun );
+      IApplication::Create()->subscribe("manipulate", delegate);
+   }
+   
+   IApplication::Create()->invoke("foo");
 }
 
 void IRenderable::removeUniform( const std::string& name ) {   
