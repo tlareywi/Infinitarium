@@ -50,6 +50,7 @@ public:
    void setUniform( const std::string&, UniformType );
    void listUniforms();
    void removeUniform( const std::string& );
+   void manipulateUniform( const std::string&, float, float, float );
    
    auto reflect() {  // IConsole /////////////////////
       IRenderable& obj = *this;
@@ -58,6 +59,7 @@ public:
          REFLECT_METHOD(&IRenderable::setUniform, setUniform),
          REFLECT_METHOD(&IRenderable::listUniforms, listUniforms),
          REFLECT_METHOD(&IRenderable::removeUniform, removeUniform),
+         REFLECT_METHOD(&IRenderable::manipulateUniform, manipulateUniform),
          REFLECT_METHOD(&IRenderable::setDirty, setDirty),
          REFLECT_MEMBER(obj, programName)
       );
@@ -70,7 +72,7 @@ protected:
    std::shared_ptr<IRenderCommand> renderCommand;
    
 private:
-   std::vector<std::pair<std::string, UniformType>> allUniforms;
+   std::vector<std::pair<std::string, UniformType>> allUniforms; // built-ins, not serialized
    std::vector<std::pair<std::string, UniformType>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
    std::string programName;

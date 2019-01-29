@@ -17,6 +17,8 @@
 @property (strong) CALayer* backingLayer;
 @property CGRect rect;
 
+- (void)addManipulator: (NSString*)name :(float)min :(float)max :(float)step;
+
 @end
 
 

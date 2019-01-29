@@ -67,6 +67,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setUniform", &IRenderable::setUniform)
       .def("setDirty", &IRenderable::setDirty)
       .def("removeUniform", &IRenderable::removeUniform)
+      .def("manipulateUniform", &IRenderable::manipulateUniform)
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)

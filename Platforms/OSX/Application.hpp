@@ -17,6 +17,8 @@ public:
    void run() override;
    void stop() override;
    
+   void addManipulator( const std::string&, float, float, float ) override;
+   
 private:
    static std::shared_ptr<IApplication> instance;
 };

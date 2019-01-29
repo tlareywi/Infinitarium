@@ -75,6 +75,22 @@
    [_uiOverlay loadRequest:request];
 }
 
+- (void)addManipulator :(NSString*)name :(float)min :(float)max :(float)step {
+   NSMutableString* js = [[NSMutableString alloc] init];
+   [js appendString:@"Manipulator( {id:'"];
+   [js appendString:name];
+   [js appendString:@"', min:"];
+   [js appendString:[NSString stringWithFormat:@"%f", min]];
+   [js appendString:@", max:"];
+   [js appendString:[NSString stringWithFormat:@"%f", max]];
+   [js appendString:@", step:"];
+   [js appendString:[NSString stringWithFormat:@"%f", step]];
+   [js appendString:@"} )"];
+   [_uiOverlay evaluateJavaScript:js completionHandler:^(NSString *result, NSError *error) {
+      if( error ) NSLog(@"%@",error);
+   }];
+}
+
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
    if( [message.name compare:@"command"] == NSOrderedSame ) {
       std::string cmd {[message.body UTF8String]};

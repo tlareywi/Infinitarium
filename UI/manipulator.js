@@ -1,6 +1,9 @@
 var onManipulator = function( obj ) {
-  var value = obj.value;
-  console.info(value);
+  var json = {
+    id: obj.id,
+    val: parseFloat(obj.value)
+  };
+  window.webkit.messageHandlers.manipulate.postMessage(JSON.stringify(json));
 }
 
 var Manipulator = function( options ) {

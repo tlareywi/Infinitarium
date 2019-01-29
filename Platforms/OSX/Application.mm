@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "Application.hpp"
+#include "ViewController.hpp"
 
 #include <iostream>
 
@@ -67,6 +68,13 @@ void OSXApplication::stop() {
       [[NSApplication sharedApplication] stop:nullptr];
 }
 
+void OSXApplication::addManipulator( const std::string& name, float min, float max, float step ) {
+   NSApplication* app = [NSApplication sharedApplication];
+   NSWindow* window = [app windows][0];
+   NSString* nameStr = [NSString stringWithUTF8String:name.c_str()];
+   GameViewController* controler = (GameViewController*)[window contentViewController];
+   [controler addManipulator:nameStr :min :max :step];
+}
 
 extern "C" {
    std::shared_ptr<IApplication> CreateApplication() {

@@ -91,21 +91,6 @@ void IRenderable::setUniform( const std::string& name, UniformType value ) {
    // Not found, create new
    dirty = true;
    uniforms.push_back( std::make_pair(name, value) );
-   
-   // Temp code for testing
-   {
-      auto fun = [](double d){ return; };
-      std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), double>>( fun );
-      IApplication::Create()->subscribe("manipulate", delegate);
-   }
-   
-   {
-      auto fun = [](std::string& d){ return; };
-      std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), std::string&>>( fun );
-      IApplication::Create()->subscribe("manipulate", delegate);
-   }
-   
-   IApplication::Create()->invoke("foo");
 }
 
 void IRenderable::removeUniform( const std::string& name ) {   
@@ -113,6 +98,21 @@ void IRenderable::removeUniform( const std::string& name ) {
       if( itr->first == name ) {
          uniforms.erase(itr);
          dirty = true;
+         break;
+      }
+   }
+}
+
+void IRenderable::manipulateUniform( const std::string& name, float min, float max, float step ) {
+   for( auto& i : uniforms ) {
+      if( i.first == name ) {
+         auto fun = [&i]( double val ) {
+            UniformType v {(float)val};
+            i.second = v;
+         };
+         std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), double>>( fun );
+         IApplication::Create()->subscribe(i.first, delegate);
+         IApplication::Create()->addManipulator(i.first, min, max, step);
          break;
       }
    }
