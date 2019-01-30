@@ -11,3 +11,21 @@
 std::shared_ptr<IApplication> IApplication::Create() {
    return ModuleFactory<PlatformFactory>::Instance()->createApplication();
 }
+
+void IApplication::setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp ) {
+   pyInterp = interp;
+}
+
+void IApplication::subscribe( const std::string& msg, std::shared_ptr<IDelegate>& delegate ) {
+   subscribers.push_back(std::make_pair(msg, delegate));
+}
+
+void IApplication::unsubscribe( const std::string& msg ) {
+   for( auto itr = subscribers.begin(); itr != subscribers.end(); ++itr ) {
+      if( itr->first == msg ) {
+         itr = subscribers.erase( itr );
+         --itr;
+      }
+   }
+}
+

@@ -106,13 +106,22 @@ void IRenderable::removeUniform( const std::string& name ) {
 void IRenderable::manipulateUniform( const std::string& name, float min, float max, float step ) {
    for( auto& i : uniforms ) {
       if( i.first == name ) {
-         auto fun = [&i]( double val ) {
-            UniformType v {(float)val};
-            i.second = v;
+         auto fun = [&i]( JSONEvent::Args& args ) {
+            if( args.size() < 1 ) return;
+            std::visit(overload{
+               [&i](double val) {
+                  UniformType v {(float)val};
+                  i.second = v;
+               },
+               [](bool f) {},
+               [](int f) {},
+               [](unsigned f) {},
+               [](std::string& s) {}
+            }, args[0]);
          };
-         std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), double>>( fun );
-         IApplication::Create()->subscribe(i.first, delegate);
-         IApplication::Create()->addManipulator(i.first, min, max, step);
+         std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), JSONEvent::Args&>>( fun );
+         IApplication::Create()->subscribe(name, delegate);
+         IApplication::Create()->addManipulator(name, min, max, step);
          break;
       }
    }

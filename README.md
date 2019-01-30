@@ -10,7 +10,8 @@ Install homebrew; /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.c
 # Build Dependencies
 brew install glm  
 brew install boost  
-brew install boost-python3   
+brew install boost-python3
+brew install rapidjson
 
 # Runtime Dependencies
 brew install python   
