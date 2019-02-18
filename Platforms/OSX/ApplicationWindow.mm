@@ -61,6 +61,13 @@ extern "C" {
    NSString* chars = event.characters;
    std::string str( [chars UTF8String] );
    for( auto c : str ) {
+      if( c == '`' ) {
+         for( NSView* object in _contentView.subviews ) {
+            bool hidden = [object isHidden];
+            [object setHidden:!hidden];
+         }
+      }
+      
       IEventSampler::Key k;
       k.key = c;
       k.state = IEventSampler::DOWN;
