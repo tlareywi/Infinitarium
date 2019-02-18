@@ -6,35 +6,7 @@
 # Individual catalog parts can be joined into one dat file via the command
 # `zcat tyc2.dat.??.gz >tyc2.dat`.
 
-exec(open('./BlackBodyParser.py').read())
-
-import math
-import importlib
-import sys
-
-sys.path.append('/usr/local/lib')
-
-def degreesToRadians(x):
-    return x * math.pi / 180.0;
-
-def sphereToRectZUp(ra, dec, r):
-    x = r * math.sin(degreesToRadians(90-dec)) * math.cos(degreesToRadians(ra))
-    y = r * math.sin(degreesToRadians(90-dec)) * math.sin(degreesToRadians(ra))
-    z = r * math.cos(degreesToRadians(90-dec))
-    return[x,y,z]
-
-# From https://heasarc.nasa.gov/W3Browse/all/tycho2.html
-def apparentMagColor( bt, vt ):
-     v = vt - 0.090 * (bt - vt)
-     bv = 0.850 * (bt - vt)
-     return v, bv
-
-import libInfinitariumEngine
-importlib.reload(libInfinitariumEngine)
-
-from astropy.table import Table
-
-engine = libInfinitariumEngine
+exec(open('./import_common.py').read())
 
 print('\nReading Tycho 2 Catalog ...')
 t = Table.read("tyc2.dat",
@@ -50,10 +22,14 @@ position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
 apparentMagV = engine.DataPack_FLOAT32(len(t))
 
-tychoCloud.setProgram( 'starsDefault' )
-tychoCloud.setUniform( 'epsilon', engine.UniformType(0.0000000001) )
-tychoCloud.setUniform( 'diskDensity', engine.UniformType(0.025) )
-tychoCloud.setUniform( 'haloDensity', engine.UniformType(400.0) )
+tychoCloud.setProgram( 'stars_no_plx' )
+tychoCloud.setUniform( 'epsilon', engine.UniformType(0.0001) )
+tychoCloud.setUniform( 'diskDensity', engine.UniformType(0.88) )
+tychoCloud.setUniform( 'haloDensity', engine.UniformType(6.2) )
+tychoCloud.setUniform( 'limitingMagnitude', engine.UniformType(14.0) )
+tychoCloud.setUniform( 'saturationMagnitude', engine.UniformType(-2.0) )
+tychoCloud.setUniform( 'diskBrightness', engine.UniformType(28.0) )
+tychoCloud.setUniform( 'haloBrightness', engine.UniformType(1.0) )
 
 print('Processing ...')
 

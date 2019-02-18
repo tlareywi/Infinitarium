@@ -28,13 +28,16 @@ def apparentMagColor( bt, vt ):
      return v, bv
 
 def distParsecs( plx ):
-    if plx == 0:
+    if plx <= 0:
         return 0
     dist = 1.0 / (plx * 0.001)
     return dist
 
 def pcToLy( pc ):
     return pc * 3.26156
+
+def appMagToAbsMag( appMag, distPc ):
+    return appMag - 5.0 * (math.log(distPc, 10) - 1.0)
 
 import libInfinitariumEngine
 importlib.reload(libInfinitariumEngine)

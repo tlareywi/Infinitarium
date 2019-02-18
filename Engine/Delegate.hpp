@@ -37,14 +37,20 @@ public:
    double> JSONType;
    
    typedef std::vector<JSONType> Args;
-      
+   
    JSONEvent() : isId(false) {
    }
       
    bool Null() { return true; }
    bool Bool(bool b) { return true; }
-   bool Int(int i) { return true; }
-   bool Uint(unsigned u) { return true; }
+   bool Int(int i) {
+      args.push_back((double)i); // TODO: This didn't reall work as planned. Temp workaround is to cast everything to a double. Issue with variant types not able to automatically cast.
+      return true;
+   }
+   bool Uint(unsigned u) {
+      args.push_back((double)u);
+      return true;
+   }
    bool Int64(int64_t i) { return true; }
    bool Uint64(uint64_t u) { return true; }
    bool Double(double d) {

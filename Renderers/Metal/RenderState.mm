@@ -29,9 +29,9 @@ void MetalRenderState::commit( IRenderContext& context ) {
    attachement.blendingEnabled = YES;
    attachement.rgbBlendOperation = MTLBlendOperationAdd;
    attachement.alphaBlendOperation = MTLBlendOperationAdd;
-   attachement.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+   attachement.sourceRGBBlendFactor = MTLBlendFactorOne;
    attachement.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-   attachement.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+   attachement.destinationRGBBlendFactor = MTLBlendFactorOne;
    attachement.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
    
    NSError* err {nullptr};

@@ -114,8 +114,14 @@ void IRenderable::manipulateUniform( const std::string& name, float min, float m
                   i.second = v;
                },
                [](bool f) {},
-               [](int f) {},
-               [](unsigned f) {},
+               [&i](int val) {
+                  UniformType v {val};
+                  i.second = v;
+               },
+               [&i](unsigned int val) {
+                  UniformType v {val};
+                  i.second = v;
+               },
                [](std::string& s) {}
             }, args[0]);
          };
