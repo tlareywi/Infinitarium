@@ -5,12 +5,31 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#import <Metal/Metal.h>
-
 template<typename T, typename U> const U static inline convert( const T& t ) {
    U retType;
    memcpy( &retType, &t, sizeof(U) );
    return retType;
+}
+
+void MetalRenderCommand::setPrimitiveType( PrimitiveType t ) {
+   switch( t ) {
+      case Triangle:
+         primitiveType = MTLPrimitiveTypePoint;
+         break;
+      
+      case TriangleStrip:
+         primitiveType = MTLPrimitiveTypeTriangleStrip;
+         break;
+      
+      case Line:
+         primitiveType = MTLPrimitiveTypeLine;
+         break;
+      
+      case Point:
+      default:
+         primitiveType = MTLPrimitiveTypePoint;
+         break;
+   }
 }
 
 void MetalRenderCommand::encode( IRenderPass& renderPass, const IRenderState& state ) {
@@ -41,9 +60,7 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, const IRenderState& st
          [commandEncoder setVertexBuffer:mtlBuf->getMTLBuffer() offset:0 atIndex:indx++];
       }
       
-      // TMP hack for testing
-      [commandEncoder drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1 instanceCount:2539802 baseInstance:0];
-      // end hack
+      [commandEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount instanceCount:instanceCount baseInstance:0];
       
       [commandEncoder endEncoding];
    }

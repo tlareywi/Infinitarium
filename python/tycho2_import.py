@@ -47,6 +47,8 @@ for record in t.filled():
     color.addVec3(rgb[0], rgb[1], rgb[2])
     numRecrods += 1
 
+tychoCloud.setNumPoints( numRecrods )
+
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete data.')
 
 # TODO: can probably leverage more performance by making hard

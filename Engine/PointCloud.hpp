@@ -39,10 +39,15 @@ public:
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
+   void setNumPoints( unsigned int n ) {
+      numPoints = n;
+   }
+   
 private:
    std::unique_ptr<IPointInstance> instanceMgr;
    
    std::map<std::string, DataPackContainer> vertexBuffers;
+   unsigned int numPoints;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
@@ -50,6 +55,7 @@ private:
       boost::serialization::void_cast_register<PointCloud,IRenderable>();
       ar & boost::serialization::base_object<IRenderable>(*this);
       ar & vertexBuffers;
+      ar & numPoints;
    }
 };
 

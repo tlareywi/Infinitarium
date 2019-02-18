@@ -71,6 +71,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
+      .def("setNumPoints", &PointCloud::setNumPoints)
    ;
    
    class_<Scene, boost::noncopyable>("Scene", init<>())

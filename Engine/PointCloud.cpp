@@ -27,6 +27,10 @@ void PointCloud::addVertexBuffer( DataPackContainer& datapack, const std::string
 void PointCloud::prepare( IRenderContext& context ) {
    renderCommand = IRenderCommand::Create();
    
+   renderCommand->setVertexCount( 1 );
+   renderCommand->setInstanceCount( numPoints );
+   renderCommand->setPrimitiveType( IRenderCommand::Point );
+   
    for( auto& dataBuf : vertexBuffers ) {
       std::shared_ptr<IDataBuffer> buf = IDataBuffer::Create( context );
       buf->set( dataBuf.second );

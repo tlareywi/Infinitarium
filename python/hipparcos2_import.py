@@ -67,6 +67,8 @@ for record in t.filled():
     color.addVec3(rgb[0], rgb[1], rgb[2])
     numRecrods += 1
 
+hip2Cloud.setNumPoints( numRecrods )
+
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete or non-sensical data.')
 
 hip2Cloud.addVertexBuffer( position.container(), 'position' )
