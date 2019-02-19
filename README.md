@@ -21,7 +21,6 @@ pip3 install astropy
 
 #### Tycho2 Catalog
 ![Tycho2 Catalog](screen_captures/tycho2.png)
-Format: ![Alt Text](url)
 
 
 
