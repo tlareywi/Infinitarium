@@ -20,7 +20,7 @@ pip3 install astropy
 ### Screen Captures
 
 #### Tycho2 Catalog
-![Tycho2 Catalog](screen_captures/tycho1.png)
+![Tycho2 Catalog](screen_captures/tycho2.png)
 Format: ![Alt Text](url)
 
 
