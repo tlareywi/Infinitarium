@@ -50,7 +50,7 @@ void MetalRenderState::sanityCheck( id<MTLDevice> device, IRenderContext& contex
    }
    
    if( !renderDescriptor.colorAttachments[0].pixelFormat ) {
-      renderDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+      renderDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
    }
 }
 
