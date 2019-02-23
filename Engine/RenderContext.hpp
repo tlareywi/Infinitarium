@@ -47,3 +47,4 @@ private:
    unsigned int _height;
    bool _fullScreen;
 };
+

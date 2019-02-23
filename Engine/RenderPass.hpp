@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "RenderContext.hpp"
+#include "Texture.hpp"
 
 class IRenderPass {
 public:
@@ -21,4 +22,5 @@ public:
    virtual void end() = 0;
    
    std::shared_ptr<IRenderContext> renderContext;
+   std::vector<RenderTarget> targets;
 };

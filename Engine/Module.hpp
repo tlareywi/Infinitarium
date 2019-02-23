@@ -13,6 +13,7 @@
 #include "MotionControllerOrbit.hpp"
 #include "Application.hpp"
 #include "ApplicationWindow.hpp"
+#include "Texture.hpp"
 
 ///
 /// \brief Encapsulate some boiler-plate aspects of runtime module loading. Enforces
@@ -66,6 +67,7 @@ public:
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
    typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
+   typedef std::shared_ptr<ITexture> (*TextureImpl)( glm::uvec2, ITexture::Format );
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -74,6 +76,7 @@ public:
       createRenderProgram = nullptr;
       createDataBuffer = nullptr;
       createRenderContext = nullptr;
+      createTexture = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -82,6 +85,7 @@ public:
    RenderProgramImpl createRenderProgram;
    DataBufferImpl createDataBuffer;
    RenderContextImpl createRenderContext;
+   TextureImpl createTexture;
 };
 
 ///

@@ -13,7 +13,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
-Scene::Scene() : motionController(nullptr) {
+Scene::Scene() {
    clear();
    projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
 }
@@ -63,26 +63,6 @@ void Scene::save( const std::string& filename ) const {
    ofs.close();
 }
 
-void Scene::setMotionController( std::shared_ptr<IMotionController>& ctrl ) {
-   motionController = ctrl;
-}
-
-void Scene::setRenderContext( std::shared_ptr<IRenderContext>& r ) {
-   renderContext = r;
-}
-
-void Scene::add( const std::shared_ptr<IRenderable>& renderable ) {
-   std::lock_guard<std::mutex> lock( loadLock );
-   
-   // We don't want to retain the default clear screen renderable. Beyond being superfluous, we don't want to serialize it. 
-   if( renderables.size() == 1 ) {
-      ClearScreen* clr = dynamic_cast<ClearScreen*>(renderables[0].get());
-      if( clr ) renderables.clear();
-   }
-   
-   renderables.push_back( renderable );
-}
-
 void Scene::update() {
    glm::mat4 view;
    
@@ -104,22 +84,8 @@ void Scene::update() {
 void Scene::draw() {
    std::lock_guard<std::mutex> lock( loadLock );
    
-   renderPass->renderContext = renderContext;
-   
-   renderPass->begin();
-   
-   for( auto& renderable : renderables ) {
-      renderable->render( *renderPass );
-   }
-   
-   renderPass->end();
+   for( auto& c : cameras )
+      c->Draw();
 }
 
-unsigned int Scene::numRenderables() {
-   return renderables.size();
-}
-
-std::shared_ptr<IRenderable> Scene::getRenderable( unsigned int indx ) {
-   return renderables[indx];
-}
 

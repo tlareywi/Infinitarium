@@ -122,6 +122,9 @@ extern "C" {
 OSXSimulationWindow::OSXSimulationWindow( IRenderContext& context ) {
    GameViewController* controller = [[GameViewController alloc] init];
    
+   // TODO: Modify to allow multiple contexts (in this case Metal Layers) per window.
+   // It's a bit of an 'edge' feature as typically one would just use a viewport, but could
+   // allow for some interesting stuff; use of low power GPU for low res preview render? 
    controller.rect = CGRectMake( context.x(), context.y(), context.width(), context.height() );
    
    controller.backingLayer = (CALayer*)context.getSurface();
