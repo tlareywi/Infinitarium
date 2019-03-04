@@ -3,6 +3,8 @@ project( InfinitariumEngine )
 
 set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 
+add_definitions(-DENGINE_BUILD)
+
 add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   PointCloud.cpp PythonBridge.cpp Renderable.cpp RenderCommand.cpp RenderPass.cpp
   RenderProgram.cpp RenderState.cpp Scene.cpp Module.cpp DataPack.hpp Module.hpp

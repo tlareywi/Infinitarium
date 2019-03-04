@@ -67,7 +67,8 @@ public:
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
    typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
-   typedef std::shared_ptr<ITexture> (*TextureImpl)( glm::uvec2, ITexture::Format );
+   typedef std::shared_ptr<ITexture> (*TextureImpl)( const glm::uvec2&, ITexture::Format );
+   typedef std::shared_ptr<IRenderTarget> (*RenderTargetImpl)( const glm::uvec2&, ITexture::Format, IRenderTarget::Type, IRenderTarget::Resource );
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -77,6 +78,7 @@ public:
       createDataBuffer = nullptr;
       createRenderContext = nullptr;
       createTexture = nullptr;
+      createRenderTarget = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -86,6 +88,7 @@ public:
    DataBufferImpl createDataBuffer;
    RenderContextImpl createRenderContext;
    TextureImpl createTexture;
+   RenderTargetImpl createRenderTarget;
 };
 
 ///

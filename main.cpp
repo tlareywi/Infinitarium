@@ -22,10 +22,10 @@ int main(int argc, const char * argv[]) {
    std::shared_ptr<IApplicationWindow> window = IApplicationWindow::Create( *context );
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();
-   s->setRenderContext( context );
+  // s->setRenderContext( context );
    s->load( app->getInstallationRoot() + "/share/Infinitarium/tyco2.ieb" );
    std::shared_ptr<IMotionController> ctrl{ std::make_shared<Orbit>() };
-   s->setMotionController( ctrl );
+ // s->setMotionController( ctrl );
    
    PythonInterpreter* pyInterp = dynamic_cast<PythonInterpreter*>(pyInterpInterface.get());
    pyInterp->setScene( s );

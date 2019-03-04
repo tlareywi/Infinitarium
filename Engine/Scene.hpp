@@ -12,6 +12,7 @@
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -25,6 +26,8 @@ public:
    void save( const std::string& ) const;
    void load( const std::string& );
    void clear();
+   
+   void add( const std::shared_ptr<Camera>& );
    
    void update();
    void draw();
@@ -44,8 +47,6 @@ private:
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version);
-
-   glm::mat4 projection;
    
    std::mutex loadLock;
    

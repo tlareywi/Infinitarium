@@ -15,22 +15,27 @@
 
 Scene::Scene() {
    clear();
-   projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
 }
 
 template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {
    std::cout<<"Serializing Scene"<<std::endl;
-   ar & renderables;
+   ar & cameras;
 }
 
 void Scene::clear() {
    {
       std::lock_guard<std::mutex> lock( loadLock );
-      renderPass = IRenderPass::Create();
-      renderables.clear();
+      for( auto& camera : cameras )
+         camera = nullptr;
    }
    
-   add( std::make_shared<ClearScreen>() );
+   std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+   add( camera );
+}
+
+void Scene::add( const std::shared_ptr<Camera>& camera ) {
+   std::lock_guard<std::mutex> lock( loadLock );
+   cameras.push_back( camera );
 }
 
 void Scene::load( const std::string& filename ) {
@@ -64,28 +69,17 @@ void Scene::save( const std::string& filename ) const {
 }
 
 void Scene::update() {
-   glm::mat4 view;
+   std::lock_guard<std::mutex> lock( loadLock );
    
-   if( motionController ) {
-      motionController->processEvents();
-      motionController->getViewMatrix( view );
-   }
-   
-   glm::mat4 mvp = projection * view;
-
-   {
-      std::lock_guard<std::mutex> lock( loadLock );
-      for( auto& renderable : renderables ) {
-         renderable->update( mvp );
-      }
-   }
+   for( auto& camera : cameras )
+      camera->update();
 }
 
 void Scene::draw() {
    std::lock_guard<std::mutex> lock( loadLock );
    
-   for( auto& c : cameras )
-      c->Draw();
+   for( auto& camera : cameras )
+      camera->draw();
 }
 
 

@@ -46,6 +46,8 @@ void IRenderable::update( const glm::mat4& mvp ) {
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
+   if( !dirty ) return;
+   
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    
@@ -74,8 +76,6 @@ void IRenderable::prepare( IRenderContext& context ) {
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {
-   if( dirty ) prepare( *(renderPass.renderContext) );
-
    pipelineState->apply();
    renderCommand->encode( renderPass, *pipelineState );
 }

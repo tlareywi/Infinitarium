@@ -60,6 +60,10 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def(init<unsigned int>())
    ;
    
+   class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
+      .def("create", &IRenderPass::Create)
+   ;
+   
    class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
       .def("propList", &IRenderable::propList)
       .def("listUniforms", &IRenderable::listUniforms)
@@ -80,10 +84,19 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("add", &Scene::add)
       .def("clear", &Scene::clear)
       .def("propList", &Scene::propList)
-      .def("numRenderables", &Scene::numRenderables)
-      .def("getRenderable", &Scene::getRenderable)
    ;
    
+   class_<Camera, boost::noncopyable>("Camera", init<>())
+      .def("numRenderables", &Camera::numRenderables)
+      .def("getRenderable", &Camera::getRenderable)
+      .def("addRenderable", &Camera::addRenderable)
+      .def("setRenderPass", &Camera::setRenderPass)
+      .def("propList", &Camera::propList)
+   ;
+   
+   register_ptr_to_python<std::shared_ptr<IRenderPass>>();
+   register_ptr_to_python<std::shared_ptr<IRenderTarget>>();
+   register_ptr_to_python<std::shared_ptr<Camera>>();
    register_ptr_to_python<std::shared_ptr<IRenderable>>();
    register_ptr_to_python<std::shared_ptr<Scene>>();
 }

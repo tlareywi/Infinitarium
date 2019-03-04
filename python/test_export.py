@@ -16,9 +16,18 @@ scene = engine.Scene()
 print( 'Export Scene ...' )
 scene.save(exportPath)
 
+camera = engine.Camera()
+scene.add( camera )
+print( 'Export Scene with Camera ...' )
+scene.save( exportPath )
+
+renderPass = engine.IRenderPass.create()
+camera.setRenderPass( renderPass )
+print( 'Export Scene with Camera + RenderPass ...' )
+scene.save( exportPath )
+
 tychoCloud = engine.PointCloud()
-scene = engine.Scene()
-scene.add( tychoCloud )
+camera.addRenderable( tychoCloud )
 print( 'Export PointCloud ...' )
 scene.save(exportPath)
 

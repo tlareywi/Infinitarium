@@ -36,6 +36,11 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>("libIERender
    if( !createTexture ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateTexture!");
    }
+   
+   createRenderTarget = (RenderTargetImpl)dlsym( handle, "CreateRenderTarget" );
+   if( !createRenderTarget ) {
+      throw std::runtime_error("CRITICAL: No implementation for CreateRenderTarget!");
+   }
 }
 
 PlatformFactory::PlatformFactory() : ModuleFactory<PlatformFactory>("libIEPlatform.dylib") {
