@@ -30,7 +30,7 @@ void Scene::clear() {
    }
    
    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
-   add( camera );
+   add( camera ); // default clear camera
 }
 
 void Scene::add( const std::shared_ptr<Camera>& camera ) {

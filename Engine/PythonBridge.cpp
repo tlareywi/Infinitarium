@@ -62,6 +62,28 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    
    class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
       .def("create", &IRenderPass::Create)
+      .def("addRenderTarget", &IRenderPass::addRenderTarget)
+   ;
+   
+   class_<IRenderTarget, boost::noncopyable>("IRenderTarget", no_init)
+      .def("create", &IRenderTarget::Create)
+   ;
+   enum_<ITexture::Format>("Format")
+      .value("BRGA8", ITexture::Format::BRGA8)
+      .value("BRGA8_sRGB", ITexture::Format::BRGA8_sRGB)
+      .value("RU32", ITexture::Format::RU32)
+      .export_values()
+   ;
+   enum_<IRenderTarget::Type>("Type")
+      .value("Color", IRenderTarget::Type::Color)
+      .value("Depth", IRenderTarget::Type::Depth)
+      .value("Stencil", IRenderTarget::Type::Stencil)
+      .export_values()
+   ;
+   enum_<IRenderTarget::Resource>("Resource")
+      .value("FrameBuffer", IRenderTarget::Resource::FrameBuffer)
+      .value("Memory", IRenderTarget::Resource::Memory)
+      .export_values()
    ;
    
    class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
@@ -87,11 +109,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    
    class_<Camera, boost::noncopyable>("Camera", init<>())
+      .def("setName", &Camera::setName)
       .def("numRenderables", &Camera::numRenderables)
       .def("getRenderable", &Camera::getRenderable)
       .def("addRenderable", &Camera::addRenderable)
       .def("setRenderPass", &Camera::setRenderPass)
-      .def("propList", &Camera::propList)
+  //    .def("propList", &Camera::propList)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderPass>>();

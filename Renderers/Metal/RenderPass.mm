@@ -63,6 +63,12 @@ extern "C" {
    }
 }
 
+extern "C" {
+   std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
+      return std::make_shared<MetalRenderPass>( rp );
+   }
+}
+
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
 void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {}
 
@@ -108,6 +114,12 @@ void MetalRenderTarget::prepare( std::shared_ptr<IRenderContext>& renderContext 
 extern "C" {
    std::shared_ptr<IRenderTarget> CreateRenderTarget( const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) {
       return std::make_shared<MetalRenderTarget>( vec, f, t, r );
+   }
+}
+
+extern "C" {
+   std::shared_ptr<IRenderTarget> CreateRenderTargetCopy( const IRenderTarget& obj ) {
+      return std::make_shared<MetalRenderTarget>( obj );
    }
 }
 

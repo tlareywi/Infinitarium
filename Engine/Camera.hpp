@@ -25,7 +25,7 @@
 /// \brief A Camera encapsulates a motion controller (which holds the view matrix), a set of renderables, a render pass, the render context (physical device).
 /// TOOD: Should contain a viewport was well?
 ///
-class Camera : public Reflection::IConsole<Camera> {
+class Camera  {
 public:
    Camera();
    
@@ -41,7 +41,11 @@ public:
    void setMotionController( std::shared_ptr<IMotionController>& );
    void setRenderContext( std::shared_ptr<IRenderContext>& );
    
-   auto reflect() {  // IConsole /////////////////////
+   void setName( const std::string& n ) {
+      name = n;
+   }
+   
+ /*  auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
                                    REFLECT_METHOD(&Camera::addRenderable, addRenderable),
                                    REFLECT_METHOD(&Camera::setRenderPass, setRenderPass),
@@ -50,16 +54,14 @@ public:
                                    );
       
       return tup;
-   }
+   } */
+   
+   template<class Archive> void save( Archive& ) const;
+   template<class Archive> void load( Archive& );
    
 private:
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing Camera"<<std::endl;
-      ar & renderables;
-      std::shared_ptr<IRenderPass> rp = std::make_shared<IRenderPass>(*renderPass);
-      ar & rp;
-   }
+   template<class Archive> friend void boost::serialization::serialize( Archive &, Camera&, unsigned int );
    
    bool dirty;
    
@@ -70,10 +72,11 @@ private:
    
    std::shared_ptr<IMotionController> motionController;
    
-   // TODO: Open question, if multiple cameras are pointing at the same renderable, is boost serialization smart enough to not load duplicate instances.
    std::vector<std::shared_ptr<IRenderable>> renderables;
    
    glm::mat4 projection;
+   
+   std::string name;
 };
 
 

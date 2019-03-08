@@ -21,6 +21,7 @@ public:
 ///
 class MetalRenderTarget : public IRenderTarget {
 public:
+   MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj) {}
    MetalRenderTarget( const glm::uvec2&, Format, Type, Resource );
    
    id<MTLTexture> getMetalTexture() {
@@ -38,6 +39,8 @@ private:
 ///
 class MetalRenderPass : public IRenderPass {
 public:
+   MetalRenderPass() {}
+   MetalRenderPass(const IRenderPass& obj) : IRenderPass(obj) {}
    void prepare( std::shared_ptr<IRenderContext>& ) override;
    void begin( std::shared_ptr<IRenderContext>& ) override;
    void end() override;

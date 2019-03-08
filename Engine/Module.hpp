@@ -64,11 +64,13 @@ public:
    typedef std::shared_ptr<IRenderCommand> (*RenderCommandImpl)();
    typedef std::shared_ptr<IRenderState> (*RenderStateImpl)();
    typedef std::shared_ptr<IRenderPass> (*RenderPassImpl)();
+   typedef std::shared_ptr<IRenderPass> (*RenderPassImplCopy)( const IRenderPass& );
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
    typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
    typedef std::shared_ptr<ITexture> (*TextureImpl)( const glm::uvec2&, ITexture::Format );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImpl)( const glm::uvec2&, ITexture::Format, IRenderTarget::Type, IRenderTarget::Resource );
+   typedef std::shared_ptr<IRenderTarget> (*RenderTargetImplCopy)( const IRenderTarget& );
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -79,6 +81,8 @@ public:
       createRenderContext = nullptr;
       createTexture = nullptr;
       createRenderTarget = nullptr;
+      createRenderPassCopy = nullptr;
+      createRenderTargetCopy = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -89,6 +93,8 @@ public:
    RenderContextImpl createRenderContext;
    TextureImpl createTexture;
    RenderTargetImpl createRenderTarget;
+   RenderTargetImplCopy createRenderTargetCopy;
+   RenderPassImplCopy createRenderPassCopy;
 };
 
 ///

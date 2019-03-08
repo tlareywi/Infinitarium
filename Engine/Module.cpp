@@ -17,6 +17,11 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>("libIERender
       throw std::runtime_error("CRITICAL: No implementation for RenderPass!");
    }
    
+   createRenderPassCopy = (RenderPassImplCopy)dlsym( handle, "CreateRenderPassCopy" );
+   if( !createRenderPassCopy ) {
+      throw std::runtime_error("CRITICAL: No implementation for RenderPassCopy!");
+   }
+   
    createRenderProgram = (RenderProgramImpl)dlsym( handle, "CreateRenderProgram" );
    if( !createRenderProgram ) {
       throw std::runtime_error("CRITICAL: No implementation for RenderProgram!");
@@ -40,6 +45,11 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>("libIERender
    createRenderTarget = (RenderTargetImpl)dlsym( handle, "CreateRenderTarget" );
    if( !createRenderTarget ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateRenderTarget!");
+   }
+   
+   createRenderTargetCopy = (RenderTargetImplCopy)dlsym( handle, "CreateRenderTargetCopy" );
+   if( !createRenderTargetCopy ) {
+      throw std::runtime_error("CRITICAL: No implementation for CreateRenderTargetCopy!");
    }
 }
 
