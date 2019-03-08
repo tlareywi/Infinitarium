@@ -23,9 +23,9 @@ int main(int argc, const char * argv[]) {
    PythonInterpreter* pyInterp = dynamic_cast<PythonInterpreter*>(pyInterpInterface.get());
    pyInterp->setScene( s );
    
-   Simulation simulation;
-   simulation.setScene( s );
-   app->run();
+ //  Simulation simulation;
+ //  simulation.setScene( s );
+ //  app->run();
    
 /*
    std::shared_ptr<IRenderContext> context = IRenderContext::Create( 0, 0, 1920, 1080, false );

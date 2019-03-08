@@ -27,7 +27,7 @@ std::shared_ptr<IRenderPass> IRenderPass::CreateCopy( const IRenderPass& rp ) {
 template<class Archive> void RenderPassProxy::load( Archive& ar ) {
    size_t sz;
    ar >> sz;
-   if( sz == 0 ) {
+   if( sz > 0 ) {
       std::vector<std::shared_ptr<RenderTargetProxy>> baseTargets;
       ar >> baseTargets;
       targets.reserve(baseTargets.size());
