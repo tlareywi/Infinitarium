@@ -68,6 +68,7 @@ public:
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
    typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
+   typedef std::shared_ptr<IRenderContext> (*RenderContextClone)( const IRenderContext& );
    typedef std::shared_ptr<ITexture> (*TextureImpl)( const glm::uvec2&, ITexture::Format );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImpl)( const glm::uvec2&, ITexture::Format, IRenderTarget::Type, IRenderTarget::Resource );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImplCopy)( const IRenderTarget& );
@@ -83,6 +84,7 @@ public:
       createRenderTarget = nullptr;
       createRenderPassCopy = nullptr;
       createRenderTargetCopy = nullptr;
+      cloneRenderContext = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -95,6 +97,7 @@ public:
    RenderTargetImpl createRenderTarget;
    RenderTargetImplCopy createRenderTargetCopy;
    RenderPassImplCopy createRenderPassCopy;
+   RenderContextClone cloneRenderContext;
 };
 
 ///

@@ -25,7 +25,7 @@
 /// \brief A Camera encapsulates a motion controller (which holds the view matrix), a set of renderables, a render pass, the render context (physical device).
 /// TOOD: Should contain a viewport was well?
 ///
-class Camera  {
+class Camera : public Reflection::IConsole<Camera> {
 public:
    Camera();
    
@@ -38,14 +38,14 @@ public:
    std::shared_ptr<IRenderable> getRenderable( unsigned int indx );
    unsigned int numRenderables();
    
-   void setMotionController( std::shared_ptr<IMotionController>& );
-   void setRenderContext( std::shared_ptr<IRenderContext>& );
+   void setMotionController( const std::shared_ptr<IMotionController>& );
+   void setRenderContext( const std::shared_ptr<IRenderContext>& );
    
    void setName( const std::string& n ) {
       name = n;
    }
    
- /*  auto reflect() {  // IConsole /////////////////////
+   auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
                                    REFLECT_METHOD(&Camera::addRenderable, addRenderable),
                                    REFLECT_METHOD(&Camera::setRenderPass, setRenderPass),
@@ -54,7 +54,7 @@ public:
                                    );
       
       return tup;
-   } */
+   }
    
    template<class Archive> void save( Archive& ) const;
    template<class Archive> void load( Archive& );

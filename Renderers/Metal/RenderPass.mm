@@ -70,6 +70,7 @@ extern "C" {
 }
 
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
+
 void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {}
 
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :

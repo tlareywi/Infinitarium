@@ -13,25 +13,21 @@
 #include "Engine/PythonBridge.hpp"
 
 int main(int argc, const char * argv[]) {
-   Scene s;
-   s.load("/Users/tlareywi/test.ieb");
-   
-   // Move these guys (the abstract interface part) into EngineInterface.hp as well. Helps keep concrete code from sneaking into the libs. 
-/*   std::shared_ptr<IApplication> app = IApplication::Create();
+   std::shared_ptr<IPythonInterpreter> pyInterpInterface = std::make_shared<PythonInterpreter>();
+   std::shared_ptr<IApplication> app = IApplication::Create();
    app->setPythonInterpreter( pyInterpInterface );
-   std::shared_ptr<IRenderContext> context = IRenderContext::Create( 0, 0, 1920, 1080, false );
-   std::shared_ptr<IApplicationWindow> window = IApplicationWindow::Create( *context );
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();
-  // s->setRenderContext( context );
-   s->load( app->getInstallationRoot() + "/share/Infinitarium/tyco2.ieb" );
-   std::shared_ptr<IMotionController> ctrl{ std::make_shared<Orbit>() };
- // s->setMotionController( ctrl );
+   s->load("/Users/tlareywi/test.ieb");
    
    PythonInterpreter* pyInterp = dynamic_cast<PythonInterpreter*>(pyInterpInterface.get());
    pyInterp->setScene( s );
    
    Simulation simulation;
    simulation.setScene( s );
-   app->run(); */
+   app->run();
+   
+/*
+   std::shared_ptr<IRenderContext> context = IRenderContext::Create( 0, 0, 1920, 1080, false );
+ std::shared_ptr<IApplicationWindow> window = IApplicationWindow::Create( *context ); */
 }

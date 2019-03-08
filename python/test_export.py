@@ -13,19 +13,19 @@ exportPath = './test.ieb'
 engine = libInfinitariumEngine
 
 scene = engine.Scene()
-#print( 'Export Scene ...' )
-#scene.save(exportPath)
 
 camera = engine.Camera()
 camera.setName('stars')
 scene.add( camera )
-#print( 'Export Scene with Camera ...' )
-#scene.save( exportPath )
+
+context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
+camera.setRenderContext( context )
+
+motionController = engine.Orbit()
+camera.setMotionController( motionController )
 
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
-#print( 'Export Scene with Camera + RenderPass ...' )
-#scene.save( exportPath )
 
 tychoCloud = engine.PointCloud()
 camera.addRenderable( tychoCloud )

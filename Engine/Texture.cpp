@@ -9,7 +9,6 @@
 #include "Module.hpp"
 
 #include <boost/serialization/export.hpp>
-
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderTargetProxy)
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -39,5 +38,7 @@ namespace boost { namespace serialization {
       ar & t.format;
       ar & t.type;
       ar & t.resource;
+      
+      std::cout<<t.dim.x<<" "<<t.dim.y<<" "<<t.format<<" "<<t.type<<" "<<t.resource<<std::endl;
    }
 }}

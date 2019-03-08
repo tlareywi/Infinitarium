@@ -19,9 +19,12 @@ public:
    IRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs ) : _x(x), _y(y), _width(w), _height(h), _fullScreen(fs) {
       
    }
+   IRenderContext( const IRenderContext& obj ) : _x(obj._x), _y(obj._y), _width(obj._width), _height(obj._height),
+   _fullScreen(obj._fullScreen) {}
    virtual ~IRenderContext() {}
    
    static std::shared_ptr<IRenderContext> Create( unsigned int, unsigned int, unsigned int, unsigned int, bool );
+   static std::shared_ptr<IRenderContext> Clone( const IRenderContext& );
    
    virtual void* getSurface() = 0;
    
@@ -45,11 +48,27 @@ public:
       return _fullScreen;
    }
    
-private:
+protected:
+   IRenderContext() {}
+   
    unsigned int _x;
    unsigned int _y;
    unsigned int _width;
    unsigned int _height;
    bool _fullScreen;
+};
+
+class RenderContextProxy : public IRenderContext {
+public:
+   RenderContextProxy() {}
+   RenderContextProxy( const IRenderContext& obj ) : IRenderContext(obj) {}
+   
+   void* getSurface() override { return nullptr; };
+  
+private:
+#if defined ENGINE_BUILD
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderContextProxy&, unsigned int );
+#endif
 };
 

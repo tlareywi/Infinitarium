@@ -51,6 +51,11 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>("libIERender
    if( !createRenderTargetCopy ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateRenderTargetCopy!");
    }
+   
+   cloneRenderContext = (RenderContextClone)dlsym( handle, "CloneRenderContext" );
+   if( !cloneRenderContext ) {
+      throw std::runtime_error("CRITICAL: No implementation for CloneRenderContext!");
+   }
 }
 
 PlatformFactory::PlatformFactory() : ModuleFactory<PlatformFactory>("libIEPlatform.dylib") {

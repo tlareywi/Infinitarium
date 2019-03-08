@@ -14,13 +14,14 @@ Camera::Camera() : dirty(false), motionController(nullptr), name("clear") {
    addRenderable( std::make_shared<ClearScreen>() );
    projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
    renderPass = IRenderPass::Create();
+   renderContext = IRenderContext::Create(0, 0, 1, 1, false);
 }
 
-void Camera::setMotionController( std::shared_ptr<IMotionController>& ctrl ) {
+void Camera::setMotionController( const std::shared_ptr<IMotionController>& ctrl ) {
    motionController = ctrl;
 }
 
-void Camera::setRenderContext( std::shared_ptr<IRenderContext>& r ) {
+void Camera::setRenderContext( const std::shared_ptr<IRenderContext>& r ) {
    renderContext = r;
    dirty = true;
 }
@@ -83,20 +84,29 @@ void Camera::draw() {
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Archive> void Camera::load( Archive& ar ) {
    ar >> renderables;
+   ar >> motionController;
    
-   RenderPassProxy rp;
+   std::unique_ptr<RenderPassProxy> rp;
    ar >> rp;
-   renderPass = IRenderPass::CreateCopy( rp );
+   renderPass = IRenderPass::CreateCopy( *rp );
+   
+   std::unique_ptr<RenderContextProxy> rc;
+   ar >> rc;
+   renderContext = IRenderContext::Clone( *rc );
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
    std::cout<<"Saving Camera "<<name<<std::endl;
    
    ar << renderables;
+   ar << motionController;
    
    // Force renderPass to be serialized as base class to maintain scene file platform independence.
    std::unique_ptr<RenderPassProxy> rp = std::make_unique<RenderPassProxy>(*renderPass);
    ar << rp;
+  
+   std::unique_ptr<RenderContextProxy> rc = std::make_unique<RenderContextProxy>(*renderContext);
+   ar << rc;
 }
 
 namespace boost { namespace serialization {

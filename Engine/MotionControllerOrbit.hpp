@@ -12,6 +12,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "EventSampler.hpp"
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
    
 class IMotionController {
 public:
@@ -33,6 +36,12 @@ protected:
    glm::mat4 view;
    
    std::shared_ptr<IEventSampler> eventSampler;
+   
+private:
+   friend class boost::serialization::access;
+   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
+      std::cout<<"Serializing IMotionController"<<std::endl;
+   }
 };
 
 
@@ -46,4 +55,11 @@ protected:
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
    
+private:
+   friend class boost::serialization::access;
+   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
+      std::cout<<"Serializing Orbit MotionController"<<std::endl;
+      boost::serialization::void_cast_register<Orbit,IMotionController>();
+      ar & boost::serialization::base_object<IMotionController>(*this);
+   }
 };

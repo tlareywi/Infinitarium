@@ -10,6 +10,7 @@
 ///
 class MetalRenderContext : public IRenderContext {
 public:
+   MetalRenderContext( const IRenderContext& obj );
    MetalRenderContext( unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs );
    
    id<MTLDevice> getMTLDevice();
