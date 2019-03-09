@@ -54,7 +54,7 @@ public:
    virtual ~IRenderTarget() {}
    
    static std::shared_ptr<IRenderTarget> Create( unsigned int, unsigned int, Format, Type, Resource );
-   static std::shared_ptr<IRenderTarget> CreateCopy( const IRenderTarget& );
+   static std::shared_ptr<IRenderTarget> Clone( const IRenderTarget& );
    
    Resource getResource() { return resource; }
    

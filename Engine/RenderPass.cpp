@@ -20,7 +20,7 @@ std::shared_ptr<IRenderPass> IRenderPass::Create() {
    return ModuleFactory<RendererFactory>::Instance()->createRenderPass();
 }
 
-std::shared_ptr<IRenderPass> IRenderPass::CreateCopy( const IRenderPass& rp ) {
+std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& rp ) {
    return ModuleFactory<RendererFactory>::Instance()->createRenderPassCopy( rp );
 }
 
@@ -32,7 +32,7 @@ template<class Archive> void RenderPassProxy::load( Archive& ar ) {
       ar >> baseTargets;
       targets.reserve(baseTargets.size());
       for( auto& t : baseTargets ) {
-         targets.push_back( IRenderTarget::CreateCopy(*t) );
+         targets.push_back( IRenderTarget::Clone(*t) );
       }
    }
 }

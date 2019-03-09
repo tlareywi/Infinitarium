@@ -27,7 +27,7 @@ std::shared_ptr<IRenderTarget> IRenderTarget::Create( unsigned int x, unsigned i
    return ModuleFactory<RendererFactory>::Instance()->createRenderTarget( glm::uvec2(x,y), format, type, resource );
 }
 
-std::shared_ptr<IRenderTarget> IRenderTarget::CreateCopy( const IRenderTarget& obj ) {
+std::shared_ptr<IRenderTarget> IRenderTarget::Clone( const IRenderTarget& obj ) {
    return ModuleFactory<RendererFactory>::Instance()->createRenderTargetCopy( obj );
 }
 

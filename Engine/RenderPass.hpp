@@ -22,7 +22,7 @@ public:
    }
    
    static std::shared_ptr<IRenderPass> Create();
-   static std::shared_ptr<IRenderPass> CreateCopy( const IRenderPass& );
+   static std::shared_ptr<IRenderPass> Clone( const IRenderPass& );
    
    void addRenderTarget( const std::shared_ptr<IRenderTarget>& t ) {
       targets.push_back( t );

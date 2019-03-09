@@ -86,9 +86,11 @@ template<class Archive> void Camera::load( Archive& ar ) {
    ar >> renderables;
    ar >> motionController;
    
+   // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
+   // need to do it manually for platform specific instances such as this.
    std::unique_ptr<RenderPassProxy> rp;
    ar >> rp;
-   renderPass = IRenderPass::CreateCopy( *rp );
+   renderPass = IRenderPass::Clone( *rp );
    
    std::unique_ptr<RenderContextProxy> rc;
    ar >> rc;
