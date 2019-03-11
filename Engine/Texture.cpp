@@ -38,7 +38,7 @@ namespace boost { namespace serialization {
       ar & t.format;
       ar & t.type;
       ar & t.resource;
-      
-      std::cout<<t.dim.x<<" "<<t.dim.y<<" "<<t.format<<" "<<t.type<<" "<<t.resource<<std::endl;
+      ar & t.clear;
+      ar & t.clearColor;
    }
 }}

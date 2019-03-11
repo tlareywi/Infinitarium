@@ -25,6 +25,10 @@ public:
    
    static std::shared_ptr<IRenderContext> Create( unsigned int, unsigned int, unsigned int, unsigned int, bool );
    static std::shared_ptr<IRenderContext> Clone( const IRenderContext& );
+ 
+   #if defined ENGINE_BUILD
+   void init();
+   #endif
    
    virtual void* getSurface() = 0;
    
@@ -49,7 +53,7 @@ public:
    }
    
 protected:
-   IRenderContext() {}
+   IRenderContext() : _x(0), _y(0), _width(0), _height(0), _fullScreen(false) {}
    
    unsigned int _x;
    unsigned int _y;

@@ -18,6 +18,7 @@ void MetalRenderPass::begin( std::shared_ptr<IRenderContext>& renderContext ) {
    renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
    
    unsigned short i {0};
+
    for( auto& target : targets ) {
       if( target->getResource() == IRenderTarget::FrameBuffer ) {
          CAMetalLayer* layer = context->getMTLLayer();
@@ -31,8 +32,14 @@ void MetalRenderPass::begin( std::shared_ptr<IRenderContext>& renderContext ) {
          renderPass.colorAttachments[i].texture = metalTarget->getMetalTexture();
       }
       
-      renderPass.colorAttachments[i].loadAction = MTLLoadActionClear;
-      renderPass.colorAttachments[i].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+      if( target->getClear() ) {
+         glm::vec4 color = target->getClearColor();
+         renderPass.colorAttachments[i].clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
+         renderPass.colorAttachments[i].loadAction = MTLLoadActionClear;
+      }
+      else
+         renderPass.colorAttachments[i].loadAction = MTLLoadActionLoad;
+      
       renderPass.colorAttachments[i].storeAction = MTLStoreActionStore;
       ++i;
    }

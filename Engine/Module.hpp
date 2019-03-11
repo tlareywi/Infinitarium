@@ -108,17 +108,20 @@ public:
    PlatformFactory();
    
    typedef std::shared_ptr<IEventSampler> (*EventSamplerImpl)();
-   typedef std::shared_ptr<IApplicationWindow> (*ApplicationWindowImpl)( IRenderContext& );
+   typedef std::shared_ptr<IApplicationWindow> (*ApplicationWindowImpl)();
+   typedef std::shared_ptr<IApplicationWindow> (*ApplicationWindowClone)( const IApplicationWindow& );
    typedef std::shared_ptr<IApplication> (*ApplicationImpl)();
    
    virtual ~PlatformFactory() {
       createEventSampler = nullptr;
       createApplication = nullptr;
       createApplicationWindow = nullptr;
+      cloneApplicationWindow = nullptr;
    }
    
    EventSamplerImpl createEventSampler;
    ApplicationImpl createApplication;
    ApplicationWindowImpl createApplicationWindow;
+   ApplicationWindowClone cloneApplicationWindow;
 };
 

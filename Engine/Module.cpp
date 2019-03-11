@@ -74,5 +74,10 @@ PlatformFactory::PlatformFactory() : ModuleFactory<PlatformFactory>("libIEPlatfo
    if( !createApplicationWindow ) {
       throw std::runtime_error("CRITICAL: No implementation for ApplicationWindow!");
    }
+   
+   cloneApplicationWindow = (ApplicationWindowClone)dlsym( handle, "CloneApplicationWindow" );
+   if( !cloneApplicationWindow ) {
+      throw std::runtime_error("CRITICAL: No implementation for CloneApplicationWindow!");
+   }
 }
 

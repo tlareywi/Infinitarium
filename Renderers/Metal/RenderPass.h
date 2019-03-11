@@ -49,7 +49,7 @@ public:
    MTLRenderPassDescriptor* getPassDescriptor();
    
 private:
-   MTLRenderPassDescriptor* renderPass;
-   id<CAMetalDrawable> drawable;
-   id <MTLCommandBuffer> commandBuffer;
+   MTLRenderPassDescriptor* renderPass = nullptr;
+   id<CAMetalDrawable> drawable = nullptr;
+   id <MTLCommandBuffer> commandBuffer = nullptr;
 };

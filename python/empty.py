@@ -1,4 +1,4 @@
-# Unit tests for boost serialization on engine objects.
+# Creates a minimal scene for application startup state.
 
 import importlib
 import sys

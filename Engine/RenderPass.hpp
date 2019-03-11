@@ -33,8 +33,9 @@ public:
    virtual void end() = 0;
 
 protected:
-   std::vector<std::shared_ptr<IRenderTarget>> targets;
    IRenderPass() {};
+   
+   std::vector<std::shared_ptr<IRenderTarget>> targets;
 };
 
 ///
@@ -47,9 +48,9 @@ public:
    template<class Archive> void save( Archive& ) const;
    template<class Archive> void load( Archive& );
    
-   virtual void prepare( std::shared_ptr<IRenderContext>& ) {};
-   virtual void begin( std::shared_ptr<IRenderContext>& ) {};
-   virtual void end() {};
+   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void begin( std::shared_ptr<IRenderContext>& ) override {};
+   void end() override {};
    
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;

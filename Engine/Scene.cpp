@@ -14,7 +14,6 @@
 #include <boost/serialization/vector.hpp>
 
 Scene::Scene() {
-   clear();
 }
 
 template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {
@@ -23,14 +22,11 @@ template<class Archive> void Scene::serialize(Archive & ar, const unsigned int v
 }
 
 void Scene::clear() {
-   {
-      std::lock_guard<std::mutex> lock( loadLock );
-      for( auto& camera : cameras )
-         camera = nullptr;
-   }
+   std::lock_guard<std::mutex> lock( loadLock );
+   for( auto& camera : cameras )
+      camera = nullptr;
    
-   std::shared_ptr<Camera> camera = std::make_shared<Camera>();
-   add( camera ); // default clear camera
+   cameras.clear();
 }
 
 void Scene::add( const std::shared_ptr<Camera>& camera ) {
@@ -51,9 +47,20 @@ void Scene::load( const std::string& filename ) {
    {
       std::lock_guard<std::mutex> lock( loadLock );
       ia >> *this;
+      
+      for( auto& camera : cameras )
+         camera->init();
    }
    
    ifs.close();
+}
+
+void Scene::loadLocal( const std::string& sceneName ) {
+   load( localScenePath + sceneName );
+}
+
+void Scene::setLocalScenePath( const std::string& path ) {
+   localScenePath = path;
 }
 
 void Scene::save( const std::string& filename ) const {

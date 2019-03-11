@@ -14,6 +14,8 @@
 
 class OSXSimulationWindow : public IApplicationWindow {
 public:
-   OSXSimulationWindow( IRenderContext& );
-
+   OSXSimulationWindow() {}
+   OSXSimulationWindow( const IApplicationWindow& obj ) : IApplicationWindow( obj ) {};
+   
+   void init( IRenderContext& ) override;
 };

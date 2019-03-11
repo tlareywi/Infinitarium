@@ -25,6 +25,8 @@ public:
    virtual ~Scene() {}
    void save( const std::string& ) const;
    void load( const std::string& );
+   void loadLocal( const std::string& );
+   void setLocalScenePath( const std::string& );
    void clear();
    
    void add( const std::shared_ptr<Camera>& );
@@ -53,4 +55,6 @@ private:
    // This object is non-copyable. Can be indirectly copied easilly by saving/loading new instance. 
    Scene( const Scene& ) = delete;
    Scene& operator=( const Scene& ) = delete;
+   
+   std::string localScenePath;
 };

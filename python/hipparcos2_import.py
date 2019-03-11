@@ -35,6 +35,24 @@ format="ascii.cds")
 t['Plx'].fill_value = 0
 
 scene = engine.Scene()
+
+camera = engine.Camera()
+camera.setName('hipStars')
+scene.add( camera )
+
+context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
+camera.setRenderContext( context )
+
+renderPass = engine.IRenderPass.create()
+camera.setRenderPass( renderPass )
+
+renderTarget = engine.IRenderTarget.create( 1920, 1080,
+    engine.Format.BRGA8_sRGB, engine.Type.Color,
+    engine.Resource.FrameBuffer)
+renderTarget.setClear( True )
+renderTarget.setClearColor(0,0,0,1)
+renderPass.addRenderTarget( renderTarget )
+
 hip2Cloud = engine.PointCloud()
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
@@ -74,7 +92,7 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inom
 hip2Cloud.addVertexBuffer( position.container(), 'position' )
 hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 hip2Cloud.addVertexBuffer( color.container(), 'color' )
-scene.add( hip2Cloud )
+camera.addRenderable( hip2Cloud )
 
 exportPath = './hip2.ieb'
 print('Exporting ' + exportPath)

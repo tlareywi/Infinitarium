@@ -70,13 +70,13 @@ public:
 protected:
    std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
+   bool dirty;
    
 private:
    std::vector<std::pair<std::string, UniformType>> allUniforms; // built-ins, not serialized
    std::vector<std::pair<std::string, UniformType>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
    std::string programName;
-   bool dirty;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {

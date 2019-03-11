@@ -29,6 +29,7 @@ class Camera : public Reflection::IConsole<Camera> {
 public:
    Camera();
    
+   void init();
    void update();
    void draw();
    

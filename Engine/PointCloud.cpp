@@ -25,6 +25,8 @@ void PointCloud::addVertexBuffer( DataPackContainer& datapack, const std::string
 }
 
 void PointCloud::prepare( IRenderContext& context ) {
+   if( !dirty ) return;
+   
    renderCommand = IRenderCommand::Create();
    
    renderCommand->setVertexCount( 1 );

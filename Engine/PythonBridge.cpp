@@ -12,6 +12,7 @@
 #include "ConsoleInterface.hpp"
 #include "PythonBridge.hpp"
 #include "PyUtil.hpp"
+#include "ApplicationWindow.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -69,6 +70,10 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("create", &IRenderContext::Create)
    ;
    
+   class_<IApplicationWindow, boost::noncopyable>("IApplicationWindow", no_init)
+      .def("create", &IApplicationWindow::Create)
+   ;
+   
    class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
       .def("create", &IRenderPass::Create)
       .def("addRenderTarget", &IRenderPass::addRenderTarget)
@@ -76,6 +81,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    
    class_<IRenderTarget, boost::noncopyable>("IRenderTarget", no_init)
       .def("create", &IRenderTarget::Create)
+      .def("setClear", &IRenderTarget::setClear)
+      .def("setClearColor", &IRenderTarget::setClearColor)
    ;
    enum_<ITexture::Format>("Format")
       .value("BRGA8", ITexture::Format::BRGA8)
@@ -104,6 +111,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("removeUniform", &IRenderable::removeUniform)
       .def("manipulateUniform", &IRenderable::manipulateUniform)
    ;
+   class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
+   ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
       .def("setNumPoints", &PointCloud::setNumPoints)
@@ -111,6 +120,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    
    class_<Scene, boost::noncopyable>("Scene", init<>())
       .def("load", &Scene::load)
+      .def("loadLocal", &Scene::loadLocal)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
       .def("clear", &Scene::clear)
@@ -135,6 +145,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    register_ptr_to_python<std::shared_ptr<Scene>>();
    register_ptr_to_python<std::shared_ptr<IMotionController>>();
    register_ptr_to_python<std::shared_ptr<IRenderContext>>();
+   register_ptr_to_python<std::shared_ptr<IApplicationWindow>>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

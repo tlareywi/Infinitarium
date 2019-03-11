@@ -118,13 +118,12 @@ extern "C" {
 }
 @end
 
-
-OSXSimulationWindow::OSXSimulationWindow( IRenderContext& context ) {
+void OSXSimulationWindow::init( IRenderContext& context ) {
    GameViewController* controller = [[GameViewController alloc] init];
    
    // TODO: Modify to allow multiple contexts (in this case Metal Layers) per window.
    // It's a bit of an 'edge' feature as typically one would just use a viewport, but could
-   // allow for some interesting stuff; use of low power GPU for low res preview render? 
+   // allow for some interesting stuff; use of low power GPU for low res preview render?
    controller.rect = CGRectMake( context.x(), context.y(), context.width(), context.height() );
    
    controller.backingLayer = (CALayer*)context.getSurface();
@@ -135,7 +134,7 @@ OSXSimulationWindow::OSXSimulationWindow( IRenderContext& context ) {
    winDelegate.window = window;
    
    [window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-
+   
    [window setStyleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable)];
    
    [window setTitle:@"Infinitarium"];
@@ -145,8 +144,15 @@ OSXSimulationWindow::OSXSimulationWindow( IRenderContext& context ) {
 }
 
 extern "C" {
-   std::shared_ptr<IApplicationWindow> CreateApplicationWindow( IRenderContext& context ) {
-      std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>( context );
+   std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
+      std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>();
+      return window;
+   }
+}
+
+extern "C" {
+   std::shared_ptr<IApplicationWindow> CloneApplicationWindow( const IApplicationWindow& obj ) {
+      std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>( obj );
       return window;
    }
 }

@@ -10,11 +10,10 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
 
-Camera::Camera() : dirty(false), motionController(nullptr), name("clear") {
-   addRenderable( std::make_shared<ClearScreen>() );
+Camera::Camera() : dirty(true), motionController(nullptr) {
    projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
-   renderPass = IRenderPass::Create();
-   renderContext = IRenderContext::Create(0, 0, 1, 1, false);
+   renderPass = nullptr;
+   renderContext = nullptr;
 }
 
 void Camera::setMotionController( const std::shared_ptr<IMotionController>& ctrl ) {
@@ -26,13 +25,7 @@ void Camera::setRenderContext( const std::shared_ptr<IRenderContext>& r ) {
    dirty = true;
 }
 
-void Camera::addRenderable( const std::shared_ptr<IRenderable>& renderable ) {
-   // We don't want to retain the default clear screen renderable. Beyond being superfluous, we don't want to serialize it.
-   if( renderables.size() == 1 ) {
-      ClearScreen* clr = dynamic_cast<ClearScreen*>(renderables[0].get());
-      if( clr ) renderables.clear();
-   }
-   
+void Camera::addRenderable( const std::shared_ptr<IRenderable>& renderable ) {   
    renderables.push_back( renderable );
 }
 
@@ -46,6 +39,10 @@ unsigned int Camera::numRenderables() {
 
 std::shared_ptr<IRenderable> Camera::getRenderable( unsigned int indx ) {
    return renderables[indx];
+}
+
+void Camera::init() {
+   renderContext->init();
 }
 
 void Camera::update() {
@@ -65,8 +62,8 @@ void Camera::update() {
 
 void Camera::draw() {
    if( dirty ) {
-      renderPass->prepare( renderContext );
       dirty = false;
+      renderPass->prepare( renderContext );
    }
    
    renderPass->begin( renderContext );
