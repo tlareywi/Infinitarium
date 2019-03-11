@@ -56,6 +56,7 @@ void Camera::update() {
    glm::mat4 mvp = projection * view;
 
    for( auto& renderable : renderables ) {
+      renderable->prepare( *renderContext );
       renderable->update( mvp );
    }
 }
@@ -69,7 +70,6 @@ void Camera::draw() {
    renderPass->begin( renderContext );
    
    for( auto& renderable : renderables ) {
-      renderable->prepare( *renderContext );
       renderable->render( *renderPass );
    }
    

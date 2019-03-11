@@ -8,6 +8,7 @@
 #include "MotionControllerOrbit.hpp"
 
 #include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(IMotionController)
 BOOST_CLASS_EXPORT(Orbit)
 
 IMotionController::IMotionController() {

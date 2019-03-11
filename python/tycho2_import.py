@@ -17,6 +17,25 @@ t['BTmag'].fill_value = 0
 t['VTmag'].fill_value = 0
 
 scene = engine.Scene()
+
+camera = engine.Camera()
+camera.setName('tyc2Stars')
+scene.add( camera )
+
+context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
+camera.setRenderContext( context )
+
+renderPass = engine.IRenderPass.create()
+camera.setRenderPass( renderPass )
+camera.setMotionController( engine.Orbit() )
+
+renderTarget = engine.IRenderTarget.create( 1920, 1080,
+    engine.Format.BRGA8_sRGB, engine.Type.Color,
+    engine.Resource.FrameBuffer)
+renderTarget.setClear( True )
+renderTarget.setClearColor(0,0,0,1)
+renderPass.addRenderTarget( renderTarget )
+
 tychoCloud = engine.PointCloud()
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
@@ -57,7 +76,7 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inom
 tychoCloud.addVertexBuffer( position.container(), 'position' )
 tychoCloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 tychoCloud.addVertexBuffer( color.container(), 'color' )
-scene.add( tychoCloud )
+camera.addRenderable( tychoCloud )
 
 exportPath = './tyco2.ieb'
 print('Exporting ' + exportPath)
