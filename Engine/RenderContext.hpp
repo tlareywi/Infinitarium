@@ -8,6 +8,7 @@
 #pragma once
 
 #include <memory>
+#include <iostream>
 
 #if defined ENGINE_BUILD
    #include <boost/archive/binary_oarchive.hpp>
@@ -21,7 +22,9 @@ public:
    }
    IRenderContext( const IRenderContext& obj ) : _x(obj._x), _y(obj._y), _width(obj._width), _height(obj._height),
    _fullScreen(obj._fullScreen) {}
-   virtual ~IRenderContext() {}
+   virtual ~IRenderContext() {
+      std::cout<<"RenderContext destructor"<<std::endl;
+   }
    
    static std::shared_ptr<IRenderContext> Create( unsigned int, unsigned int, unsigned int, unsigned int, bool );
    static std::shared_ptr<IRenderContext> Clone( const IRenderContext& );

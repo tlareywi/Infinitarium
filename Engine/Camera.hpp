@@ -28,6 +28,9 @@
 class Camera : public Reflection::IConsole<Camera> {
 public:
    Camera();
+   virtual ~Camera() {
+      std::cout<<"Camera destructor"<<std::endl;
+   }
    
    void init();
    void update();

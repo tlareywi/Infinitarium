@@ -8,6 +8,7 @@ add_library( IERenderer SHARED RenderContext.mm RenderContext.h RenderCommand.mm
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
 
 # Enable ARC
 # target_compile_options(IERenderer PUBLIC "-fobjc-arc")

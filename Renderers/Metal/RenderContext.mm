@@ -33,6 +33,12 @@ MetalRenderContext::MetalRenderContext( const IRenderContext& obj ) : IRenderCon
    
    commandQ = [device newCommandQueue];
 }
+
+MetalRenderContext::~MetalRenderContext() {
+   [commandQ release];
+   [device release];
+   [surface release];
+}
    
 id<MTLDevice> MetalRenderContext::getMTLDevice() {
    return device;

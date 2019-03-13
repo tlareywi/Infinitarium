@@ -7,6 +7,7 @@ add_library( IEPlatform SHARED ViewController.mm ApplicationWindow.mm
 
 set_property(TARGET IEPlatform PROPERTY CXX_STANDARD 17)
 set_property(TARGET IEPlatform PROPERTY CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
 
 find_library(COCOA_LIB Cocoa)
 target_link_libraries(IEPlatform ${COCOA_LIB})
