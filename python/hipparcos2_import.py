@@ -45,6 +45,7 @@ camera.setRenderContext( context )
 
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
+camera.setMotionController( engine.Orbit() )
 
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8_sRGB, engine.Type.Color,

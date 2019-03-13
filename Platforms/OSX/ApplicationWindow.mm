@@ -118,6 +118,10 @@ extern "C" {
 }
 @end
 
+OSXSimulationWindow::~OSXSimulationWindow() {
+   [window performClose:window];
+}
+
 void OSXSimulationWindow::init( IRenderContext& context ) {
    GameViewController* controller = [[GameViewController alloc] init];
    
@@ -127,7 +131,7 @@ void OSXSimulationWindow::init( IRenderContext& context ) {
    controller.rect = CGRectMake( context.x(), context.y(), context.width(), context.height() );
    
    controller.backingLayer = (CALayer*)context.getSurface();
-   NSWindow* window = [BorderlessWindow windowWithContentViewController:controller];
+   window = [BorderlessWindow windowWithContentViewController:controller];
    
    WindowDelegate* winDelegate = [[WindowDelegate new] init];
    window.delegate = winDelegate;
@@ -141,6 +145,10 @@ void OSXSimulationWindow::init( IRenderContext& context ) {
    
    if( context.fullScreen() )
       [window toggleFullScreen:nullptr];
+   
+   [window makeKeyAndOrderFront:nil];
+   [window makeFirstResponder:nil];
+   [window setLevel:NSNormalWindowLevel];
 }
 
 extern "C" {

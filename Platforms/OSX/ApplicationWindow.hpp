@@ -14,8 +14,12 @@
 
 class OSXSimulationWindow : public IApplicationWindow {
 public:
-   OSXSimulationWindow() {}
+   OSXSimulationWindow() : window(nullptr) {}
    OSXSimulationWindow( const IApplicationWindow& obj ) : IApplicationWindow( obj ) {};
+   virtual ~OSXSimulationWindow();
    
    void init( IRenderContext& ) override;
+   
+private:
+   NSWindow* window;
 };
