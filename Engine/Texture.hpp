@@ -20,7 +20,9 @@ public:
    enum Format {
       BRGA8,
       BRGA8_sRGB,
-      RU32
+      RU32,
+      RGB8,
+      RGBA8
    };
    
    ITexture( const glm::uvec2& d, Format f) : dim(d), format(f) {}
