@@ -21,6 +21,8 @@ using namespace boost::python;
 
 void (DataPack_FLOAT32::*addVec3f)(float,float,float) = &DataPack_FLOAT32::addVec;
 void (DataPack_FLOAT32::*addVec4f)(float,float,float,float) = &DataPack_FLOAT32::addVec;
+void (DataPack_UINT8::*addVec3u8)(uint8_t,uint8_t,uint8_t) = &DataPack_UINT8::addVec;
+void (DataPack_UINT8::*addVec4u8)(uint8_t,uint8_t,uint8_t,uint8_t) = &DataPack_UINT8::addVec;
 void (DataPack_UINT16::*addVec3u16)(uint16_t,uint16_t,uint16_t) = &DataPack_UINT16::addVec;
 void (DataPack_UINT16::*addVec4u16)(uint16_t,uint16_t,uint16_t,uint16_t) = &DataPack_UINT16::addVec;
 void (DataPack_UINT32::*addVec3u32)(uint32_t,uint32_t,uint32_t) = &DataPack_UINT32::addVec;
@@ -45,6 +47,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("add", &DataPack_UINT32::add)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec3u32)
+   ;
+   class_<DataPack_UINT8>("DataPack_UINT8", init<unsigned int>())
+      .def("container", &DataPack_UINT8::operator DataPackContainer&, return_internal_reference<>())
+      .def("add", &DataPack_UINT8::add)
+      .def("addVec3", addVec3u8)
+      .def("addVec4", addVec3u8)
    ;
    
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)

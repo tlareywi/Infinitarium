@@ -22,11 +22,13 @@ template<typename T> class DataPack;
 typedef DataPack<float> DataPack_FLOAT32;
 typedef DataPack<uint32_t> DataPack_UINT32;
 typedef DataPack<uint16_t> DataPack_UINT16;
+typedef DataPack<uint8_t> DataPack_UINT8;
 
 typedef std::variant<
 DataPack_FLOAT32,
 DataPack_UINT32,
-DataPack_UINT16> DataPackContainer;
+DataPack_UINT16,
+DataPack_UINT8> DataPackContainer;
 
 namespace boost {
    namespace serialization {
