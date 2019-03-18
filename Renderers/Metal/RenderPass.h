@@ -12,8 +12,16 @@
 class MetalTexture : public ITexture {
 public:
    MetalTexture( const glm::uvec2&, Format );
+   MetalTexture( const ITexture& obj ) : ITexture(obj) {};
+   virtual ~MetalTexture() {
+      [texture release];
+      texture = nullptr;
+   }
    
    void prepare( std::shared_ptr<IRenderContext>& ) override;
+   
+private:
+   id<MTLTexture> texture = nullptr;
 };
 
 ///
@@ -23,6 +31,10 @@ class MetalRenderTarget : public IRenderTarget {
 public:
    MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj) {}
    MetalRenderTarget( const glm::uvec2&, Format, Type, Resource );
+   virtual ~MetalRenderTarget() {
+      [renderTarget release];
+      renderTarget = nullptr;
+   }
    
    id<MTLTexture> getMetalTexture() {
       return renderTarget;

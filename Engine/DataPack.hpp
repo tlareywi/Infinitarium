@@ -17,6 +17,11 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 
+#if defined ENGINE_BUILD
+   #include <boost/python.hpp>
+   #include "Python.h"
+#endif
+
 template<typename T> class DataPack;
 
 typedef DataPack<float> DataPack_FLOAT32;
@@ -71,6 +76,10 @@ public:
       return data.size() * sizeof(T);
    }
    
+   unsigned long capacityBytes() const {
+      return data.capacity() * sizeof(T);
+   }
+   
    T* get() {
       if( data.size() < 1 )
          return nullptr;
@@ -107,6 +116,12 @@ public:
       data.push_back(b);
       data.push_back(a);
    }
+
+#if defined ENGINE_BUILD
+   boost::python::handle<> getBuffer() {
+      return boost::python::handle<>(PyMemoryView_FromMemory(reinterpret_cast<char *>(data.data()), capacityBytes(), PyBUF_WRITE));
+   }
+#endif
    
 private:
    friend class boost::serialization::access;

@@ -72,6 +72,7 @@ public:
    typedef std::shared_ptr<ITexture> (*TextureImpl)( const glm::uvec2&, ITexture::Format );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImpl)( const glm::uvec2&, ITexture::Format, IRenderTarget::Type, IRenderTarget::Resource );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImplCopy)( const IRenderTarget& );
+   typedef std::shared_ptr<ITexture> (*textureCloneImpl)( const ITexture& );
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -85,6 +86,7 @@ public:
       createRenderPassCopy = nullptr;
       createRenderTargetCopy = nullptr;
       cloneRenderContext = nullptr;
+      cloneTexture = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -98,6 +100,7 @@ public:
    RenderTargetImplCopy createRenderTargetCopy;
    RenderPassImplCopy createRenderPassCopy;
    RenderContextClone cloneRenderContext;
+   textureCloneImpl cloneTexture;
 };
 
 ///

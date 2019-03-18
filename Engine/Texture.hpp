@@ -12,11 +12,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "RenderContext.hpp"
+#include "DataBuffer.hpp"
 
 class ITexture {
 public:
-   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format) {}
-   
    enum Format {
       BRGA8,
       BRGA8_sRGB,
@@ -24,18 +23,25 @@ public:
       RGB8,
       RGBA8
    };
-   
+
    ITexture( const glm::uvec2& d, Format f) : dim(d), format(f) {}
+   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image) {}
    virtual ~ITexture() {}
    
    virtual void prepare( std::shared_ptr<IRenderContext>& ) = 0;
    
-   static std::shared_ptr<ITexture> Create( const glm::uvec2&, Format );
+   static std::shared_ptr<ITexture> Create( unsigned int, unsigned int, Format );
+   static std::shared_ptr<ITexture> Clone( const ITexture& );
+   
+   void set( DataPackContainer& i ) {
+      image = std::move(i);
+   }
    
 protected:
    ITexture() {};
    glm::uvec2 dim;
    Format format;
+   DataPackContainer image;
 };
 
 class IRenderTarget : public ITexture {
@@ -73,6 +79,12 @@ protected:
    glm::vec4 clearColor;
 };
 
+//
+// Proxy Classes for serialization ///////////////////////////////////////////////////////////////////////////
+//
+
+// TODO: Move to separate header to cleanup if defs
+
 class RenderTargetProxy : public IRenderTarget {
 public:
    RenderTargetProxy() {}
@@ -90,7 +102,24 @@ private:
 #endif
 };
 
+class TextureProxy : public ITexture {
+public:
+   TextureProxy() {}
+   TextureProxy(const ITexture& obj) : ITexture(obj) {}
+   
+   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   
+   template<class Archive> void load( Archive& ar );
+   template<class Archive> void save( Archive& ar ) const;
+   
+private:
 #if defined ENGINE_BUILD
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(ITexture)
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderTarget)
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, TextureProxy&, unsigned int );
+#endif
+};
+
+#if defined ENGINE_BUILD
+   BOOST_SERIALIZATION_ASSUME_ABSTRACT(ITexture)
+   BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderTarget)
 #endif

@@ -19,10 +19,30 @@ brew install rapidjson
 brew install python
 
 ### Optional Runtime Dependencies  
-pip3 install astropy
-pip3 install Pillow
+pip3 install astropy  
+pip3 install Pillow  
 
 ### Screen Captures
 
 #### Tycho2 Catalog
 ![Tycho2 Catalog](screen_captures/tycho2.png)
+
+### Usaage
+Running the execuable will load the default empty scene with a python console. From here you can do anything you could in Python and Astropy including loading star catalogs from VizieR. It's often more convinient though to process star catalogs via a standalone python script. See examples in the python folder. The included 
+
+#### Loading pre-built scenes
+In the application's python console run activeScene.loadLocal('[scenefile]'). There are currently two scenes distrubuted, hip2.ieb and tyco2.ieb. 
+
+#### Exploring the scenegraph
+Cameras and renderable objects in the scene support the method propList() which prints the public methods and members of the object to the console. This serves as a form of interactive documentation, albiet a little obtuse at present.  
+
+#### Manipulating shader uniforms
+Shader uniforms can be manipulated in real-time during the simulation. An example is provided below. Invoking a monipulator will add a small slider control to the console window which is used to change the values of the uniform. Many manipulators can be active simulatainiously.  
+  
+camera = activeScene.getCamera( 0 )  
+stars = camera.getRenderable( 0 )  
+stars.listUniforms()  
+stars.manipulateUniform('[name]')  
+
+#### Saving changes
+activeScene.save('[filename]') will serialize out the current scene including all shader uniforms, camera configuration, etc. to the given filename.  

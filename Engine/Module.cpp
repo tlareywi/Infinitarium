@@ -42,12 +42,17 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>("libIERender
       throw std::runtime_error("CRITICAL: No implementation for CreateTexture!");
    }
    
+   cloneTexture = (textureCloneImpl)dlsym( handle, "CloneTexture" );
+   if( !cloneTexture ) {
+      throw std::runtime_error("CRITICAL: No implementation for CloneTexture!");
+   }
+   
    createRenderTarget = (RenderTargetImpl)dlsym( handle, "CreateRenderTarget" );
    if( !createRenderTarget ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateRenderTarget!");
    }
    
-   createRenderTargetCopy = (RenderTargetImplCopy)dlsym( handle, "CreateRenderTargetCopy" );
+   createRenderTargetCopy = (RenderTargetImplCopy)dlsym( handle, "CloneRenderTarget" );
    if( !createRenderTargetCopy ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateRenderTargetCopy!");
    }

@@ -78,7 +78,48 @@ extern "C" {
 
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
 
-void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {}
+void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
+   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+   
+   [texture release];
+   
+   MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
+   
+   unsigned short bypp{4};
+   switch( format ) {
+      case BRGA8:
+         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+         break;
+      case RU32:
+         textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
+         break;
+      case RGBA8:
+         textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+         break;
+      case BRGA8_sRGB:
+      default:
+         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+         break;
+   }
+   
+   textureDescriptor.width = dim.x;
+   textureDescriptor.height = dim.y;
+   textureDescriptor.depth = 1;
+   textureDescriptor.mipmapLevelCount = 1;
+   textureDescriptor.sampleCount = 1;
+   textureDescriptor.arrayLength = 1;
+   textureDescriptor.storageMode = MTLStorageModePrivate;
+   textureDescriptor.allowGPUOptimizedContents = true;
+   textureDescriptor.usage = MTLTextureUsageShaderRead;
+   
+   texture = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   
+   [textureDescriptor release];
+   
+   std::visit( [bypp, this](auto& e) {
+      [texture replaceRegion:MTLRegionMake2D(0, 0, dim.x, dim.y) mipmapLevel:0 withBytes:e.get() bytesPerRow:(dim.x*bypp)];
+   }, image );
+}
 
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :
    IRenderTarget( d, f, t, r ) {
@@ -126,7 +167,7 @@ extern "C" {
 }
 
 extern "C" {
-   std::shared_ptr<IRenderTarget> CreateRenderTargetCopy( const IRenderTarget& obj ) {
+   std::shared_ptr<IRenderTarget> CloneRenderTarget( const IRenderTarget& obj ) {
       return std::make_shared<MetalRenderTarget>( obj );
    }
 }
@@ -134,5 +175,11 @@ extern "C" {
 extern "C" {
    std::shared_ptr<ITexture> CreateTexture( const glm::uvec2& vec, ITexture::Format f  ) {
       return std::make_shared<MetalTexture>( vec, f );
+   }
+}
+
+extern "C" {
+   std::shared_ptr<ITexture> CloneTexture( const ITexture& obj ) {
+      return std::make_shared<MetalTexture>( obj );
    }
 }

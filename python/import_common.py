@@ -3,6 +3,7 @@ exec(open('./BlackBodyParser.py').read())
 import math
 import importlib
 import sys
+import ctypes
 
 sys.path.append('/usr/local/lib')
 

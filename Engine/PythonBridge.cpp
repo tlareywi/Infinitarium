@@ -33,24 +33,28 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
       .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_FLOAT32::add)
+      .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3f)
       .def("addVec4", addVec3f)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
       .def("container", &DataPack_UINT16::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT16::add)
+      .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u16)
       .def("addVec4", addVec3u16)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
       .def("container", &DataPack_UINT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT32::add)
+      .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec3u32)
    ;
    class_<DataPack_UINT8>("DataPack_UINT8", init<unsigned int>())
       .def("container", &DataPack_UINT8::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT8::add)
+      .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u8)
       .def("addVec4", addVec3u8)
    ;
@@ -58,36 +62,40 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)
    ;
    
-   /* import ctypes
-   >>> ctypes.c_ulong(-1)  # stuff Python's -1 into a C unsigned long
-   c_ulong(4294967295L)
-   >>> _.value
-   4294967295L */
-   
+   // UniformType //////////////////////////////////////////////////////////////////////////////////////////////
    class_<UniformType>("UniformType", init<float>())
       .def(init<int>())
       .def(init<unsigned int>())
    ;
    
+   // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
    ;
    class_<Orbit, bases<IMotionController>>("Orbit", init<>())
    ;
    
+   // IRenderContext ///////////////////////////////////////////////////////////////////////////////////////////
    class_<IRenderContext, boost::noncopyable>("IRenderContext", no_init)
       .def("create", &IRenderContext::Create)
    ;
    
+    // IApplicationWindow //////////////////////////////////////////////////////////////////////////////////////
    class_<IApplicationWindow, boost::noncopyable>("IApplicationWindow", no_init)
       .def("create", &IApplicationWindow::Create)
    ;
    
+    // IRenderPass ////////////////////////////////////////////////////////////////////////////////////////////
    class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
       .def("create", &IRenderPass::Create)
       .def("addRenderTarget", &IRenderPass::addRenderTarget)
    ;
    
-   class_<IRenderTarget, boost::noncopyable>("IRenderTarget", no_init)
+   // Textures ////////////////////////////////////////////////////////////////////////////////////////////////
+   class_<ITexture, boost::noncopyable>("ITexture", no_init)
+      .def("create", &ITexture::Create)
+      .def("set", &ITexture::set)
+   ;
+   class_<IRenderTarget, bases<ITexture>, boost::noncopyable>("IRenderTarget", no_init)
       .def("create", &IRenderTarget::Create)
       .def("setClear", &IRenderTarget::setClear)
       .def("setClearColor", &IRenderTarget::setClearColor)
@@ -96,6 +104,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .value("BRGA8", ITexture::Format::BRGA8)
       .value("BRGA8_sRGB", ITexture::Format::BRGA8_sRGB)
       .value("RU32", ITexture::Format::RU32)
+      .value("RGBA8", ITexture::Format::RGBA8)
       .export_values()
    ;
    enum_<IRenderTarget::Type>("Type")
@@ -110,6 +119,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .export_values()
    ;
    
+   // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
    class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
       .def("propList", &IRenderable::propList)
       .def("listUniforms", &IRenderable::listUniforms)
@@ -126,6 +136,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setNumPoints", &PointCloud::setNumPoints)
    ;
    
+   // Scene ////////////////////////////////////////////////////////////////////////////////////////////////
    class_<Scene, boost::noncopyable>("Scene", init<>())
       .def("load", &Scene::load)
       .def("loadLocal", &Scene::loadLocal)
@@ -135,6 +146,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("propList", &Scene::propList)
    ;
    
+   // Camera ///////////////////////////////////////////////////////////////////////////////////////////////
    class_<Camera, boost::noncopyable>("Camera", init<>())
       .def("setName", &Camera::setName)
       .def("numRenderables", &Camera::numRenderables)
@@ -153,6 +165,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    register_ptr_to_python<std::shared_ptr<Scene>>();
    register_ptr_to_python<std::shared_ptr<IMotionController>>();
    register_ptr_to_python<std::shared_ptr<IRenderContext>>();
+   register_ptr_to_python<std::shared_ptr<ITexture>>();
    register_ptr_to_python<std::shared_ptr<IApplicationWindow>>();
 }
 

@@ -10,14 +10,28 @@
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderTargetProxy)
+BOOST_CLASS_EXPORT_IMPLEMENT(TextureProxy)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // ITexture
 ////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ITexture> ITexture::Create( const glm::uvec2& dim, Format format ) {
-   return ModuleFactory<RendererFactory>::Instance()->createTexture( dim, format );
+std::shared_ptr<ITexture> ITexture::Create( unsigned int x, unsigned int y, Format format ) {
+   return ModuleFactory<RendererFactory>::Instance()->createTexture( glm::uvec2(x,y), format );
 }
+
+std::shared_ptr<ITexture> ITexture::Clone( const ITexture& obj ) {
+   return ModuleFactory<RendererFactory>::Instance()->cloneTexture( obj );
+}
+
+namespace boost { namespace serialization {
+   template<class Archive> inline void serialize(Archive& ar, TextureProxy& t, unsigned int version) {
+      std::cout<<"Serializing Texture"<<std::endl;
+      ar & t.dim;
+      ar & t.format;
+      ar & t.image;
+   }
+}}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // IRenderTarget

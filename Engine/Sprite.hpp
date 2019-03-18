@@ -7,8 +7,10 @@
 
 #pragma once
 
+#include "MotionControllerOrbit.hpp"
 #include "Renderable.hpp"
 #include "DataPack.hpp"
+#include "Texture.hpp"
 
 class Sprite : public IRenderable {
 public:
@@ -16,11 +18,10 @@ public:
    
    void prepare( IRenderContext& context ) override;
    
-   void setImage( const std::string& filename );
-   
-protected:
+   void setTexture( const std::shared_ptr<ITexture>& );
+   void setMotionController( const std::shared_ptr<ITexture>& );
    
 private:
-   DataPackContainer vertices;
-   
+   DataPackContainer quad;
+   std::shared_ptr<ITexture> texture;
 };
