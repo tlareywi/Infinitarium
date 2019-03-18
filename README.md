@@ -27,8 +27,8 @@ pip3 install Pillow
 #### Tycho2 Catalog
 ![Tycho2 Catalog](screen_captures/tycho2.png)
 
-### Usaage
-Running the execuable will load the default empty scene with a python console. From here you can do anything you could in Python and Astropy including loading star catalogs from VizieR. It's often more convinient though to process star catalogs via a standalone python script. See examples in the python folder. The included 
+### Usage
+Running the execuable will load the default empty scene with a python console. From here you can do anything you could in Python and Astropy including loading star catalogs from VizieR. It's often more convinient though to process star catalogs via a standalone python script. See examples in the python folder. The included pre-built scenes (see below) are built using the scripts python/hipparcos2_import.py and python/tycho2_import.py.
 
 #### Loading pre-built scenes
 In the application's python console run activeScene.loadLocal('[scenefile]'). There are currently two scenes distrubuted, hip2.ieb and tyco2.ieb. 
