@@ -11,13 +11,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-
 #include "RenderPass.hpp"
-#include "Renderable.hpp"
+#include "Transform.hpp"
 #include "MotionControllerOrbit.hpp"
 #include "ConsoleInterface.hpp"
 
@@ -25,36 +20,25 @@
 /// \brief A Camera encapsulates a motion controller (which holds the view matrix), a set of renderables, a render pass, the render context (physical device).
 /// TOOD: Should contain a viewport was well?
 ///
-class Camera : public Reflection::IConsole<Camera> {
+class Camera : public Transform, public Reflection::IConsole<Camera> {
 public:
    Camera();
-   virtual ~Camera() {
-      std::cout<<"Camera destructor"<<std::endl;
-   }
+   virtual ~Camera() {}
    
    void init();
-   void update();
-   void draw();
    
-   void addRenderable( const std::shared_ptr<IRenderable>& );
+   void update( const glm::mat4x4& ) override;
+   void render( IRenderPass& ) override;
+   
    void setRenderPass( const std::shared_ptr<IRenderPass>& );
-   
-   std::shared_ptr<IRenderable> getRenderable( unsigned int indx );
-   unsigned int numRenderables();
    
    void setMotionController( const std::shared_ptr<IMotionController>& );
    void setRenderContext( const std::shared_ptr<IRenderContext>& );
    
-   void setName( const std::string& n ) {
-      name = n;
-   }
-   
    auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
-                                   REFLECT_METHOD(&Camera::addRenderable, addRenderable),
                                    REFLECT_METHOD(&Camera::setRenderPass, setRenderPass),
-                                   REFLECT_METHOD(&Camera::getRenderable, getRenderable),
-                                   REFLECT_METHOD(&Camera::numRenderables, numRenderables)
+                                   REFLECT_METHOD(&Camera::setRenderContext, setRenderContext)
                                    );
       
       return tup;
@@ -76,11 +60,7 @@ private:
    
    std::shared_ptr<IMotionController> motionController;
    
-   std::vector<std::shared_ptr<IRenderable>> renderables;
-   
    glm::mat4 projection;
-   
-   std::string name;
 };
 
 

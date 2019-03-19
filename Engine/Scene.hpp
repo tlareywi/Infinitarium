@@ -32,7 +32,7 @@ public:
    void add( const std::shared_ptr<Camera>& );
    
    void update();
-   void draw();
+   void render();
    
    auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(

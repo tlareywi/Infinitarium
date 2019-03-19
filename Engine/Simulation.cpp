@@ -29,9 +29,10 @@ void Simulation::update() {
    if( scene )
       scene->update();
 }
+
 void Simulation::render() {
    if( scene )
-      scene->draw();
+      scene->render();
 }
 
 void Simulation::simLoop() {

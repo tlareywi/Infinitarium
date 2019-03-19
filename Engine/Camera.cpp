@@ -25,27 +25,15 @@ void Camera::setRenderContext( const std::shared_ptr<IRenderContext>& r ) {
    dirty = true;
 }
 
-void Camera::addRenderable( const std::shared_ptr<IRenderable>& renderable ) {   
-   renderables.push_back( renderable );
-}
-
 void Camera::setRenderPass( const std::shared_ptr<IRenderPass>& rp ) {
    renderPass = rp;
-}
-
-unsigned int Camera::numRenderables() {
-   return renderables.size();
-}
-
-std::shared_ptr<IRenderable> Camera::getRenderable( unsigned int indx ) {
-   return renderables[indx];
 }
 
 void Camera::init() {
    renderContext->init();
 }
 
-void Camera::update() {
+void Camera::update( const glm::mat4x4& /* identity */ ) {
    glm::mat4 view;
 
    if( motionController ) {
@@ -53,26 +41,20 @@ void Camera::update() {
       motionController->getViewMatrix( view );
    }
 
-   glm::mat4 mvp = projection * view;
-
-   for( auto& renderable : renderables ) {
-      renderable->prepare( *renderContext );
-      renderable->update( mvp );
-   }
+   glm::mat4 vp = projection * view;
+   
+   Transform::prepare(*renderContext);
+   Transform::update(vp);
 }
 
-void Camera::draw() {
+void Camera::render( IRenderPass& ) {
    if( dirty ) {
       dirty = false;
       renderPass->prepare( renderContext );
    }
    
    renderPass->begin( renderContext );
-   
-   for( auto& renderable : renderables ) {
-      renderable->render( *renderPass );
-   }
-   
+   Transform::render( *renderPass );
    renderPass->end();
 }
 
@@ -80,7 +62,8 @@ void Camera::draw() {
 // SERIALIZATION
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Archive> void Camera::load( Archive& ar ) {
-   ar >> renderables;
+   ar >> boost::serialization::base_object<Transform>(*this);
+   
    ar >> motionController;
    
    // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
@@ -95,9 +78,8 @@ template<class Archive> void Camera::load( Archive& ar ) {
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
-   std::cout<<"Saving Camera "<<name<<std::endl;
+   ar << boost::serialization::base_object<Transform>(*this);
    
-   ar << renderables;
    ar << motionController;
    
    // Force renderPass to be serialized as base class to maintain scene file platform independence.
@@ -114,9 +96,11 @@ namespace boost { namespace serialization {
       t.load( ar );
    }
    template<class Archive> inline void save(Archive& ar, const Camera& t, unsigned int version) {
+      std::cout<<"Saving Camera"<<std::endl;
       t.save( ar );
    }
    template<class Archive> inline void serialize(Archive& ar, Camera& t, unsigned int version) {
+      boost::serialization::void_cast_register<Camera,Transform>();
       boost::serialization::split_free(ar, t, version);
    }
 }}

@@ -14,6 +14,7 @@
 
 class Sprite : public IRenderable {
 public:
+   Sprite() {}
    Sprite( float nativeAspect );
    
    void prepare( IRenderContext& context ) override;
@@ -21,7 +22,14 @@ public:
    void setTexture( const std::shared_ptr<ITexture>& );
    void setMotionController( const std::shared_ptr<ITexture>& );
    
+   template<class Archive> void save( Archive& ) const;
+   template<class Archive> void load( Archive& );
+   
 private:
-   DataPackContainer quad;
    std::shared_ptr<ITexture> texture;
+   
+   static std::shared_ptr<IDataBuffer> quad;
+   
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, Sprite&, unsigned int );
 };

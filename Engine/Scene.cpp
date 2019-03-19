@@ -77,16 +77,18 @@ void Scene::save( const std::string& filename ) const {
 
 void Scene::update() {
    std::lock_guard<std::mutex> lock( loadLock );
+   glm::mat4x4 ident;
    
    for( auto& camera : cameras )
-      camera->update();
+      camera->update( ident );
 }
 
-void Scene::draw() {
+void Scene::render() {
    std::lock_guard<std::mutex> lock( loadLock );
+   RenderPassProxy stub;
    
    for( auto& camera : cameras )
-      camera->draw();
+      camera->render( stub );
 }
 
 
