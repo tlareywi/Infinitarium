@@ -13,7 +13,7 @@
 
 class Transform : public SceneObject {
 public:
-   Transform() {}
+   Transform();
    virtual ~Transform() {}
    
    void update( const glm::mat4& ) override;

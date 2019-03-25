@@ -17,7 +17,6 @@
 class IRenderPass {
 public:
    virtual ~IRenderPass() {
-      std::cout<<"RenderPass destructor"<<std::endl;
    }
    IRenderPass( const IRenderPass& rp ) {
       std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));

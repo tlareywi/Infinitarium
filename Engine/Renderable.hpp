@@ -21,13 +21,14 @@
 #include "RenderContext.hpp"
 #include "ConsoleInterface.hpp"
 #include "UniformType.hpp"
+#include "SceneObject.hpp"
 
 #include <glm/glm.hpp>
 
 ///
 /// \brief Base class for anything visible rendered by the underlying 3D graphics API
 ///
-class IRenderable : public Reflection::IConsole<IRenderable> {
+class IRenderable : public SceneObject, public Reflection::IConsole<IRenderable> {
 public:
    IRenderable();
    virtual ~IRenderable() {
@@ -81,6 +82,7 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing IRenderable"<<std::endl;
+      boost::serialization::void_cast_register<IRenderable,SceneObject>();
       ar & uniforms;
       ar & programName;
    }

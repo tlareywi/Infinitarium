@@ -3,7 +3,7 @@ project( IERenderer )
 
 add_library( IERenderer SHARED RenderContext.mm RenderContext.h RenderCommand.mm RenderCommand.h RenderState.mm RenderState.h
   RenderProgram.mm RenderProgram.h DataBuffer.mm DataBuffer.h RenderPass.mm RenderPass.h UniformMap.h
-  starsDefault.metal default.metal stars_no_plx.metal
+  starsDefault.metal default.metal stars_no_plx.metal sprite.metal
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)

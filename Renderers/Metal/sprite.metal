@@ -9,29 +9,26 @@ struct VertexIn {
 
 struct VertexOut {
    float4 position [[position]];
-   float4 color;
+   float4 texCoord;
 };
 
-///
-/// All shaders have ConstUniforms injected at compile time based on uniforms defined in scene file.
-///
-
-vertex VertexOut vertexShader( constant VertexIn* vert [[buffer(2)]] ) {
+vertex VertexOut vertexShader(uint vertexID [[ vertex_id ]],
+                              constant VertexIn* vert [[buffer(0)]],
+                              constant ConstUniforms& uniforms [[buffer(1)] ) {
    VertexOut out;
-   float3 position( pos[instance].xyz );
-   out.position = uniforms.modelViewProjectionMatrix * float4( vert.pos, 1.0 );
+   out.position = uniforms.modelViewProjectionMatrix * float4( vert[vertexID].pos, 1.0 );
+   
+   out.texCoord = vert[vertexID].texCoord;
    
    return out;
 }
 
-fragment float4 fragmentShader( VertexOut point [[stage_in]] ) {
-   float2 offset = point.position.xy - point.pointCenter;
-   float len = dot(offset, offset);
+fragment float4 fragmentShader( VertexOut in [[stage_in]],
+                                texture2d<half> colorTexture [[ texture(0) ]] ) {
    
-   float disk = point.diskBrightness * point.brightness * exp(-len / (2.0 * point.diskDensity));
-   float psf = point.haloBrightness * point.brightness * exp(-len / (2.0 * point.haloDensity));
-   
-   return float4( point.color.rgb * (disk+psf), 1.0 );
+   constexpr sampler textureSampler( mag_filter::linear, min_filter::linear );
+   const half4 colorSample = colorTexture.sample( textureSampler, in.texCoord );
+   return float4(colorSample);
 }
 
 

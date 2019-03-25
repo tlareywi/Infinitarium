@@ -10,6 +10,7 @@
 #include "DataBuffer.hpp"
 #include "RenderPass.hpp"
 #include "RenderState.hpp"
+#include "Texture.hpp"
 
 class IRenderCommand {
 public:
@@ -25,6 +26,8 @@ public:
    static std::shared_ptr<IRenderCommand> Create();
    
    void add( std::shared_ptr<IDataBuffer>& );
+   void add( std::shared_ptr<ITexture>& );
+   
    void setInstanceCount( unsigned int c ) {
       instanceCount = c;
    }
@@ -37,6 +40,7 @@ public:
    
 protected:
    std::vector<std::shared_ptr<IDataBuffer>> dataBuffers;
+   std::vector<std::shared_ptr<ITexture>> textures;
    unsigned int instanceCount;
    unsigned int vertexCount;
 };

@@ -8,8 +8,15 @@
 #include "Transform.hpp"
 #include "UniformType.hpp"
 
+//#define GLM_ENABLE_EXPERIMENTAL
+//#include <glm/gtx/string_cast.hpp>
+//#include <glm/ext.hpp>
+
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Transform)
+
+Transform::Transform() : transform(glm::mat4(1.0)) {
+}
 
 void Transform::update( const glm::mat4& mat ) {
    SceneObject::update( transform * mat );
@@ -27,7 +34,7 @@ namespace boost { namespace serialization {
    template<class Archive> inline void serialize(Archive& ar, Transform& t, unsigned int version) {
       std::cout<<"Serializing Transform"<<std::endl;
       boost::serialization::void_cast_register<Transform,SceneObject>();
-      boost::serialization::base_object<SceneObject>(t);
+      ar & boost::serialization::base_object<SceneObject>(t);
       ar & t.transform;
    }
 }}

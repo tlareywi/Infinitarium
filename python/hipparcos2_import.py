@@ -93,7 +93,7 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inom
 hip2Cloud.addVertexBuffer( position.container(), 'position' )
 hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 hip2Cloud.addVertexBuffer( color.container(), 'color' )
-camera.addRenderable( hip2Cloud )
+camera.addChild( hip2Cloud )
 
 exportPath = './hip2.ieb'
 print('Exporting ' + exportPath)

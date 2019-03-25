@@ -32,7 +32,7 @@ static const SpriteVertex quadVerts[] =
 };
 
 Sprite::Sprite( float nativeAspect ) {
-   
+   setProgram("sprite");
 }
 
 void Sprite::prepare( IRenderContext& context ) {
@@ -52,6 +52,8 @@ void Sprite::prepare( IRenderContext& context ) {
    }
    
    renderCommand->add( quad );
+   renderCommand->add( texture );
+   
    IRenderable::prepare( context );
 }
 

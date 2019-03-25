@@ -76,7 +76,7 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inom
 tychoCloud.addVertexBuffer( position.container(), 'position' )
 tychoCloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 tychoCloud.addVertexBuffer( color.container(), 'color' )
-camera.addRenderable( tychoCloud )
+camera.addChild( tychoCloud )
 
 exportPath = './tyco2.ieb'
 print('Exporting ' + exportPath)

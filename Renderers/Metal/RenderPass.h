@@ -20,6 +20,10 @@ public:
    
    void prepare( std::shared_ptr<IRenderContext>& ) override;
    
+   id<MTLTexture> getMTLTexture() {
+      return texture;
+   }
+   
 private:
    id<MTLTexture> texture = nullptr;
 };

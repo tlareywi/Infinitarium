@@ -14,7 +14,9 @@
 
 class Sprite : public IRenderable {
 public:
-   Sprite() {}
+   Sprite() {
+       setProgram("sprite");
+   }
    Sprite( float nativeAspect );
    
    void prepare( IRenderContext& context ) override;

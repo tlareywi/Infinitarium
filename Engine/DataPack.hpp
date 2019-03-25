@@ -119,6 +119,7 @@ public:
 
 #if defined ENGINE_BUILD
    boost::python::handle<> getBuffer() {
+      data.resize(capacityBytes() / sizeof(T));
       return boost::python::handle<>(PyMemoryView_FromMemory(reinterpret_cast<char *>(data.data()), capacityBytes(), PyBUF_WRITE));
    }
 #endif

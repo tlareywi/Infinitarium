@@ -13,6 +13,7 @@
 #include "PythonBridge.hpp"
 #include "PyUtil.hpp"
 #include "ApplicationWindow.hpp"
+#include "Sprite.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -33,21 +34,21 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
       .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_FLOAT32::add)
-      .def("getBuffer", &DataPack_UINT8::getBuffer)
+      .def("getBuffer", &DataPack_FLOAT32::getBuffer)
       .def("addVec3", addVec3f)
       .def("addVec4", addVec3f)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
       .def("container", &DataPack_UINT16::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT16::add)
-      .def("getBuffer", &DataPack_UINT8::getBuffer)
+      .def("getBuffer", &DataPack_UINT16::getBuffer)
       .def("addVec3", addVec3u16)
       .def("addVec4", addVec3u16)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
       .def("container", &DataPack_UINT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT32::add)
-      .def("getBuffer", &DataPack_UINT8::getBuffer)
+      .def("getBuffer", &DataPack_UINT32::getBuffer)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec3u32)
    ;
@@ -119,8 +120,15 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .export_values()
    ;
    
+   // Scene-graph objects ///////////////////////////////////////////////////////////////////////////////////
+   class_<SceneObject>("SceneObject", init<>())
+      .def("addChild", &SceneObject::addChild)
+   ;
+   class_<Transform, bases<SceneObject>>("Transform", init<>())
+   ;
+   
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
-   class_<IRenderable, boost::noncopyable>("IRenderable", no_init)
+   class_<IRenderable, bases<SceneObject>, boost::noncopyable>("IRenderable", no_init)
       .def("propList", &IRenderable::propList)
       .def("listUniforms", &IRenderable::listUniforms)
       .def("setProgram", &IRenderable::setProgram)
@@ -135,6 +143,9 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
       .def("setNumPoints", &PointCloud::setNumPoints)
    ;
+   class_<Sprite, bases<IRenderable>>("Sprite", init<>())
+      .def("setTexture", &Sprite::setTexture)
+   ;
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////
    class_<Scene, boost::noncopyable>("Scene", init<>())
@@ -147,7 +158,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    
    // Camera ///////////////////////////////////////////////////////////////////////////////////////////////
-   class_<Camera, boost::noncopyable>("Camera", init<>())
+   class_<Camera, bases<Transform>, boost::noncopyable>("Camera", init<>())
       .def("setName", &Camera::setName)
       .def("setRenderPass", &Camera::setRenderPass)
       .def("setMotionController", &Camera::setMotionController)
@@ -156,6 +167,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    
    register_ptr_to_python<std::shared_ptr<IRenderPass>>();
+   register_ptr_to_python<std::shared_ptr<SceneObject>>();
+   register_ptr_to_python<std::shared_ptr<Transform>>();
    register_ptr_to_python<std::shared_ptr<IRenderTarget>>();
    register_ptr_to_python<std::shared_ptr<Camera>>();
    register_ptr_to_python<std::shared_ptr<IRenderable>>();

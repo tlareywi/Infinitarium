@@ -34,7 +34,9 @@ public:
    static std::shared_ptr<ITexture> Clone( const ITexture& );
    
    void set( DataPackContainer& i ) {
-      image = std::move(i);
+      std::visit( [this](auto& e) {
+         image = std::move(e);
+      }, i );
    }
    
 protected:

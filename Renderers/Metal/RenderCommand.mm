@@ -54,10 +54,22 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, const IRenderState& st
       if( renderState )
          [commandEncoder setRenderPipelineState:renderState];
       
-      unsigned int indx {0};
-      for( auto& buffer : dataBuffers ) {
-         MetalDataBuffer* mtlBuf = dynamic_cast<MetalDataBuffer*>(buffer.get());
-         [commandEncoder setVertexBuffer:mtlBuf->getMTLBuffer() offset:0 atIndex:indx++];
+      {
+         unsigned int indx {0};
+         for( auto& buffer : dataBuffers ) {
+            MetalDataBuffer* mtlBuf = dynamic_cast<MetalDataBuffer*>(buffer.get());
+            if( !mtlBuf ) continue;
+            [commandEncoder setVertexBuffer:mtlBuf->getMTLBuffer() offset:0 atIndex:indx++];
+         }
+      }
+      
+      {
+         unsigned int indx {0};
+         for( auto& texture : textures ) {
+            MetalTexture* mtlTex = dynamic_cast<MetalTexture*>(texture.get());
+            if( !mtlTex ) continue;
+            [commandEncoder setFragmentTexture:mtlTex->getMTLTexture() atIndex:indx];
+         }
       }
       
       [commandEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount instanceCount:instanceCount baseInstance:0];
