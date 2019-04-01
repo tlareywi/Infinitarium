@@ -19,6 +19,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ConsoleInterface.hpp"
+
 typedef std::variant<
 float, int, unsigned int,
 glm::ivec2, glm::ivec3, glm::ivec4,
@@ -46,9 +48,11 @@ namespace boost {
       }
       
       template<class Archive, class T> void save( Archive& ar, const T& t, const unsigned int version ) {
+         std::cout<<"Saving "<<type_name<decltype(t)>()<<std::endl;
          ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
       template<class Archive, class T> void load( Archive& ar, T& t, const unsigned int version ) {
+         std::cout<<"Loading "<<type_name<decltype(t)>()<<std::endl;
          ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
    }

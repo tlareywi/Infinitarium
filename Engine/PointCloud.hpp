@@ -13,6 +13,7 @@
 #include "Renderable.hpp"
 
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
 
 ///
 /// \brief Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.

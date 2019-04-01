@@ -12,9 +12,12 @@
 #include <variant>
 #include <iostream>
 
+#include <fstream>
+
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/variant.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 
 #if defined ENGINE_BUILD
@@ -34,15 +37,6 @@ DataPack_FLOAT32,
 DataPack_UINT32,
 DataPack_UINT16,
 DataPack_UINT8> DataPackContainer;
-
-namespace boost {
-   namespace serialization {
-      template<class Archive> void serialize( Archive& ar, DataPackContainer& t, const unsigned int version ) {
-         std::cout<<"Serializing DataPackContainer"<<std::endl;
-         std::visit( [&ar](auto& e){ ar & e; }, t );
-      }
-   }
-}
 
 ///
 /// \brief Type independent large dataset abstraction with move semantics.
@@ -116,11 +110,11 @@ public:
       data.push_back(b);
       data.push_back(a);
    }
-
+   
 #if defined ENGINE_BUILD
    boost::python::handle<> getBuffer() {
       data.resize(capacityBytes() / sizeof(T));
-      return boost::python::handle<>(PyMemoryView_FromMemory(reinterpret_cast<char *>(data.data()), capacityBytes(), PyBUF_WRITE));
+      return boost::python::handle<>(PyMemoryView_FromMemory(reinterpret_cast<char*>(data.data()), sizeBytes(), PyBUF_WRITE));
    }
 #endif
    
@@ -133,6 +127,80 @@ private:
    
    std::vector<T> data;
 };
+
+namespace boost {
+   namespace serialization {
+      template<class Archive> void serialize( Archive& ar, DataPackContainer& t, const unsigned int version ) {
+         std::string type;
+         
+        try {
+            std::get<DataPack_FLOAT32>(t);
+            type = "float";
+         }
+         catch( ... ) {}
+         try {
+            std::get<DataPack_UINT32>(t);
+            type = "uint32";
+         }
+         catch( ... ) {}
+         
+         try {
+            std::get<DataPack_UINT16>(t);
+            type = "uint16";
+         }
+         catch( ... ) {}
+         try {
+            std::get<DataPack_UINT8>(t);
+            type = "uint8";
+         }
+         catch( ... ) {}
+         
+         ar & type;
+         
+         if( type == "float" ) {
+            std::cout<<"Serializing DataPackContainer as float"<<std::endl;
+            try {
+               ar & std::get<DataPack_FLOAT32>(t);
+            }
+            catch(...) {
+               t = DataPack_FLOAT32();
+               ar & std::get<DataPack_FLOAT32>(t);
+            }
+         }
+         else if( type == "uint32" ) {
+            std::cout<<"Serializing DataPackContainer as uint32"<<std::endl;
+            try {
+               ar & std::get<DataPack_UINT32>(t);
+            }
+            catch(...) {
+               t = DataPack_UINT32();
+               ar & std::get<DataPack_UINT32>(t);
+            }
+         }
+         else if( type == "uint16" ) {
+            std::cout<<"Serializing DataPackContainer as uint16"<<std::endl;
+            try {
+               ar & std::get<DataPack_UINT16>(t);
+            }
+            catch(...) {
+               t = DataPack_UINT16();
+               ar & std::get<DataPack_UINT16>(t);
+            }
+         }
+         else if( type == "uint8" ) {
+            std::cout<<"Serializing DataPackContainer as uint8"<<std::endl;
+            try {
+               ar & std::get<DataPack_UINT8>(t);
+            }
+            catch(...) {
+               t = DataPack_UINT8();
+               ar & std::get<DataPack_UINT8>(t);
+            }
+         }
+      }
+   }
+}
+
 
 
 
