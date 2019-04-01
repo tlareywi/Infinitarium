@@ -15,20 +15,20 @@ BOOST_CLASS_EXPORT(Sprite)
 std::shared_ptr<IDataBuffer> Sprite::quad = nullptr;
 
 struct SpriteVertex {
-   glm::fvec2 coord;
+   glm::fvec3 coord;
    glm::fvec2 textCoord;
 };
 
 static const SpriteVertex quadVerts[] =
 {
    // Pixel positions, Texture coordinates
-   { {  1.f,  -1.f },  { 1.f, 0.f } },
-   { { -1.f,  -1.f },  { 0.f, 0.f } },
-   { { -1.f,   1.f },  { 0.f, 1.f } },
+   { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
+   { { -1.f,  -1.f, 0.0 },  { 0.f, 0.f } },
+   { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
    
-   { {  1.f,  -1.f },  { 1.f, 0.f } },
-   { { -1.f,   1.f },  { 0.f, 1.f } },
-   { {  1.f,   1.f },  { 1.f, 1.f } },
+   { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
+   { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
+   { {  1.f,   1.f, 0.0 },  { 1.f, 1.f } },
 };
 
 Sprite::Sprite( float nativeAspect ) {

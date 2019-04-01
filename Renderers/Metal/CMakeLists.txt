@@ -25,4 +25,4 @@ target_link_libraries(IERenderer ${QUARTZ_LIB})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 
-install(FILES starsDefault.metal stars_no_plx.metal default.metal DESTINATION share/Infinitarium/shaders/metal)
+install(FILES starsDefault.metal stars_no_plx.metal default.metal sprite.metal DESTINATION share/Infinitarium/shaders/metal)

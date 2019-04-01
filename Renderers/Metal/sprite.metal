@@ -3,20 +3,21 @@
 //
 
 struct VertexIn {
-   float2 pos;
-   float2 texCoord;
+   packed_float3 pos;
+   packed_float2 texCoord;
 };
 
 struct VertexOut {
    float4 position [[position]];
-   float4 texCoord;
+   float2 texCoord;
 };
 
 vertex VertexOut vertexShader(uint vertexID [[ vertex_id ]],
                               constant VertexIn* vert [[buffer(0)]],
-                              constant ConstUniforms& uniforms [[buffer(1)] ) {
+                              constant ConstUniforms& uniforms [[buffer(1)]] ) {
    VertexOut out;
-   out.position = uniforms.modelViewProjectionMatrix * float4( vert[vertexID].pos, 1.0 );
+   out.position = float4( vert[vertexID].pos, 1.0 );
+   out.position.xy = out.position.xy / (float2(1920,1080) / 2.0);
    
    out.texCoord = vert[vertexID].texCoord;
    
@@ -28,7 +29,8 @@ fragment float4 fragmentShader( VertexOut in [[stage_in]],
    
    constexpr sampler textureSampler( mag_filter::linear, min_filter::linear );
    const half4 colorSample = colorTexture.sample( textureSampler, in.texCoord );
-   return float4(colorSample);
+   //return float4(colorSample);
+   return float4(1.0);
 }
 
 
