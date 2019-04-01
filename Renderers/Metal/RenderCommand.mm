@@ -14,7 +14,7 @@ template<typename T, typename U> const U static inline convert( const T& t ) {
 void MetalRenderCommand::setPrimitiveType( PrimitiveType t ) {
    switch( t ) {
       case Triangle:
-         primitiveType = MTLPrimitiveTypePoint;
+         primitiveType = MTLPrimitiveTypeTriangle;
          break;
       
       case TriangleStrip:
