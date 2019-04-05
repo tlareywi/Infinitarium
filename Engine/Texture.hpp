@@ -28,7 +28,7 @@ public:
    ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image) {}
    virtual ~ITexture() {}
    
-   virtual void prepare( std::shared_ptr<IRenderContext>& ) = 0;
+   virtual void prepare( IRenderContext& ) = 0;
    
    static std::shared_ptr<ITexture> Create( unsigned int, unsigned int, Format );
    static std::shared_ptr<ITexture> Clone( const ITexture& );
@@ -90,7 +90,7 @@ public:
    RenderTargetProxy() {}
    RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
    
    template<class Archive> void load( Archive& ar );
    template<class Archive> void save( Archive& ar ) const;
@@ -107,7 +107,7 @@ public:
    TextureProxy() {}
    TextureProxy(const ITexture& obj) : ITexture(obj) {}
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
    
    template<class Archive> void load( Archive& ar );
    template<class Archive> void save( Archive& ar ) const;

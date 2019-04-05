@@ -29,7 +29,7 @@ public:
       targets.push_back( t );
    }
    
-   virtual void prepare( std::shared_ptr<IRenderContext>& ) = 0;
+   virtual void prepare( IRenderContext& ) = 0;
    virtual void begin( std::shared_ptr<IRenderContext>& ) = 0;
    virtual void end() = 0;
 
@@ -49,7 +49,7 @@ public:
    template<class Archive> void save( Archive& ) const;
    template<class Archive> void load( Archive& );
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
    void begin( std::shared_ptr<IRenderContext>& ) override {};
    void end() override {};
    

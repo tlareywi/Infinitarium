@@ -28,7 +28,7 @@ static const SpriteVertex quadVerts[] =
    
    { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
    { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
-   { {  1.f,   1.f, 0.0 },  { 1.f, 1.f } },
+   { {  1.f,   1.f, 0.0 },  { 1.f, 1.f } }
 };
 
 Sprite::Sprite( float nativeAspect ) {
@@ -48,13 +48,15 @@ void Sprite::prepare( IRenderContext& context ) {
    // TODO: need to design a general way to cache/reuse databuffers
    if( !quad ) {
       quad = IDataBuffer::Create( context );
-      quad->set( quadVerts, sizeof(quad) );
+      quad->set( quadVerts, sizeof(quadVerts) );
+      quad->commit();
    }
    
    renderCommand->add( quad );
    renderCommand->add( texture );
    
    IRenderable::prepare( context );
+   texture->prepare( context );
 }
 
 void Sprite::setTexture( const std::shared_ptr<ITexture>& t ) {

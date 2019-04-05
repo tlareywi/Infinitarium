@@ -5,7 +5,7 @@
 #include "RenderPass.h"
 #include "RenderContext.h"
 
-void MetalRenderPass::prepare( std::shared_ptr<IRenderContext>& renderContext ) {   
+void MetalRenderPass::prepare( IRenderContext& renderContext ) {   
    for( auto& target : targets )
       target->prepare( renderContext );
 }
@@ -78,8 +78,8 @@ extern "C" {
 
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
 
-void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
-   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+void MetalTexture::prepare( IRenderContext& renderContext ) {
+   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( &renderContext );
    
    [texture release];
    
@@ -108,7 +108,7 @@ void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
    textureDescriptor.mipmapLevelCount = 1;
    textureDescriptor.sampleCount = 1;
    textureDescriptor.arrayLength = 1;
-   textureDescriptor.storageMode = MTLStorageModePrivate;
+   textureDescriptor.storageMode = MTLStorageModeManaged; // TODO: Make this temp and make a private copy
    textureDescriptor.allowGPUOptimizedContents = true;
    textureDescriptor.usage = MTLTextureUsageShaderRead;
    
@@ -125,8 +125,8 @@ MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, I
    IRenderTarget( d, f, t, r ) {
 }
 
-void MetalRenderTarget::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
-   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
+   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( &renderContext );
    
    [renderTarget release];
    

@@ -18,7 +18,7 @@ public:
       texture = nullptr;
    }
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   void prepare( IRenderContext& ) override;
    
    id<MTLTexture> getMTLTexture() {
       return texture;
@@ -44,7 +44,7 @@ public:
       return renderTarget;
    }
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   void prepare( IRenderContext& ) override;
    
 private:
    id<MTLTexture> renderTarget = nullptr;
@@ -57,7 +57,7 @@ class MetalRenderPass : public IRenderPass {
 public:
    MetalRenderPass() {}
    MetalRenderPass(const IRenderPass& obj) : IRenderPass(obj) {}
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   void prepare( IRenderContext& ) override;
    void begin( std::shared_ptr<IRenderContext>& ) override;
    void end() override;
    

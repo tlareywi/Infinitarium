@@ -50,7 +50,7 @@ void Camera::update( const glm::mat4x4& /* identity */ ) {
 void Camera::render( IRenderPass& ) {
    if( dirty ) {
       dirty = false;
-      renderPass->prepare( renderContext );
+      renderPass->prepare( *renderContext );
    }
    
    renderPass->begin( renderContext );
