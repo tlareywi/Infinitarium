@@ -47,12 +47,21 @@ renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
 camera.setMotionController( engine.Orbit() )
 
+# Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8_sRGB, engine.Type.Color,
     engine.Resource.FrameBuffer)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
 renderPass.addRenderTarget( renderTarget )
+
+# Pick buffer
+pickTarget = engine.IRenderTarget.create( 1920, 1080,
+    engine.Format.RU32, engine.Type.Color,
+    engine.Resource.Memory)
+renderTarget.setClear( True )
+renderTarget.setClearColor(0,0,0,0)
+renderPass.addRenderTarget( pickTarget )
 
 hip2Cloud = engine.PointCloud()
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz

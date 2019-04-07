@@ -123,6 +123,7 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
 
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :
    IRenderTarget( d, f, t, r ) {
+      bytesPerRow = 0;
 }
 
 void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
@@ -156,8 +157,15 @@ void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
    textureDescriptor.usage = MTLTextureUsageRenderTarget;
    
    renderTarget = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   bytesPerRow = 4 * dim.x;
    
    [textureDescriptor release];
+}
+
+void MetalRenderTarget::getData( const glm::uvec4& rect, void* data ) {
+   MTLRegion region = MTLRegionMake2D(rect.x, rect.y, rect.z, rect.w);
+   
+   [renderTarget getBytes:data bytesPerRow:bytesPerRow fromRegion:region mipmapLevel:0];
 }
 
 extern "C" {

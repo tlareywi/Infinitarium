@@ -43,6 +43,8 @@ public:
    struct MouseButton {
       Button button;
       State state;
+      float x;
+      float y;
    };
    
    IEventSampler() {

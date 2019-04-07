@@ -70,6 +70,8 @@ public:
    glm::vec4 getClearColor() { return clearColor; }
    void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
    
+   virtual void getData( const glm::uvec4&, void* ) = 0;
+   
 protected:
    IRenderTarget() : clear(false), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
    IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clear(false), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
@@ -91,6 +93,7 @@ public:
    RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
    
    void prepare( IRenderContext& ) override {};
+   void getData( const glm::uvec4&, void* ) override {};
    
    template<class Archive> void load( Archive& ar );
    template<class Archive> void save( Archive& ar ) const;

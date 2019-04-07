@@ -6,6 +6,8 @@
 //
 
 #include "MotionControllerOrbit.hpp"
+#include "Delegate.hpp"
+#include "Application.hpp"
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(IMotionController)
@@ -26,6 +28,13 @@ void IMotionController::processEvents() {
          onKeyUp( evt );
    }
    
+   for( auto& evt : eventSampler->mbutton ) {
+      if( evt.state == IEventSampler::DOWN )
+         onMouseButtonDown( evt );
+      else if( evt.state == IEventSampler::UP )
+         onMouseButtonUp( evt );
+   }
+   
    for( auto& evt : eventSampler->mmove )
       onMouseMove( evt );
    
@@ -42,6 +51,14 @@ void IMotionController::getViewMatrix( glm::mat4& out ) {
 
 void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
    
+}
+
+void Orbit::onMouseButtonUp( const IEventSampler::MouseButton& evt ) {
+   // Fire picking event
+   std::tuple<const glm::uvec2&> args( glm::uvec2(evt.x, evt.y) );
+   Event e( args );
+   e.setName("picking");
+   IApplication::Create()->invoke( e );
 }
    
 void Orbit::onMouseMove( const IEventSampler::MouseMove& evt ) {

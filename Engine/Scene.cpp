@@ -77,7 +77,7 @@ void Scene::save( const std::string& filename ) const {
 
 void Scene::update() {
    std::lock_guard<std::mutex> lock( loadLock );
-   glm::mat4x4 ident;
+   UpdateParams ident;
    
    for( auto& camera : cameras )
       camera->update( ident );

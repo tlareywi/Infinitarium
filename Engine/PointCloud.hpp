@@ -37,6 +37,7 @@ public:
    }
    
    void prepare( IRenderContext& ) override;
+   void render( IRenderPass& ) override;
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
@@ -45,6 +46,7 @@ public:
    }
    
 private:
+   glm::uvec2 pickCoords;
    std::unique_ptr<IPointInstance> instanceMgr;
    
    std::map<std::string, DataPackContainer> vertexBuffers;

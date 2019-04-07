@@ -38,7 +38,7 @@ public:
    }
    virtual void render( IRenderPass& );
    virtual void prepare( IRenderContext& );
-   virtual void update( const glm::mat4& );
+   virtual void update( UpdateParams& );
    
    void setProgram( const std::string& name ) {
       programName = name;

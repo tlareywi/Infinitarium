@@ -15,7 +15,7 @@ int main(int argc, const char * argv[]) {
    app->setPythonInterpreter( pyInterpInterface );
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();
-   s->load( app->getInstallationRoot() + "/share/Infinitarium/sprite.ieb" );
+   s->load( app->getInstallationRoot() + "/share/Infinitarium/hip2.ieb" );
    s->setLocalScenePath( app->getInstallationRoot() + "/share/Infinitarium/" );
    
    PythonInterpreter* pyInterp = dynamic_cast<PythonInterpreter*>(pyInterpInterface.get());

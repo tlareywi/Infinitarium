@@ -22,16 +22,23 @@ IRenderable::IRenderable() : dirty(true) {
    // Set built-in uniforms.
    allUniforms.reserve(30);
    allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("viewport", glm::vec2()) );
 }
 
-void IRenderable::update( const glm::mat4& mvp ) {
+void IRenderable::update( UpdateParams& params ) {
    if( !uniformData ) return;
 
    uint32_t offset {0};
    
    // Built-ins
+   glm::mat4x4 mvp = params.getMVP();
    uniformData->set( &mvp, offset, sizeof(mvp) );
    offset += sizeof(mvp);
+   glm::mat4x4 mv = params.getView() * params.getModel();
+   uniformData->set( &mv, offset, sizeof(mv) );
+   offset += sizeof(mv);
+   offset += sizeof(glm::vec2); // viewport 
    
    // Update values for all uniforms
    for( auto& i : uniforms ) {
@@ -51,9 +58,13 @@ void IRenderable::prepare( IRenderContext& context ) {
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    
+   glm::vec2 viewport(context.width(), context.height());
+   
    // Merge built-ins with user uniforms
    allUniforms.clear();
    allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("viewport", viewport) );
    allUniforms.insert( allUniforms.end(), uniforms.begin(), uniforms.end() );
    
    unsigned int sizeBytes {0};
@@ -62,6 +73,7 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    // Reserve enough GPU memory for all uniforms.
    uniformData->reserve( sizeBytes );
+   uniformData->set( &viewport, sizeof(glm::mat4) * 2, sizeof(glm::vec2) );
   
    if( !programName.empty() ) {
       std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
@@ -125,7 +137,7 @@ void IRenderable::manipulateUniform( const std::string& name, float min, float m
                [](std::string& s) {}
             }, args[0]);
          };
-         std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), JSONEvent::Args&>>( fun );
+         std::shared_ptr<IDelegate> delegate = std::make_shared<JSONDelegate<decltype(fun)>>( fun );
          IApplication::Create()->subscribe(name, delegate);
          IApplication::Create()->addManipulator(name, min, max, step);
          break;

@@ -33,7 +33,7 @@ private:
 ///
 class MetalRenderTarget : public IRenderTarget {
 public:
-   MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj) {}
+   MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj), bytesPerRow(0) {}
    MetalRenderTarget( const glm::uvec2&, Format, Type, Resource );
    virtual ~MetalRenderTarget() {
       [renderTarget release];
@@ -45,9 +45,12 @@ public:
    }
    
    void prepare( IRenderContext& ) override;
+   void getData( const glm::uvec4&, void* ) override;
    
 private:
    id<MTLTexture> renderTarget = nullptr;
+   
+   unsigned int bytesPerRow;
 };
 
 ///

@@ -16,10 +16,15 @@ public:
    Transform();
    virtual ~Transform() {}
    
-   void update( const glm::mat4& ) override;
+   void update( UpdateParams& ) override;
    
    void setMatrix( const glm::mat4& );
    glm::mat4x4 getMatrix();
+   
+   void identity();
+   void scale( float x, float y, float z );
+   void translate( float x, float y, float z );
+   void rotate( float angle, float x, float y, float z );
    
 private:
    glm::mat4x4 transform;

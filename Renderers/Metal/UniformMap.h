@@ -83,21 +83,21 @@ std::ostream& operator<<( std::ostream& os, const UniformType& uniform ) {
    {
       auto val = std::get_if<glm::vec2>( &uniform );
       if( val ) {
-         os << "float2";
+         os << "packed_float2";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::vec3>( &uniform );
       if( val ) {
-         os << "float3";
+         os << "packed_float3";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::vec4>( &uniform );
       if( val ) {
-         os << "float4";
+         os << "packed_float4";
          return os;
       }
    }

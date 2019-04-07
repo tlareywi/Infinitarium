@@ -33,7 +33,7 @@ void Camera::init() {
    renderContext->init();
 }
 
-void Camera::update( const glm::mat4x4& /* identity */ ) {
+void Camera::update( UpdateParams& /* identity */ ) {
    glm::mat4 view;
 
    if( motionController ) {
@@ -41,10 +41,10 @@ void Camera::update( const glm::mat4x4& /* identity */ ) {
       motionController->getViewMatrix( view );
    }
 
-   glm::mat4 vp = projection * view;
+   UpdateParams params( projection, view );
    
-   Transform::prepare(*renderContext);
-   Transform::update(vp);
+   Transform::prepare( *renderContext );
+   Transform::update( params );
 }
 
 void Camera::render( IRenderPass& ) {

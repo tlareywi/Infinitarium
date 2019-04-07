@@ -75,6 +75,36 @@ extern "C" {
    }
 }
 
+- (void)mouseDown:(NSEvent *)theEvent {
+   IEventSampler::MouseButton button;
+   if( [theEvent type] == NSEventTypeLeftMouseDown )
+      button.button = IEventSampler::LEFT;
+   else if( [theEvent type] == NSEventTypeRightMouseDown )
+      button.button = IEventSampler::RIGHT;
+   
+   NSPoint pos = [theEvent locationInWindow];
+   button.x = pos.x;
+   button.y = pos.y;
+   
+   button.state = IEventSampler::DOWN;
+   eventSampler->push( button );
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+   IEventSampler::MouseButton button;
+   if( [theEvent type] == NSEventTypeLeftMouseUp )
+      button.button = IEventSampler::LEFT;
+   else if( [theEvent type] == NSEventTypeRightMouseUp )
+      button.button = IEventSampler::RIGHT;
+   
+   NSPoint pos = [theEvent locationInWindow];
+   button.x = pos.x;
+   button.y = pos.y;
+   
+   button.state = IEventSampler::UP;
+   eventSampler->push( button );
+}
+
 - (void)mouseMoved:(NSEvent *)event {
    IEventSampler::MouseMove mm;
    mm.dx = event.deltaX;

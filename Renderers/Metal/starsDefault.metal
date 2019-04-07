@@ -24,6 +24,12 @@ struct VertexOut {
    float haloBrightness [[flat]];
    float diskBrightness [[flat]];
    float2 pointCenter [[flat]];
+   uint id [[flat]];
+};
+
+struct FragmentOut {
+   float4 color [[color(0)]];
+   uint pick [[color(1)]];
 };
 
 constant float3 eye(0, 0, 0);
@@ -61,19 +67,24 @@ vertex VertexOut vertexShader( constant CartesianPosition* pos [[buffer(2)]],
    out.haloBrightness = uniforms.haloBrightness;
    
    float2 ndcPosition = out.position.xy / out.position.w;
-   out.pointCenter = (ndcPosition * 0.5 + float2(0.5, 0.5)) * float2(1920,1080); // TODO: pass as uniform
-   out.pointCenter.y = 1080 -  out.pointCenter.y; // Metal's window coords have flipped y-axis compared to OpenGL
+   out.pointCenter = (ndcPosition * 0.5 + float2(0.5, 0.5)) * uniforms.viewport;
+   out.pointCenter.y = uniforms.viewport.y -  out.pointCenter.y; // Metal's window coords have flipped y-axis compared to OpenGL
+   
+   out.id = instance;
    
    return out;
 }
 
-fragment float4 fragmentShader( VertexOut point [[stage_in]] ) {
+fragment FragmentOut fragmentShader( VertexOut point [[stage_in]] ) {
    float2 offset = point.position.xy - point.pointCenter;
    float len = dot(offset, offset);
    
    float disk = point.diskBrightness * point.brightness * exp(-len / (2.0 * point.diskDensity));
    float psf = point.haloBrightness * point.brightness * exp(-len / (2.0 * point.haloDensity));
    
-   return float4( point.color.rgb * (disk+psf), 1.0 );
+   FragmentOut out;
+   out.color = float4( point.color.rgb * (disk+psf), 1.0 );
+   out.pick = point.id;
+   return out;
 }
 

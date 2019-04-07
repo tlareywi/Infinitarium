@@ -17,12 +17,50 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+class UpdateParams {
+public:
+   UpdateParams() : projection( glm::mat4(1.0) ),
+      view( glm::mat4(1.0) ),
+      model( glm::mat4(1.0) ) {
+   }
+   
+   UpdateParams(glm::mat4 p, glm::mat4 v) : projection( p ),
+   view( v ),
+   model( glm::mat4(1.0) ) {
+   }
+   
+   glm::mat4 getProjection() {
+      return projection;
+   }
+   
+   glm::mat4 getView() {
+      return view;
+   }
+   
+   glm::mat4 getModel() {
+      return model;
+   }
+   
+   glm::mat4 getMVP() {
+      return projection * view * model;
+   }
+   
+   void addModel( const glm::mat4& m ) {
+      model = m * model;
+   }
+   
+private:
+   glm::mat4 projection;
+   glm::mat4 view;
+   glm::mat4 model;
+};
+
 class SceneObject {
 public:
    SceneObject() {}
    virtual ~SceneObject() {}
    virtual void prepare( IRenderContext& );
-   virtual void update( const glm::mat4& );
+   virtual void update( UpdateParams& );
    virtual void render( IRenderPass& );
    
    void addChild( const std::shared_ptr<SceneObject>& );

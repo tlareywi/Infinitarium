@@ -32,6 +32,10 @@ public:
    virtual void prepare( IRenderContext& ) = 0;
    virtual void begin( std::shared_ptr<IRenderContext>& ) = 0;
    virtual void end() = 0;
+   
+   void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
+      targets[indx]->getData( rect, data );
+   }
 
 protected:
    IRenderPass() {};

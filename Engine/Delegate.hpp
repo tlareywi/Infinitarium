@@ -21,6 +21,16 @@ class IEvent
 public:
    IEvent() {};
    virtual ~IEvent() {};
+   
+   std::string getName() {
+      return name;
+   }
+   void setName( const std::string& n ) {
+      name = n;
+   }
+   
+private:
+   std::string name;
 };
 
 ///
@@ -105,20 +115,15 @@ public:
 };
 
 ///
-/// \brief A Delegate that can handle either compile time or runtime variable argument events.
+/// \brief Delegate for when event parameter types are known at compile time. General implementation.
 ///
-template<typename T, typename... Args> class Delegate : public IDelegate {
+template<typename T, typename... Args> class EventDelegate : public IDelegate {
 public:
-   Delegate( T f ) : fun(f) {}
+   EventDelegate( T f ) : fun(f) {}
    void operator()( IEvent& event ) override {
       Event<Args...>* evt = dynamic_cast<Event<Args...>*>( &event );
       if( evt )
-         call_fun( evt->args, std::index_sequence_for<Args...>() ); // Compile time path
-      else {
-         JSONEvent* evt = dynamic_cast<JSONEvent*>( &event ); // Runtime path
-         if( evt )
-            fun( evt->args );
-      }
+         call_fun( evt->args, std::index_sequence_for<Args...>() );
    }
    
 private:
@@ -126,6 +131,22 @@ private:
       fun( std::get<Is>(tuple)... );
    }
    
+   T fun; // T is an std::function
+};
+
+///
+/// \brief JSON events have unknown types at compile time. Can't handle this type of event quite as generally.
+///
+template<typename T> class JSONDelegate : public IDelegate {
+public:
+   JSONDelegate( T f ) : fun(f) {}
+   void operator()( IEvent& event ) override {
+      JSONEvent* evt = dynamic_cast<JSONEvent*>( &event ); // Runtime path
+      if( evt )
+         fun( evt->args );
+   }
+   
+private:
    T fun; // T is an std::function
 };
 

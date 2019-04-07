@@ -54,6 +54,7 @@ protected:
    void onKeyDown( const IEventSampler::Key& ) override;
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
+   void onMouseButtonUp( const IEventSampler::MouseButton& ) override;
    
 private:
    friend class boost::serialization::access;
