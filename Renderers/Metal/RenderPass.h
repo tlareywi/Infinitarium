@@ -3,6 +3,8 @@
 #include "../../Engine/RenderPass.hpp"
 #include "../../Engine/Texture.hpp"
 
+#include "DataBuffer.h"
+
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -40,17 +42,27 @@ public:
       renderTarget = nullptr;
    }
    
+   void prepare( IRenderContext& ) override;
+   void getData( const glm::uvec4&, void* ) override;
+   
    id<MTLTexture> getMetalTexture() {
       return renderTarget;
    }
    
-   void prepare( IRenderContext& ) override;
-   void getData( const glm::uvec4&, void* ) override;
+   unsigned int getBytesPerRow() {
+      return bytesPerRow;
+   }
+   
+   unsigned short getBytesPerPixel() {
+      return bpp;
+   }
    
 private:
    id<MTLTexture> renderTarget = nullptr;
+   std::unique_ptr<MetalDataBuffer> copyBuffer;
    
    unsigned int bytesPerRow;
+   unsigned short bpp;
 };
 
 ///

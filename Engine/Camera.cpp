@@ -56,6 +56,7 @@ void Camera::render( IRenderPass& ) {
    renderPass->begin( renderContext );
    Transform::render( *renderPass );
    renderPass->end();
+   renderPass->runPostRenderOperations();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

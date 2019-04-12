@@ -4,6 +4,7 @@
 
 #include "DataBuffer.h"
 #include "RenderContext.h"
+#include "RenderPass.h"
 
 MetalDataBuffer::MetalDataBuffer( IRenderContext& context ) {
    MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
@@ -68,6 +69,41 @@ void MetalDataBuffer::commit() {
    
    [cmdBuf release];
    [bltEncoder release];
+}
+
+void MetalDataBuffer::copy( IRenderTarget& rt, const glm::uvec4& rect ) {
+   MetalRenderTarget* mtlrt = dynamic_cast<MetalRenderTarget*>(&rt);
+   if( !mtlrt ) return;
+   id<MTLTexture> source = mtlrt->getMetalTexture();
+   
+   MTLOrigin origin = MTLOriginMake(rect.x, rect.y, 0);
+   MTLSize size = MTLSizeMake(rect.z, rect.w, 1);
+   NSUInteger bpp = mtlrt->getBytesPerPixel();
+   NSUInteger rectBytes = size.height * size.width * bpp;
+   
+   reserve( rectBytes );
+   id<MTLCommandBuffer> cmdBuf = [commandQ commandBuffer];
+   id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+   [bltEncoder copyFromTexture:source
+                   sourceSlice:0
+                   sourceLevel:0
+                   sourceOrigin:origin
+                   sourceSize:size
+                   toBuffer:managed
+                   destinationOffset:0
+                   destinationBytesPerRow:(size.width*bpp)
+                   destinationBytesPerImage:rectBytes];
+   [bltEncoder synchronizeResource:managed];
+   [bltEncoder endEncoding];
+   [cmdBuf commit];
+   [cmdBuf waitUntilCompleted];
+   
+   [cmdBuf release];
+   [bltEncoder release];
+}
+
+void MetalDataBuffer::getData( void* buf ) {
+   memcpy( buf, managed.contents, managed.length );
 }
 
 id<MTLBuffer> MetalDataBuffer::getMTLBuffer() {

@@ -21,9 +21,9 @@ IRenderable::IRenderable() : dirty(true) {
    
    // Set built-in uniforms.
    allUniforms.reserve(30);
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
-   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::mat4()) );
-   allUniforms.push_back( std::make_pair("viewport", glm::vec2()) );
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("viewport", glm::uvec2()) );
 }
 
 void IRenderable::update( UpdateParams& params ) {
@@ -32,13 +32,13 @@ void IRenderable::update( UpdateParams& params ) {
    uint32_t offset {0};
    
    // Built-ins
-   glm::mat4x4 mvp = params.getMVP();
+   glm::fmat4x4 mvp = params.getMVP();
    uniformData->set( &mvp, offset, sizeof(mvp) );
    offset += sizeof(mvp);
-   glm::mat4x4 mv = params.getView() * params.getModel();
+   glm::fmat4x4 mv = params.getView() * params.getModel();
    uniformData->set( &mv, offset, sizeof(mv) );
    offset += sizeof(mv);
-   offset += sizeof(glm::vec2); // viewport 
+   offset += sizeof(glm::uvec2); // viewport
    
    // Update values for all uniforms
    for( auto& i : uniforms ) {
@@ -49,6 +49,8 @@ void IRenderable::update( UpdateParams& params ) {
       }, i.second );
    }
    
+   std::cout<<(offset)<<std::endl;
+   
    uniformData->commit(); // Copy to GPU
 }
 
@@ -58,22 +60,28 @@ void IRenderable::prepare( IRenderContext& context ) {
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
    
-   glm::vec2 viewport(context.width(), context.height());
+   glm::uvec2 viewport(context.width(), context.height());
    
    // Merge built-ins with user uniforms
    allUniforms.clear();
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
-   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
    allUniforms.push_back( std::make_pair("viewport", viewport) );
    allUniforms.insert( allUniforms.end(), uniforms.begin(), uniforms.end() );
    
    unsigned int sizeBytes {0};
-   for( auto& i : allUniforms )
-      std::visit( [&sizeBytes](auto& e){ sizeBytes += sizeof(e); }, i.second );
+   for( auto& i : allUniforms ) {
+        std::cout<<i.first<<" ";
+      std::visit( [&sizeBytes](auto& e){
+          std::cout<<sizeof(e)<<" ";
+         sizeBytes += sizeof(e);
+      }, i.second );
+         std::cout<<std::endl;
+   }
    
    // Reserve enough GPU memory for all uniforms.
-   uniformData->reserve( sizeBytes );
-   uniformData->set( &viewport, sizeof(glm::mat4) * 2, sizeof(glm::vec2) );
+   uniformData->reserve( sizeBytes ); // TODO: Figure out what +12 is from
+   uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   
    if( !programName.empty() ) {
       std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();

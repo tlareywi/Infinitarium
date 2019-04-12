@@ -52,6 +52,11 @@ void MetalRenderState::sanityCheck( id<MTLDevice> device, IRenderContext& contex
    if( !renderDescriptor.colorAttachments[0].pixelFormat ) {
       renderDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
    }
+   
+   // TODO: Temporary. Generalize.
+   if( !renderDescriptor.colorAttachments[1].pixelFormat ) {
+      renderDescriptor.colorAttachments[1].pixelFormat = MTLPixelFormatR32Uint;
+   }
 }
 
 MTLRenderPipelineDescriptor* MetalRenderState::getPipelineDescriptor() {

@@ -55,7 +55,7 @@ vertex VertexOut vertexShader( constant CartesianPosition* pos [[buffer(2)]],
    out.haloBrightness = uniforms.haloBrightness;
    
    float2 ndcPosition = out.position.xy / out.position.w;
-   out.pointCenter = (ndcPosition * 0.5 + float2(0.5, 0.5)) * float2(1920,1080); // TODO: pass as uniform
+   out.pointCenter = (ndcPosition * 0.5 + float2(0.5, 0.5)) * float2(uniforms.viewport);
    out.pointCenter.y = 1080 -  out.pointCenter.y; // Metal's window coords have flipped y-axis compared to OpenGL
    
    return out;

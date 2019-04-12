@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "RenderContext.hpp"
-#include "DataBuffer.hpp"
+#include "DataPack.hpp"
 
 class ITexture {
 public:

@@ -55,7 +55,8 @@ void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
 
 void Orbit::onMouseButtonUp( const IEventSampler::MouseButton& evt ) {
    // Fire picking event
-   std::tuple<const glm::uvec2&> args( glm::uvec2(evt.x, evt.y) );
+   const glm::uvec2 pt(evt.x, evt.y);
+   std::tuple<const glm::uvec2&> args( pt );
    Event e( args );
    e.setName("picking");
    IApplication::Create()->invoke( e );

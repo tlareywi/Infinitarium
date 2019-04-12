@@ -157,15 +157,19 @@ void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
    textureDescriptor.usage = MTLTextureUsageRenderTarget;
    
    renderTarget = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   // TODO: fix hardcoded bytes per pixel
    bytesPerRow = 4 * dim.x;
+   bpp = 4;
    
    [textureDescriptor release];
+   
+   // Initialize buffer for GPU->CPU copies
+   copyBuffer = std::make_unique<MetalDataBuffer>( renderContext );
 }
 
 void MetalRenderTarget::getData( const glm::uvec4& rect, void* data ) {
-   MTLRegion region = MTLRegionMake2D(rect.x, rect.y, rect.z, rect.w);
-   
-   [renderTarget getBytes:data bytesPerRow:bytesPerRow fromRegion:region mipmapLevel:0];
+   copyBuffer->copy( *this, rect );
+   copyBuffer->getData( data );
 }
 
 extern "C" {

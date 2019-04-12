@@ -9,6 +9,7 @@
 
 #include "DataPack.hpp"
 #include "RenderContext.hpp"
+#include "Texture.hpp"
 
 #include <memory>
 
@@ -25,4 +26,6 @@ public:
    virtual void reserve( unsigned int sizeBytes ) = 0;
    virtual void set( const void* const, unsigned int sizeBytes ) = 0;
    virtual void set( const void* const, unsigned int offset, unsigned int sizeBytes ) = 0;
+   virtual void copy( IRenderTarget&, const glm::uvec4& ) = 0;
+   virtual void getData( void* ) = 0;
 };

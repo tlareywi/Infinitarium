@@ -63,6 +63,8 @@ void MetalRenderProgram::injectUniformStruct( const std::vector<std::pair<std::s
    ss << "};\n\n";
    
    uniformBlock = ss.str();
+   
+   std::cout<<uniformBlock<<std::endl;
 }
 
 extern "C" {

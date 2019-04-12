@@ -55,11 +55,20 @@ void PointCloud::render( IRenderPass& renderPass ) {
    IRenderable::render(renderPass);
    
    if( pickCoords != glm::uvec2(0.0) ) {
-      uint32_t buf[100];
-      memset( buf, 0, sizeof(buf) );
-      glm::uvec4 rect( pickCoords.x - 5, pickCoords.y - 5, 10, 10 );
-      renderPass.getData( 1, rect, (void*)buf );
-      pickCoords = glm::uvec2(0.0);
+      // Hmm, whether or not to have this as a post render op has interesting implications. As a non-post
+      // render op, it effectively forces pick buffer evaluation before other things have drawn. As a post
+      // op, everything on this camera will have drawn when this is called.
+      std::function<void(IRenderPass&)> postRenderOp = [this](IRenderPass& renderPass) {
+         uint32_t buf[100];
+         memset( buf, 0, sizeof(buf) );
+         glm::uvec4 rect( pickCoords.x - 5, pickCoords.y - 5, 10, 10 );
+         renderPass.getData( 1, rect, (void*)buf );
+         for( auto& val : buf )
+            std::cout<<val<<std::endl;
+         pickCoords = glm::uvec2(0.0);
+      };
+      
+      renderPass.postRenderOperation( postRenderOp );
    }
 }
 

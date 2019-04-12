@@ -36,11 +36,25 @@ public:
    void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
       targets[indx]->getData( rect, data );
    }
+   
+   void postRenderOperation( std::function<void(IRenderPass&)>& op ) {
+      postRenderOps.push_back( op );
+   }
+   
+   void runPostRenderOperations() {
+      for( auto& f : postRenderOps )
+         f( *this );
+      
+      postRenderOps.clear();
+   }
 
 protected:
    IRenderPass() {};
    
    std::vector<std::shared_ptr<IRenderTarget>> targets;
+   
+private:
+   std::vector<std::function<void(IRenderPass&)>> postRenderOps;
 };
 
 ///
