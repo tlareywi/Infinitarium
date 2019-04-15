@@ -9,7 +9,7 @@ MetalRenderContext::MetalRenderContext( unsigned int x, unsigned int y, unsigned
    surface = [[CAMetalLayer new] init];
    CGRect newFrame = CGRectMake( x, y, w, h );
       
-   surface.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+   surface.pixelFormat = MTLPixelFormatBGRA8Unorm;
    surface.device = device;
    surface.framebufferOnly = YES;
    surface.frame = newFrame;
@@ -24,7 +24,7 @@ MetalRenderContext::MetalRenderContext( const IRenderContext& obj ) : IRenderCon
    surface = [[CAMetalLayer new] init];
    CGRect newFrame = CGRectMake( _x, _y, _width, _height );
    
-   surface.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+   surface.pixelFormat = MTLPixelFormatBGRA8Unorm;
    surface.device = device;
    surface.framebufferOnly = YES;
    surface.frame = newFrame;

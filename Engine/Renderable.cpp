@@ -49,8 +49,6 @@ void IRenderable::update( UpdateParams& params ) {
       }, i.second );
    }
    
-   std::cout<<(offset)<<std::endl;
-   
    uniformData->commit(); // Copy to GPU
 }
 
@@ -71,16 +69,15 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    unsigned int sizeBytes {0};
    for( auto& i : allUniforms ) {
-        std::cout<<i.first<<" ";
-      std::visit( [&sizeBytes](auto& e){
-          std::cout<<sizeof(e)<<" ";
+      std::visit( [&sizeBytes](auto& e) {
          sizeBytes += sizeof(e);
       }, i.second );
-         std::cout<<std::endl;
    }
    
    // Reserve enough GPU memory for all uniforms.
-   uniformData->reserve( sizeBytes ); // TODO: Figure out what +12 is from
+   // TODO: +12 Seems to be a Metal bug. Double check alignment and padding. No explaination why we need the extra bytes to avoid
+   // validation failure. Plus, nothing actually breaks, the values pass through fine. Just trips API validation flag.
+   uniformData->reserve( sizeBytes + 12 );
    uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   
    if( !programName.empty() ) {
