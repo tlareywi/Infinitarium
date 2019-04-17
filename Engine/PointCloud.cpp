@@ -63,9 +63,32 @@ void PointCloud::render( IRenderPass& renderPass ) {
          memset( buf, 0, sizeof(buf) );
          glm::uvec4 rect( pickCoords.x - 5, pickCoords.y - 5, 10, 10 );
          renderPass.getData( 1, rect, (void*)buf );
-         for( auto& val : buf )
-            std::cout<<val<<std::endl;
-         pickCoords = glm::uvec2(0.0);
+         // OK, so we have access to the buffers with the J2000 data right here! Just need to generalize looking
+         // up fields in the buffer. Then we can seed an instance of a slectable object with this data.
+         for( auto& val : buf ) {
+            if( val != 0 ) { // TODO init buffer to max(uint) and make that the uninitialized value.
+               glm::vec3 pos, color;
+               float mag;
+               { auto p = vertexBuffers.find(std::string("position"));
+               std::visit( [val, &pos](auto& e) {
+                  pos = glm::vec3( e[3*val], e[3*val+1], e[3*val+2] ); // Maybe define name + stride in Py to generalize?
+               }, p->second ); }
+               
+               { auto p = vertexBuffers.find(std::string("color"));
+               std::visit( [val, &color](auto& e) {
+                  color = glm::vec3( e[3*val], e[3*val+1], e[3*val+2] );
+               }, p->second ); }
+               
+               { auto p = vertexBuffers.find(std::string("magnitude"));
+               std::visit( [val, &mag](auto& e) {
+                  mag = e[3*val];
+               }, p->second ); }
+               
+               break;
+            }
+            
+            
+         }
       };
       
       renderPass.postRenderOperation( postRenderOp );

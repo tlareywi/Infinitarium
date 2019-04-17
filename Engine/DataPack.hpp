@@ -66,6 +66,10 @@ public:
       return *this;
    }
    
+   T operator[]( uint32_t indx ) {
+      return data[indx];
+   }
+   
    unsigned long sizeBytes() const {
       return data.size() * sizeof(T);
    }

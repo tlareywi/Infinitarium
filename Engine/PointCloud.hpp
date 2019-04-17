@@ -19,9 +19,23 @@
 /// \brief Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
 ///
 class IPointInstance {
+public:
+   enum Type {
+      Star,
+      Asteroid
+   };
    
-private:
+protected:
+   IPointInstance() {}
    std::vector<std::unique_ptr<IPointInstance>> instances;
+};
+
+///
+/// \brief Calculations and rendering specific to an instance of a star.
+///
+class Star : public IPointInstance {
+public:
+   Star( const glm::vec3&, const glm::vec3&, float );
 };
 
 ///
@@ -48,6 +62,7 @@ public:
 private:
    glm::uvec2 pickCoords;
    std::unique_ptr<IPointInstance> instanceMgr;
+   
    
    std::map<std::string, DataPackContainer> vertexBuffers;
    unsigned int numPoints;
