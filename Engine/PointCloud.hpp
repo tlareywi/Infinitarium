@@ -15,19 +15,26 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
 
+#include <chrono>
+
 ///
 /// \brief Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
 ///
-class IPointInstance {
+class IPointInstance : public IRenderable {
 public:
    enum Type {
       Star,
       Asteroid
    };
    
+   void update( UpdateParams& ) override;
+   
 protected:
    IPointInstance() {}
    std::vector<std::unique_ptr<IPointInstance>> instances;
+   
+private:
+   std::chrono::high_resolution_clock::time_point birth;
 };
 
 ///
@@ -36,6 +43,9 @@ protected:
 class Star : public IPointInstance {
 public:
    Star( const glm::vec3&, const glm::vec3&, float );
+   
+   void prepare( IRenderContext& ) override;
+   void render( IRenderPass& ) override;
 };
 
 ///

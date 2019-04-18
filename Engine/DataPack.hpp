@@ -78,6 +78,10 @@ public:
       return data.capacity() * sizeof(T);
    }
    
+   unsigned int size() const {
+      return data.size();
+   }
+   
    T* get() {
       if( data.size() < 1 )
          return nullptr;

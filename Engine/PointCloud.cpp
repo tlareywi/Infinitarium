@@ -81,8 +81,10 @@ void PointCloud::render( IRenderPass& renderPass ) {
                
                { auto p = vertexBuffers.find(std::string("magnitude"));
                std::visit( [val, &mag](auto& e) {
-                  mag = e[3*val];
+                  mag = e[val];
                }, p->second ); }
+               
+               std::cout<<mag<<std::endl;
                
                break;
             }
