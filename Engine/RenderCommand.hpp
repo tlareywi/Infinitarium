@@ -35,7 +35,7 @@ public:
       vertexCount = c;
    }
    
-   virtual void encode( IRenderPass&, const IRenderState& ) = 0;
+   virtual void encode( IRenderPass&, IRenderState& ) = 0;
    virtual void setPrimitiveType( PrimitiveType ) = 0;
    
 protected:

@@ -42,20 +42,25 @@ void MetalRenderState::commit( IRenderContext& context ) {
    }
 }
 
+void MetalRenderState::resolveTargets( MetalRenderPass& renderPass ) {
+   MTLRenderPassDescriptor* desc = renderPass.getPassDescriptor();
+   unsigned int i = 0;
+   MTLRenderPassColorAttachmentDescriptor* obj = nil;
+   while( 1 ) {
+      obj = desc.colorAttachments[i];
+      if( obj == nil ) break;
+      if( obj.texture )
+         renderDescriptor.colorAttachments[i].pixelFormat = obj.texture.pixelFormat;
+      else
+         renderDescriptor.colorAttachments[i].pixelFormat = MTLPixelFormatInvalid;
+   }
+}
+
 void MetalRenderState::sanityCheck( id<MTLDevice> device, IRenderContext& context ) { // Absolute minimal pipline specification to not SIGABRT on pipline state creation.
    if( !renderDescriptor.vertexFunction ) {
       MetalRenderProgram program;
       program.compile( "default", context );
       program.prepare( *this );
-   }
-   
-   if( !renderDescriptor.colorAttachments[0].pixelFormat ) {
-      renderDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-   }
-   
-   // TODO: Temporary. Generalize.
-   if( !renderDescriptor.colorAttachments[1].pixelFormat ) {
-      renderDescriptor.colorAttachments[1].pixelFormat = MTLPixelFormatR32Uint;
    }
 }
 

@@ -14,6 +14,7 @@
 #include "PyUtil.hpp"
 #include "ApplicationWindow.hpp"
 #include "Sprite.hpp"
+#include "Spheroid.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -125,6 +126,9 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addChild", &SceneObject::addChild)
    ;
    class_<Transform, bases<SceneObject>>("Transform", init<>())
+      .def("translate", &Transform::translate)
+      .def("rotate", &Transform::rotate)
+      .def("scale", &Transform::scale)
    ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
@@ -145,6 +149,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    class_<Sprite, bases<IRenderable>>("Sprite", init<>())
       .def("setTexture", &Sprite::setTexture)
+   ;
+   class_<Spheroid, bases<IRenderable>>("Spheroid", init<unsigned int, unsigned int, float, bool>())
    ;
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////

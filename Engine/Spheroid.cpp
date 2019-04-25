@@ -7,6 +7,10 @@
 
 #include "Spheroid.hpp"
 
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT(Spheroid)
+
 Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblateness, bool flipNormals ) {
    
    geometry = std::make_shared<DataPack<SpheroidVertex>>( meridian * parallel );
@@ -73,4 +77,17 @@ void Spheroid::prepare( IRenderContext& context ) {
    
    IRenderable::prepare( context );
 }
+
+namespace boost { namespace serialization {
+   template<class Archive> inline void serialize(Archive& ar, Spheroid& t, unsigned int version) {
+      boost::serialization::void_cast_register<Spheroid,IRenderable>();
+      ar & t.geometry;
+   }
+   
+   template<class Archive> inline void serialize(Archive& ar, Spheroid::SpheroidVertex& t, unsigned int version) {
+      ar & t.vertex;
+      ar & t.normal;
+      ar & t.textCoord;
+   }
+}}
 

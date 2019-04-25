@@ -43,16 +43,13 @@ BOOST_SERIALIZATION_SPLIT_FREE(glm::mat4x4)
 namespace boost {
    namespace serialization {
       template<class Archive> void serialize( Archive& ar, UniformType& t, const unsigned int version ) {
-         std::cout<<"Serializing UniformType"<<std::endl;
          std::visit( [&ar](auto& e){ ar & e; }, t );
       }
       
       template<class Archive, class T> void save( Archive& ar, const T& t, const unsigned int version ) {
-         std::cout<<"Saving "<<type_name<decltype(t)>()<<std::endl;
          ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
       template<class Archive, class T> void load( Archive& ar, T& t, const unsigned int version ) {
-         std::cout<<"Loading "<<type_name<decltype(t)>()<<std::endl;
          ar & boost::serialization::make_binary_object( (void*)&t, sizeof(t) );
       }
    }

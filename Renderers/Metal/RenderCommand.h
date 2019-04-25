@@ -9,7 +9,7 @@
 ///
 class MetalRenderCommand : public IRenderCommand {
 public:
-   void encode( IRenderPass& renderPass, const IRenderState& state ) override;
+   void encode( IRenderPass& renderPass, IRenderState& state ) override;
    void setPrimitiveType( PrimitiveType ) override; 
 
 private:

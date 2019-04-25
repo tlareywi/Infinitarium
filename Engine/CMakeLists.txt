@@ -12,10 +12,11 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   RenderState.hpp DataBuffer.hpp MotionControllerOrbit.hpp RenderProgram.hpp Scene.hpp
   EventSampler.cpp ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp
   Camera.cpp Texture.cpp Pipeline.cpp Sprite.cpp Transform.cpp SceneObject.cpp
+  Spheroid.cpp
   Application.hpp Simulation.cpp Simulation.hpp RenderContext.cpp RenderContext.hpp
   PythonBridge.hpp EngineInterface.hpp ConsoleInterface.cpp ConsoleInterface.hpp
   PyUtil.hpp UniformType.hpp Delegate.hpp Camera.hpp Texture.hpp Pipeline.hpp
-  Sprite.hpp SceneObject.hpp Transform.hpp
+  Sprite.hpp SceneObject.hpp Transform.hpp Spheroid.hpp
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)

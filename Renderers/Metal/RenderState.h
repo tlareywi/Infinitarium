@@ -2,6 +2,7 @@
 
 #include "../../Engine/RenderState.hpp"
 #include "RenderContext.h"
+#include "RenderPass.h"
 
 #import <Metal/Metal.h>
 
@@ -13,6 +14,7 @@ public:
    void commit( IRenderContext& context ) override;
    
    void sanityCheck( id<MTLDevice> device, IRenderContext& context );
+   void resolveTargets( MetalRenderPass& );
    
    MTLRenderPipelineDescriptor* getPipelineDescriptor();
    

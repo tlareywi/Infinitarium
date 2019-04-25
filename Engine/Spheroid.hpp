@@ -18,14 +18,21 @@ public:
    
    void prepare( IRenderContext& ) override;
    
-private:
    struct SpheroidVertex {
       glm::fvec3 vertex;
       glm::fvec3 normal;
       glm::fvec2 textCoord;
+      friend class boost::serialization::access;
+      template<class Archive> friend void boost::serialization::serialize( Archive &, SpheroidVertex&, unsigned int );
    };
+   
+private:
+   Spheroid() {}
    
    // TODO: Avoid replication here (both of these) for duplicate sphere geometry
    std::shared_ptr<DataPack<SpheroidVertex>> geometry;
    std::shared_ptr<IDataBuffer> spheroid;
+   
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, Spheroid&, unsigned int );
 };

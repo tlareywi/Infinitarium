@@ -32,10 +32,10 @@ void MetalRenderCommand::setPrimitiveType( PrimitiveType t ) {
    }
 }
 
-void MetalRenderCommand::encode( IRenderPass& renderPass, const IRenderState& state ) {
+void MetalRenderCommand::encode( IRenderPass& renderPass, IRenderState& state ) {
    @autoreleasepool {
       MetalRenderPass* metalRenderPass = dynamic_cast<MetalRenderPass*>( &renderPass );
-      const MetalRenderState& metalRenderState = dynamic_cast<const MetalRenderState&>( state );
+      MetalRenderState& metalRenderState = dynamic_cast<MetalRenderState&>( state );
       if( !metalRenderPass ) {
          std::cout<<"WARNING, failed cast to MetalRenderCommand."<<std::endl;
          return;
@@ -51,6 +51,7 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, const IRenderState& st
       commandEncoder.label = @"MyRenderEncoder";
       
       id<MTLRenderPipelineState> renderState = metalRenderState.getPipelineState();
+      metalRenderState.resolveTargets( *metalRenderPass ); // Make sure render targets jive.
       if( renderState )
          [commandEncoder setRenderPipelineState:renderState];
       
