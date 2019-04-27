@@ -21,15 +21,7 @@ public:
    
    void prepare( IRenderContext& context ) override;
    
-   void setTexture( const std::shared_ptr<ITexture>& );
-   void setMotionController( const std::shared_ptr<ITexture>& );
-   
-   template<class Archive> void save( Archive& ) const;
-   template<class Archive> void load( Archive& );
-   
-private:
-   std::shared_ptr<ITexture> texture;
-   
+private:   
    static std::shared_ptr<IDataBuffer> quad;
    
    friend class boost::serialization::access;

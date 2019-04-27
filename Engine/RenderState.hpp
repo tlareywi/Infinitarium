@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "RenderProgram.hpp"
+#include "RenderPass.hpp"
 
 class IRenderState {
 public:
@@ -24,10 +25,10 @@ public:
    }
    
    void prepare( IRenderContext& context );
+   void apply( IRenderPass& );
+   virtual void prepareImpl( IRenderContext& context ) = 0;
+   virtual void applyImpl( IRenderPass& ) = 0;
    
-   virtual void commit( IRenderContext& ) = 0;
-   
-   void apply();
 private:
    std::shared_ptr<IRenderProgram> renderProgram;
    bool dirty;

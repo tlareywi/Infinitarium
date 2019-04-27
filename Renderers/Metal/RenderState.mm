@@ -12,6 +12,7 @@ MetalRenderState::MetalRenderState() {
    renderDescriptor = [MTLRenderPipelineDescriptor new];
    [renderDescriptor reset];
    renderState = nullptr;
+   currentDevice = nullptr;
 }
 
 MetalRenderState::~MetalRenderState() {
@@ -19,12 +20,13 @@ MetalRenderState::~MetalRenderState() {
    [renderDescriptor release];
 }
 
-void MetalRenderState::commit( IRenderContext& context ) {
+void MetalRenderState::prepareImpl( IRenderContext& context ) {
    MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
-   id<MTLDevice> device = c->getMTLDevice();
+   currentDevice = c->getMTLDevice();
    
-   sanityCheck( device, context );
+   sanityCheck( currentDevice, context );
    
+   // TODO: Temporary. Need to expose setters and serialize blend state.
    MTLRenderPipelineColorAttachmentDescriptor* attachement = renderDescriptor.colorAttachments[0];
    attachement.blendingEnabled = YES;
    attachement.rgbBlendOperation = MTLBlendOperationAdd;
@@ -34,25 +36,32 @@ void MetalRenderState::commit( IRenderContext& context ) {
    attachement.destinationRGBBlendFactor = MTLBlendFactorOne;
    attachement.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
    
-   NSError* err {nullptr};
    [renderState release];
-   renderState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:&err];
-   if( err ) {
-      std::cout<<"Error creating PipelineState. "<<[err.localizedDescription UTF8String]<<std::endl;
-   }
+   renderState = nullptr;
 }
 
-void MetalRenderState::resolveTargets( MetalRenderPass& renderPass ) {
-   MTLRenderPassDescriptor* desc = renderPass.getPassDescriptor();
+void MetalRenderState::applyImpl( IRenderPass& renderPass ) {
+   if( renderState || !currentDevice ) return;
+   
+   MetalRenderPass& metalRenderPass = dynamic_cast<MetalRenderPass&>( renderPass );
+   MTLRenderPassDescriptor* desc = metalRenderPass.getPassDescriptor();
    unsigned int i = 0;
    MTLRenderPassColorAttachmentDescriptor* obj = nil;
-   while( 1 ) {
+   while( i < 8 ) {
       obj = desc.colorAttachments[i];
       if( obj == nil ) break;
       if( obj.texture )
          renderDescriptor.colorAttachments[i].pixelFormat = obj.texture.pixelFormat;
       else
          renderDescriptor.colorAttachments[i].pixelFormat = MTLPixelFormatInvalid;
+      
+      ++i;
+   }
+   
+   NSError* err {nullptr};
+   renderState = [currentDevice newRenderPipelineStateWithDescriptor:renderDescriptor error:&err];
+   if( err ) {
+      std::cout<<"Error creating PipelineState. "<<[err.localizedDescription UTF8String]<<std::endl;
    }
 }
 

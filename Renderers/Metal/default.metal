@@ -1,5 +1,5 @@
 //
-// Minimal passthrough shaders
+// Minimal passthrough shader
 //
 
 typedef struct

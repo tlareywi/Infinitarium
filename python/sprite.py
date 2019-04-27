@@ -19,7 +19,7 @@ camera.setRenderPass( renderPass )
 camera.setMotionController( engine.Orbit() )
 
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
-    engine.Format.BRGA8_sRGB, engine.Type.Color,
+    engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.FrameBuffer)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)

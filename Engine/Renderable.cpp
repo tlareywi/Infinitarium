@@ -18,6 +18,7 @@ IRenderable::IRenderable() : dirty(true) {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
+   texture = nullptr;
    
    // Set built-in uniforms.
    allUniforms.reserve(30);
@@ -57,6 +58,10 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
+   if( texture != nullptr ) {
+      renderCommand->add( texture );
+      texture->prepare( context );
+   }
    
    glm::uvec2 viewport(context.width(), context.height());
    
@@ -93,8 +98,12 @@ void IRenderable::prepare( IRenderContext& context ) {
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {
-   pipelineState->apply();
+   pipelineState->apply( renderPass );
    renderCommand->encode( renderPass, *pipelineState );
+}
+
+void IRenderable::setTexture( const std::shared_ptr<ITexture>& t ) {
+   texture = t;
 }
 
 void IRenderable::setUniform( const std::string& name, UniformType value ) {
@@ -166,5 +175,48 @@ void IRenderable::listUniforms() {
    
    console.write( ss.str() );
 }
+
+template<class Archive> void IRenderable::save( Archive& ar ) const {
+   ar << uniforms;
+   ar << programName;
+   
+   if( texture == nullptr )
+      ar << false;
+   else {
+      ar << true;
+      std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
+      ar << t;
+   }
+}
+
+template<class Archive> void IRenderable::load( Archive& ar ) {
+   ar >> uniforms;
+   ar >> programName;
+   
+   bool hasTextureResource{ false };
+   ar >> hasTextureResource;
+   if( hasTextureResource ) {
+      std::unique_ptr<TextureProxy> t;
+      ar >> t;
+      texture = ITexture::Clone( *t );
+   }
+}
+
+namespace boost { namespace serialization {
+   template<class Archive> inline void load(Archive& ar, IRenderable& t, unsigned int version) {
+      std::cout<<"Loading IRenderable"<<std::endl;
+      ar >> boost::serialization::base_object<SceneObject>(t);
+      t.load( ar );
+   }
+   template<class Archive> inline void save(Archive& ar, const IRenderable& t, unsigned int version) {
+      std::cout<<"Saving IRenderable"<<std::endl;
+      ar << boost::serialization::base_object<SceneObject>(t);
+      t.save( ar );
+   }
+   template<class Archive> inline void serialize(Archive& ar, IRenderable& t, unsigned int version) {
+      boost::serialization::void_cast_register<IRenderable,SceneObject>();
+      boost::serialization::split_free(ar, t, version);
+   }
+}}
 
 

@@ -43,9 +43,9 @@ Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblatene
                vert.textCoord = glm::fvec2( s / meridian, t / parallel );
             else
                vert.textCoord = glm::fvec2( s / meridian, 1.0 - t / parallel );
+            
+             geometry->add( vert );
          }
-         
-         geometry->add( vert );
          
          point = glm::dvec3( below.x, below.y, below.z * (1.0 - oblateness) );
          vert.vertex = point;
@@ -70,7 +70,7 @@ void Spheroid::prepare( IRenderContext& context ) {
    renderCommand->setPrimitiveType( IRenderCommand::TriangleStrip );
    
    spheroid = IDataBuffer::Create( context );
-   spheroid->set( geometry->get(), sizeof(geometry) );
+   spheroid->set( geometry->get(), geometry->sizeBytes() );
    spheroid->commit();
    
    renderCommand->add( spheroid );
@@ -81,6 +81,7 @@ void Spheroid::prepare( IRenderContext& context ) {
 namespace boost { namespace serialization {
    template<class Archive> inline void serialize(Archive& ar, Spheroid& t, unsigned int version) {
       boost::serialization::void_cast_register<Spheroid,IRenderable>();
+      ar & boost::serialization::base_object<IRenderable>(t);
       ar & t.geometry;
    }
    

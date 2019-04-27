@@ -51,7 +51,6 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, IRenderState& state ) 
       commandEncoder.label = @"MyRenderEncoder";
       
       id<MTLRenderPipelineState> renderState = metalRenderState.getPipelineState();
-      metalRenderState.resolveTargets( *metalRenderPass ); // Make sure render targets jive.
       if( renderState )
          [commandEncoder setRenderPipelineState:renderState];
       
@@ -72,6 +71,8 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, IRenderState& state ) 
             [commandEncoder setFragmentTexture:mtlTex->getMTLTexture() atIndex:indx];
          }
       }
+      
+      [commandEncoder setCullMode:MTLCullModeNone];
       
       [commandEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount instanceCount:instanceCount baseInstance:0];
       

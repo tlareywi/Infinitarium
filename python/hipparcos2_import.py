@@ -104,6 +104,6 @@ hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 hip2Cloud.addVertexBuffer( color.container(), 'color' )
 camera.addChild( hip2Cloud )
 
-exportPath = './hip2.ieb'
+exportPath = '../data/hip2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

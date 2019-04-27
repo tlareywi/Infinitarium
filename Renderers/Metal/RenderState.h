@@ -11,10 +11,10 @@ public:
    MetalRenderState();
    virtual ~MetalRenderState();
    
-   void commit( IRenderContext& context ) override;
+   void prepareImpl( IRenderContext& context ) override;
+   void applyImpl( IRenderPass& ) override;
    
    void sanityCheck( id<MTLDevice> device, IRenderContext& context );
-   void resolveTargets( MetalRenderPass& );
    
    MTLRenderPipelineDescriptor* getPipelineDescriptor();
    
@@ -23,4 +23,5 @@ public:
 private:
    MTLRenderPipelineDescriptor* renderDescriptor;
    id<MTLRenderPipelineState> renderState;
+   id<MTLDevice> currentDevice;
 };

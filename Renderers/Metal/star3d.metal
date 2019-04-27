@@ -24,11 +24,13 @@ vertex VertexOut vertexShader( uint vertexID [[ vertex_id ]],
 }
 
 fragment float4 fragmentShader( VertexOut in [[stage_in]],
-                               texture2d<half> colorTexture [[ texture(0) ]] ) {
+                               texture2d<float, access::sample> colorTexture [[ texture(0) ]] ) {
    
- //  constexpr sampler textureSampler( mag_filter::linear, min_filter::linear );
- //  const half4 colorSample = colorTexture.sample( textureSampler, in.texCoord );
-   return float4(1.0);
+   constexpr sampler textureSampler( mag_filter::linear, min_filter::linear );
+   const float4 colorSample = colorTexture.sample( textureSampler, in.texCoord );
+   // The fact that we need to do * 0.75 is concerning. Hardware sRGB conversion problem? Colors are blown out without this.
+   // Color profile for text image is sRGB IEC61966-2.1 (jupiter2_1k).
+   return float4(colorSample.bgr * 0.75, colorSample.a);
 }
 
 

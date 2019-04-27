@@ -17,7 +17,7 @@ vertex VertexOut vertexShader(uint vertexID [[ vertex_id ]],
                               constant ConstUniforms& uniforms [[buffer(1)]] ) {
    VertexOut out;
    out.position = float4( vert[vertexID].pos, 1.0 );
-   out.position.xy = out.position.xy / (uniforms.viewport / 2.0);
+   out.position.xy = out.position.xy / (float2(uniforms.viewport) / 2.0) * 26.0;
    
    out.texCoord = vert[vertexID].texCoord;
    

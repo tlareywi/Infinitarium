@@ -19,8 +19,8 @@ public:
    enum Format {
       BRGA8,
       BRGA8_sRGB,
+      RGBA8_sRGB,
       RU32,
-      RGB8,
       RGBA8
    };
 

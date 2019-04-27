@@ -23,12 +23,14 @@ void IRenderState::prepare( IRenderContext& context ) {
    if( renderProgram )
       renderProgram->prepare( *this );
    
-   dirty = false;
+   prepareImpl( context );
    
-   commit( context );
+   dirty = false;
 }
 
-void IRenderState::apply() {
+void IRenderState::apply( IRenderPass& renderPass ) {
    if( renderProgram )
       renderProgram->apply( *this );
+   
+   applyImpl( renderPass );
 }

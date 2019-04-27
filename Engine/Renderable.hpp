@@ -22,6 +22,7 @@
 #include "ConsoleInterface.hpp"
 #include "UniformType.hpp"
 #include "SceneObject.hpp"
+#include "Texture.hpp"
 
 #include <glm/glm.hpp>
 
@@ -35,6 +36,7 @@ public:
       pipelineState = nullptr;
       renderCommand = nullptr;
       uniformData = nullptr;
+      texture = nullptr;
    }
    virtual void render( IRenderPass& );
    virtual void prepare( IRenderContext& );
@@ -43,6 +45,8 @@ public:
    void setProgram( const std::string& name ) {
       programName = name;
    }
+   
+   void setTexture( const std::shared_ptr<ITexture>& );
    
    void setDirty() {
       dirty = true;
@@ -68,6 +72,9 @@ public:
       return tup;
    }
    
+   template<class Archive> void save( Archive& ) const;
+   template<class Archive> void load( Archive& );
+   
 protected:
    std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
@@ -78,14 +85,10 @@ private:
    std::vector<std::pair<std::string, UniformType>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
    std::string programName;
+   std::shared_ptr<ITexture> texture;
    
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing IRenderable"<<std::endl;
-      boost::serialization::void_cast_register<IRenderable,SceneObject>();
-      ar & uniforms;
-      ar & programName;
-   }
+   template<class Archive> friend void boost::serialization::serialize( Archive&, IRenderable&, unsigned int );
 };
 
 class ClearScreen : public IRenderable {

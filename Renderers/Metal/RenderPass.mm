@@ -96,6 +96,9 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
       case RGBA8:
          textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
          break;
+      case RGBA8_sRGB:
+         textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm_sRGB;
+         break;
       case BRGA8_sRGB:
       default:
          textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
@@ -108,17 +111,38 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
    textureDescriptor.mipmapLevelCount = 1;
    textureDescriptor.sampleCount = 1;
    textureDescriptor.arrayLength = 1;
-   textureDescriptor.storageMode = MTLStorageModeManaged; // TODO: Make this temp and make a private copy
-   textureDescriptor.allowGPUOptimizedContents = true;
+   textureDescriptor.storageMode = MTLStorageModeManaged;
+   textureDescriptor.allowGPUOptimizedContents = false;
    textureDescriptor.usage = MTLTextureUsageShaderRead;
    
+   // Stage to temporary CPU texture for copy. Strip bitmap header.
+   std::uint8_t* data = std::get<DataPack_UINT8>(image).get();
+   std::uint32_t offset = *reinterpret_cast<uint32_t*>(&data[10]);
+   
+   id<MTLTexture> tmpTexture = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   [tmpTexture replaceRegion:MTLRegionMake2D(0, 0, dim.x, dim.y) mipmapLevel:0 slice:0 withBytes:(data + offset) bytesPerRow:(dim.x*bypp) bytesPerImage:0];
+   
+   // Explicit copy to GPU
+   textureDescriptor.storageMode = MTLStorageModePrivate;
+   textureDescriptor.allowGPUOptimizedContents = true;
    texture = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   id<MTLCommandBuffer> cmdBuf = [context->getMTLCommandQ() commandBuffer];
+   id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+   [bltEncoder copyFromTexture:tmpTexture
+                   sourceSlice:0
+                   sourceLevel:0
+                   sourceOrigin:MTLOriginMake(0, 0, 0)
+                   sourceSize:MTLSizeMake(dim.x, dim.y, 1)
+                   toTexture:texture
+                   destinationSlice:0
+                   destinationLevel:0
+                   destinationOrigin:MTLOriginMake(0, 0, 0)];
+   [bltEncoder endEncoding];
+   [cmdBuf commit];
+   [cmdBuf waitUntilCompleted];
    
    [textureDescriptor release];
-   
-   std::visit( [bypp, this](auto& e) {
-      [texture replaceRegion:MTLRegionMake2D(0, 0, dim.x, dim.y) mipmapLevel:0 withBytes:e.get() bytesPerRow:(dim.x*bypp)];
-   }, image );
+   [tmpTexture release];
 }
 
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :

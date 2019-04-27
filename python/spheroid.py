@@ -28,30 +28,37 @@ renderPass.addRenderTarget( renderTarget )
 #
 # Read image and store as engine texture.
 #
-#from PIL import Image # Must have Pillow (pip3 install Pillow)
-#img = Image.open('../resources/jupiter.png', mode='r')
-#output = io.BytesIO()
-#img.save(output, format='BMP')
-#out = output.getbuffer()
-#imgData = engine.DataPack_UINT8(len(out))
+from PIL import Image # Must have Pillow (pip3 install Pillow)
+img = Image.open('../resources/textures/jupiter2_1k.jpg', mode='r')
 
-#imgData.getBuffer()[:] = out # Perform actual copy of data to engine side 
-#bytes = None
+# Force alpha channel, set to opaque
+a_channel = Image.new('L', img.size, 255)   # 'L' 8-bit pixels
+img.putalpha(a_channel)
 
-#texture = engine.ITexture.create( img.width, img.height, engine.Format.RGBA8 )
-#texture.set( imgData.container() )
+output = io.BytesIO()
+img.save(output, format='BMP')
+out = output.getbuffer()
 
-#img = None
+imgData = engine.DataPack_UINT8(len(out))
+
+imgData.getBuffer()[:] = out # Perform actual copy of data to engine side 
+bytes = None
+
+texture = engine.ITexture.create( img.width, img.height, engine.Format.RGBA8_sRGB )
+texture.set( imgData.container() )
+
+img = None
 
 #
 # Create spheroid and add to scene.
 #
 transform = engine.Transform()
-transform.translate( 0.0, 0.0, 10.0 )
+transform.rotate( 90.0, -1.0, 0.0, 0.0 ) 
+transform.translate( 0.0, 0.0, 4.0 )
 
-sphere = engine.Spheroid(40, 40, 1.0, False)
+sphere = engine.Spheroid(40, 40, 0.0, False) # meridians, parellels, oblateness (always unit size)
 sphere.setProgram('star3D')
-#sphere.setTexture( texture )
+sphere.setTexture( texture )
 
 transform.addChild( sphere )
 camera.addChild( transform )
