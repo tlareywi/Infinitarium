@@ -246,7 +246,11 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
    std::string retVal {""};
    std::string inStr {expr};
    
-   boost::replace_all(inStr, "‘", "'");
+   // Replace html 'smart quotes'
+   boost::replace_all(inStr, "‘","'");
+   boost::replace_all(inStr, "’","'");
+   boost::replace_all(inStr, "“","\"");
+   boost::replace_all(inStr, "”","\"");
    
    try {
       object result = exec( str(inStr), main_namespace );

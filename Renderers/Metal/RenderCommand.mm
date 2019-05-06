@@ -74,7 +74,8 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, IRenderState& state ) 
       
       [commandEncoder setCullMode:MTLCullModeNone];
       
-      [commandEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount instanceCount:instanceCount baseInstance:0];
+      if( instanceCount )
+         [commandEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount instanceCount:instanceCount baseInstance:0];
       
       [commandEncoder endEncoding];
    }
