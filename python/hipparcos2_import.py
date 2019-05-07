@@ -47,6 +47,8 @@ renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
 camera.setMotionController( engine.Orbit() )
 
+milkyway = engine.CoordinateSystem()
+
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,

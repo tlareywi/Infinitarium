@@ -11,6 +11,7 @@
 #include "SceneObject.hpp"
 
 class UniversalPoint {
+public:
    enum Unit {
       Meter,
       Kilometer,
@@ -21,22 +22,24 @@ class UniversalPoint {
       MegaParsec
    };
    
+   UniversalPoint( double x, double y, double z, Unit u ) : coords(glm::dvec3(x,y,z)), unit(u) {}
+   
    UniversalPoint convert( Unit );
    
 private:
-   Unit unit;
    glm::dvec3 coords;
+   Unit unit;
 };
 
 class CoordinateSystem : public SceneObject {
 public:
-   CoordinateSystem() {}
+   CoordinateSystem( const UniversalPoint& c, double r ) : center(c), radius(r) {}
    
    void update( UpdateParams& ) override; // Convert matrix to this coordinate system if position outside radius, traverse proxy
    
 private:
-   // Will need crossfade between these
-   std::shared_ptr<SceneObject> subgraph; // Visible when inside of system at this system's scale
+   // Will need crossfade between these:
+   // Implicit subgraph, SceneObject children, Visible when inside of system at this system's scale
    std::shared_ptr<SceneObject> proxy; // Visible when outside of system at parent system sclae (optional)
    
    UniversalPoint center;

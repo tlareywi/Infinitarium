@@ -12,6 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "EventSampler.hpp"
+#include "CoordinateSystem.hpp"
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -23,6 +24,10 @@ public:
       
    void processEvents();
    void getViewMatrix( glm::mat4& );
+   
+   void setHomeUnit( UniversalPoint::Unit u ) {
+      unit = u;
+   }
       
 protected:
    virtual void onKeyDown( const IEventSampler::Key& ) {}
@@ -34,6 +39,7 @@ protected:
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
 
    glm::mat4 view;
+   UniversalPoint::Unit unit;
    
    std::shared_ptr<IEventSampler> eventSampler;
    
@@ -41,6 +47,7 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing IMotionController"<<std::endl;
+      ar & unit;
    }
 };
 

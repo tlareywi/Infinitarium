@@ -15,6 +15,7 @@
 #include "ApplicationWindow.hpp"
 #include "Sprite.hpp"
 #include "Spheroid.hpp"
+#include "CoordinateSystem.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -70,8 +71,25 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def(init<unsigned int>())
    ;
    
+   class_<UniversalPoint>("UniversalPoint", init<double, double, double, UniversalPoint::Unit>())
+   ;
+   enum_<UniversalPoint::Unit>("Unit")
+      .value("Meter", UniversalPoint::Unit::Meter)
+      .value("Kilometer", UniversalPoint::Unit::Kilometer)
+      .value("AstronomicalUnit", UniversalPoint::Unit::AstronomicalUnit)
+      .value("LightYear", UniversalPoint::Unit::LightYear)
+      .value("Parsec", UniversalPoint::Unit::Parsec)
+      .value("KiloParsec", UniversalPoint::Unit::KiloParsec)
+      .value("MegaParsec", UniversalPoint::Unit::MegaParsec)
+      .export_values()
+   ;
+   
+   class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double>())
+   ;
+   
    // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
+      .def("setHomeUnit", &IMotionController::setHomeUnit);
    ;
    class_<Orbit, bases<IMotionController>>("Orbit", init<>())
    ;

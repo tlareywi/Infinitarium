@@ -6,6 +6,8 @@
 //
 
 #include "Camera.hpp"
+#include "Delegate.hpp"
+#include "Application.hpp"
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
@@ -40,7 +42,7 @@ void Camera::update( UpdateParams& /* identity */ ) {
       motionController->processEvents();
       motionController->getViewMatrix( view );
    }
-
+   
    UpdateParams params( projection, view );
    
    Transform::prepare( *renderContext );
@@ -66,6 +68,16 @@ template<class Archive> void Camera::load( Archive& ar ) {
    ar >> boost::serialization::base_object<Transform>(*this);
    
    ar >> motionController;
+   
+   if( motionController.get() ) {
+      // The assumption here is if we set a motion controller then we're the main navigational eye/camera.
+      // Make responder to runtime add node events. Should refactor at some point.
+      auto fun = [this]( const std::shared_ptr<SceneObject>& n ) {
+         addChild( n );
+      };
+      std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const std::shared_ptr<SceneObject>&>>( fun );
+      IApplication::Create()->subscribe("addSubgraph", delegate);
+   }
    
    // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
    // need to do it manually for platform specific instances such as this.
