@@ -43,7 +43,7 @@ void Camera::update( UpdateParams& /* identity */ ) {
       motionController->getViewMatrix( view );
    }
    
-   UpdateParams params( projection, view );
+   UpdateParams params( projection, view, *this );
    
    Transform::prepare( *renderContext );
    Transform::update( params );

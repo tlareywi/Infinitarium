@@ -45,9 +45,9 @@ camera.setRenderContext( context )
 
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
-camera.setMotionController( engine.Orbit() )
-
-milkyway = engine.CoordinateSystem()
+motionController = engine.Orbit() 
+motionController.setHomeUnit( engine.Unit.Parsec )
+camera.setMotionController( motionController )
 
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
@@ -83,11 +83,14 @@ print('Processing ...')
 
 skipped = 0
 numRecrods = 0
+maxDist = 0
 for record in t.filled():
     if( record['Plx'] <= 0 ): # TODO: maybe negative plx can be corrected somehow? plx error field?
         skipped += 1
         continue
     distPC = distParsecs(record['Plx'])
+    if( distPC > maxDist ):
+        maxDist = distPC
     pos = sphereToRectZUpRads( record['RArad'], record['DErad'], distPC )
     bv = record['B-V']
     rgb = parser.KelvinToRGB( 8540/(bv+0.865) )
@@ -100,6 +103,8 @@ for record in t.filled():
 hip2Cloud.setNumPoints( numRecrods )
 
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete or non-sensical data.')
+
+milkyway = engine.CoordinateSystem( engine.UniversalPoint(0,0,0,engine.Unit.Parsec), maxDist )
 
 hip2Cloud.addVertexBuffer( position.container(), 'position' )
 hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )

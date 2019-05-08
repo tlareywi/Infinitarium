@@ -22,13 +22,17 @@ public:
       MegaParsec
    };
    
-   UniversalPoint( double x, double y, double z, Unit u ) : coords(glm::dvec3(x,y,z)), unit(u) {}
+   UniversalPoint( double x, double y, double z, Unit u ) : point(glm::dvec3(x,y,z)), unit(u) {}
+   Unit getUnit() { return unit; }
    
-   UniversalPoint convert( Unit );
+//   UniversalPoint convert( Unit );
    
 private:
-   glm::dvec3 coords;
+   glm::dvec3 point;
    Unit unit;
+   
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive&, UniversalPoint&, unsigned int );
 };
 
 class CoordinateSystem : public SceneObject {
@@ -44,5 +48,8 @@ private:
    
    UniversalPoint center;
    double radius;
+   
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive&, CoordinateSystem&, unsigned int );
 };
 

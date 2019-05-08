@@ -9,6 +9,7 @@
 
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
+#include "Camera.hpp"
 
 #include <vector>
 
@@ -19,14 +20,7 @@
 
 class UpdateParams {
 public:
-   UpdateParams() : projection( glm::mat4(1.0) ),
-      view( glm::mat4(1.0) ),
-      model( glm::mat4(1.0) ) {
-   }
-   
-   UpdateParams(glm::mat4 p, glm::mat4 v) : projection( p ),
-   view( v ),
-   model( glm::mat4(1.0) ) {
+   UpdateParams(glm::mat4 p, glm::mat4 v, Camera& c) : camera(c), projection( p ), view( v ), model( glm::mat4(1.0) ) {
    }
    
    glm::mat4 getProjection() {
@@ -49,7 +43,12 @@ public:
       model = m * model;
    }
    
+   Camera& getCamera() {
+      return camera;
+   }
+   
 private:
+   Camera& camera;
    glm::mat4 projection;
    glm::mat4 view;
    glm::mat4 model;
