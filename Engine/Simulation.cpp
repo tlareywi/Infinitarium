@@ -7,6 +7,8 @@
 
 #include "Simulation.hpp"
 
+
+
 Simulation::Simulation() : exiting(false) {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
 }
@@ -42,7 +44,7 @@ void Simulation::simLoop() {
    while( 1 ) {
       time += clock();
       if( time / clocks_per_ms < 16.6666666667 ) {
-         sleep(0);
+		 std::this_thread::yield();
          continue;
       }
       

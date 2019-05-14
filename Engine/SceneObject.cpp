@@ -42,9 +42,8 @@ void SceneObject::render( IRenderPass& r ) {
       child->render( r );
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, SceneObject& t, unsigned int version) {
-      std::cout<<"Serializing SceneObject"<<std::endl;
-      ar & t.children;
-   }
-}}
+template<class Archive> void SceneObject::serialize( Archive& ar, const unsigned int version ) {
+	std::cout << "Serializing SceneObject" << std::endl;
+	ar & children;
+}
+

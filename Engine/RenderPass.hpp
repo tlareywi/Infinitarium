@@ -46,8 +46,6 @@ class RenderPassProxy : public IRenderPass {
 public:
    RenderPassProxy() {}
    RenderPassProxy( const IRenderPass& obj ) : IRenderPass(obj) {}
-   template<class Archive> void save( Archive& ) const;
-   template<class Archive> void load( Archive& );
    
    void prepare( std::shared_ptr<IRenderContext>& ) override {};
    void begin( std::shared_ptr<IRenderContext>& ) override {};
@@ -55,7 +53,9 @@ public:
    
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderPassProxy&, unsigned int );
+   template<class Archive> void load( Archive &, const unsigned int );
+   template<class Archive> void save(Archive&, const unsigned int) const;
+   BOOST_SERIALIZATION_SPLIT_MEMBER()
 #endif
 };
 

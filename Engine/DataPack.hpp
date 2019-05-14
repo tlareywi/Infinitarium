@@ -30,18 +30,20 @@ typedef DataPack<uint16_t> DataPack_UINT16;
 typedef DataPack<uint8_t> DataPack_UINT8;
 
 typedef std::variant<
-DataPack_FLOAT32,
-DataPack_UINT32,
-DataPack_UINT16,
-DataPack_UINT8> DataPackContainer;
+	DataPack_FLOAT32,
+	DataPack_UINT32,
+	DataPack_UINT16,
+	DataPack_UINT8> DataPackContainer;
+
+
 
 namespace boost {
-   namespace serialization {
-      template<class Archive> void serialize( Archive& ar, DataPackContainer& t, const unsigned int version ) {
-         std::cout<<"Serializing DataPackContainer"<<std::endl;
-         std::visit( [&ar](auto& e){ ar & e; }, t );
-      }
-   }
+	namespace serialization {
+		template<class Archive> void serialize(Archive& ar, DataPackContainer& t, const unsigned int version) {
+			std::cout << "Serializing DataPackContainer" << std::endl;
+			std::visit([&ar](auto & e) { ar& e; }, t);
+		}
+	}
 }
 
 ///
@@ -133,6 +135,4 @@ private:
    
    std::vector<T> data;
 };
-
-
 

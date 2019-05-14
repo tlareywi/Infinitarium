@@ -39,5 +39,5 @@ private:
    std::vector<std::shared_ptr<SceneObject>> children;
    
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, SceneObject&, unsigned int );
+   template<class Archive> void serialize(Archive&, const unsigned int);
 };

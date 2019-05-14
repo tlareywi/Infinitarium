@@ -25,5 +25,5 @@ private:
    glm::mat4x4 transform;
    
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive&, Transform&, unsigned int );
+   template<class Archive> void serialize(Archive&, const unsigned int);
 };

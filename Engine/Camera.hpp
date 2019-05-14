@@ -49,8 +49,7 @@ public:
    
 private:
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, Camera&, unsigned int );
-   
+
    bool dirty;
    
    std::shared_ptr<IRenderContext> renderContext;

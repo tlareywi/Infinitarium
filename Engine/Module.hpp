@@ -3,7 +3,11 @@
 #include <memory>
 #include <string>
 
-#include <dlfcn.h>
+#if defined(WIN32)
+	#include <windows.h>
+#else
+	#include <dlfcn.h>
+#endif
 
 #include "RenderCommand.hpp"
 #include "RenderState.hpp"
@@ -23,7 +27,11 @@ template<typename T> class ModuleFactory {
 public:
    virtual ~ModuleFactory() {
       if( handle ) {
+#if defined(WIN32)
+		 FreeLibrary((HMODULE)handle);
+#else
          dlclose(handle);
+#endif
          handle = nullptr;
       }
    }
@@ -38,7 +46,11 @@ public:
    
 protected:
    ModuleFactory( const std::string& module ) {
+#if defined(WIN32)
+	  handle = (void*)LoadLibraryA( module.c_str() );
+#else
       handle = dlopen( module.c_str(), RTLD_LOCAL|RTLD_LAZY );
+#endif
       if( !handle ) {
          throw std::runtime_error("CRITICAL: Unable to load module!");
       }

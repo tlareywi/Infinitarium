@@ -30,12 +30,11 @@ glm::mat4x4 Transform::getMatrix() {
    return transform;
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, Transform& t, unsigned int version) {
-      std::cout<<"Serializing Transform"<<std::endl;
-      boost::serialization::void_cast_register<Transform,SceneObject>();
-      ar & boost::serialization::base_object<SceneObject>(t);
-      ar & t.transform;
-   }
-}}
+template<class Archive> void Transform::serialize( Archive& ar, const unsigned int version ) {
+	std::cout << "Serializing Transform" << std::endl;
+	boost::serialization::void_cast_register<Transform, SceneObject>();
+	ar & boost::serialization::base_object<SceneObject>(*this);
+	ar & transform;
+}
+
 

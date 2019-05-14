@@ -29,14 +29,13 @@ void IRenderContext::init() {
    }
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, RenderContextProxy& t, unsigned int version) {
-      std::cout<<"Serializing RenderContextProxy"<<std::endl;
-      ar & t._x;
-      ar & t._y;
-      ar & t._width;
-      ar & t._height;
-      ar & t._fullScreen;
-   }
-}}
+template<class Archive> void RenderContextProxy::serialize(Archive& ar, const unsigned int version) {
+	std::cout << "Serializing RenderContextProxy" << std::endl;
+	ar & _x;
+	ar & _y;
+	ar & _width;
+	ar & _height;
+	ar & _fullScreen;
+}
+
 

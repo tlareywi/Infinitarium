@@ -24,14 +24,12 @@ std::shared_ptr<ITexture> ITexture::Clone( const ITexture& obj ) {
    return ModuleFactory<RendererFactory>::Instance()->cloneTexture( obj );
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, TextureProxy& t, unsigned int version) {
-      std::cout<<"Serializing Texture"<<std::endl;
-      ar & t.dim;
-      ar & t.format;
-      ar & t.image;
-   }
-}}
+template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigned int version ) {
+	std::cout << "Serializing Texture" << std::endl;
+	ar & dim;
+	ar & format;
+	ar & image;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // IRenderTarget
@@ -45,14 +43,13 @@ std::shared_ptr<IRenderTarget> IRenderTarget::Clone( const IRenderTarget& obj ) 
    return ModuleFactory<RendererFactory>::Instance()->createRenderTargetCopy( obj );
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, RenderTargetProxy& t, unsigned int version) {
-      std::cout<<"Serializing RenderTargetProxy"<<std::endl;
-      ar & t.dim;
-      ar & t.format;
-      ar & t.type;
-      ar & t.resource;
-      ar & t.clear;
-      ar & t.clearColor;
-   }
-}}
+template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const unsigned int version ) {
+	std::cout << "Serializing RenderTargetProxy" << std::endl;
+	ar & dim;
+	ar & format;
+	ar & type;
+	ar & resource;
+	ar & clear;
+	ar & clearColor;
+}
+

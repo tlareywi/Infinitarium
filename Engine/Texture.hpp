@@ -94,13 +94,10 @@ public:
    
    void prepare( std::shared_ptr<IRenderContext>& ) override {};
    
-   template<class Archive> void load( Archive& ar );
-   template<class Archive> void save( Archive& ar ) const;
-   
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderTargetProxy&, unsigned int );
+   template<class Archive> void serialize( Archive& ar, const unsigned int );
 #endif
 };
 
@@ -111,13 +108,12 @@ public:
    
    void prepare( std::shared_ptr<IRenderContext>& ) override {};
    
-   template<class Archive> void load( Archive& ar );
-   template<class Archive> void save( Archive& ar ) const;
+   template<class Archive> void serialize(Archive& ar);
    
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, TextureProxy&, unsigned int );
+   template<class Archive> void serialize( Archive& ar, const unsigned int );
 #endif
 };
 

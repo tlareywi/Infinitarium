@@ -24,7 +24,7 @@ std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& rp ) {
    return ModuleFactory<RendererFactory>::Instance()->createRenderPassCopy( rp );
 }
 
-template<class Archive> void RenderPassProxy::load( Archive& ar ) {
+template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
    size_t sz;
    ar >> sz;
    if( sz > 0 ) {
@@ -37,7 +37,7 @@ template<class Archive> void RenderPassProxy::load( Archive& ar ) {
    }
 }
 
-template<class Archive> void RenderPassProxy::save( Archive& ar ) const {
+template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned int version ) const {
    // We need to serialize a 'proxy' class in order to maintain platform independent
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
@@ -53,19 +53,6 @@ template<class Archive> void RenderPassProxy::save( Archive& ar ) const {
       ar << baseTargets;
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void load(Archive& ar, RenderPassProxy& t, unsigned int version) {
-      std::cout<<"Loading RenderPassProxy"<<std::endl;
-      t.load( ar );
-   }
-   template<class Archive> inline void save(Archive& ar, const RenderPassProxy& t, unsigned int version) {
-      std::cout<<"Saving RenderPassProxy"<<std::endl;
-      t.save( ar );
-   }
-   template<class Archive> inline void serialize(Archive& ar, RenderPassProxy& t, const unsigned int version) {
-      boost::serialization::split_free(ar, t, version);
-   }
-}}
 
 
 

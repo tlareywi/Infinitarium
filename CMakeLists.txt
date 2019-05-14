@@ -17,8 +17,15 @@ include_directories(${Python3_INCLUDE_DIRS})
 add_subdirectory( Engine )
 target_link_libraries( Infinitarium InfinitariumEngine )
 
-add_subdirectory( Renderers/Metal )
-add_subdirectory( Platforms/OSX )
+if( APPLE )
+    add_subdirectory( Renderers/Metal )
+    add_subdirectory( Platforms/OSX )
+endif( APPLE )
+
+if( MSVC )
+    add_subdirectory( Renderers/Vulkan )
+    add_subdirectory( Platforms/Windows )
+endif( MSVC )
 
 add_subdirectory( data )
 add_subdirectory( UI )

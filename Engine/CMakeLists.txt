@@ -32,4 +32,11 @@ find_package(Python3 COMPONENTS Development)
 target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
 
+if( MSVC )
+  find_path(GLM_INCLUDE_DIR glm/glm.hpp HINTS "C:\\Program Files (x86)\\glm\\include")
+  include_directories(${GLM_INCLUDE_DIR})
+  find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
+  include_directories(${RAPIDJSON_INCLUDE_DIR})
+endif( MSVC )
+
 install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)

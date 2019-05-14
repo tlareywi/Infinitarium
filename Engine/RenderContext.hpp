@@ -75,7 +75,7 @@ public:
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderContextProxy&, unsigned int );
+   template<class Archive> void serialize( Archive &, const unsigned int );
 #endif
 };
 

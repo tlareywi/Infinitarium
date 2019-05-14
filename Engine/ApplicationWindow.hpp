@@ -31,10 +31,11 @@ public:
    ApplicationWindowProxy( const IApplicationWindow& obj ) : IApplicationWindow(obj) {}
    
    void init( IRenderContext& ) override {};
+
+   template<class Archive> void serialize(Archive& ar);
    
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, ApplicationWindowProxy&, unsigned int );
 #endif
 };
