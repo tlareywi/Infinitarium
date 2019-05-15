@@ -33,6 +33,7 @@ public:
    void setRenderPass( const std::shared_ptr<IRenderPass>& );
    
    void setMotionController( const std::shared_ptr<IMotionController>& );
+   std::shared_ptr<IMotionController> getMotionController();
    void setRenderContext( const std::shared_ptr<IRenderContext>& );
    
    auto reflect() {  // IConsole /////////////////////

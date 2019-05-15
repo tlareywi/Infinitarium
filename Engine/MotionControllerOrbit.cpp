@@ -72,4 +72,15 @@ void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {
    view = glm::rotate( view, glm::radians(evt.dy), glm::vec3(glm::vec4(1, 0, 0, 0) * view) );
 }
 
+template<class Archive> void IMotionController::serialize(Archive & ar, const unsigned int version) {
+   std::cout<<"Serializing IMotionController"<<std::endl;
+   ar & homeStack;
+}
+
+template<class Archive> void Orbit::serialize(Archive & ar, const unsigned int version) {
+   std::cout<<"Serializing Orbit MotionController"<<std::endl;
+   boost::serialization::void_cast_register<Orbit,IMotionController>();
+   ar & boost::serialization::base_object<IMotionController>(*this);
+}
+
 

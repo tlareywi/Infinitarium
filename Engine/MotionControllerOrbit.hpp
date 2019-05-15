@@ -16,6 +16,7 @@
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
    
 class IMotionController {
 public:
@@ -25,8 +26,14 @@ public:
    void processEvents();
    void getViewMatrix( glm::mat4& );
    
-   void setHomeUnit( UniversalPoint::Unit u ) {
-      unit = u;
+   void pushHome( const UniversalPoint& p ) {
+      homeStack.push_back( p );
+   }
+   void popHome() {
+      homeStack.pop_back();
+   }
+   UniversalPoint getHome() {
+      return homeStack.back();
    }
       
 protected:
@@ -39,16 +46,13 @@ protected:
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
 
    glm::mat4 view;
-   UniversalPoint::Unit unit;
+   std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;
    
 private:
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing IMotionController"<<std::endl;
-      ar & unit;
-   }
+   template<class Archive> void serialize(Archive & ar, const unsigned int);
 };
 
 
@@ -65,9 +69,5 @@ protected:
    
 private:
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing Orbit MotionController"<<std::endl;
-      boost::serialization::void_cast_register<Orbit,IMotionController>();
-      ar & boost::serialization::base_object<IMotionController>(*this);
-   }
+   template<class Archive> void serialize(Archive & ar, const unsigned int);
 };

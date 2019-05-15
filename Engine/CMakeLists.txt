@@ -33,4 +33,9 @@ find_package(Python3 COMPONENTS Development)
 target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
 
+# GMP and MPFR (multiprecision number lib)
+find_library( LIB_MPFR mpfr )
+find_library( LIB_GMP gmp )
+target_link_libraries( InfinitariumEngine ${LIB_GMP} ${LIB_MPFR} )
+
 install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)

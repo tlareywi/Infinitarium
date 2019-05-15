@@ -9,7 +9,6 @@
 
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
-#include "Camera.hpp"
 
 #include <vector>
 
@@ -18,9 +17,17 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+class Camera;
+
 class UpdateParams {
 public:
-   UpdateParams(glm::mat4 p, glm::mat4 v, Camera& c) : camera(c), projection( p ), view( v ), model( glm::mat4(1.0) ) {
+   UpdateParams( Camera& c ) : camera( c ) {}
+   UpdateParams( const glm::mat4& p, const glm::mat4& v, Camera& c) : camera(c), projection( p ), view( v ), model( glm::mat4(1.0) ) {
+   }
+   UpdateParams( const UpdateParams& p, const glm::mat4& v, const glm::mat4& m ) : camera(p.camera) {
+      projection = p.projection;
+      view = v;
+      model = m;
    }
    
    glm::mat4 getProjection() {

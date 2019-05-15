@@ -77,7 +77,6 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .value("Meter", UniversalPoint::Unit::Meter)
       .value("Kilometer", UniversalPoint::Unit::Kilometer)
       .value("AstronomicalUnit", UniversalPoint::Unit::AstronomicalUnit)
-      .value("LightYear", UniversalPoint::Unit::LightYear)
       .value("Parsec", UniversalPoint::Unit::Parsec)
       .value("KiloParsec", UniversalPoint::Unit::KiloParsec)
       .value("MegaParsec", UniversalPoint::Unit::MegaParsec)
@@ -89,7 +88,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    
    // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
-      .def("setHomeUnit", &IMotionController::setHomeUnit);
+      .def("setHomeUnit", &IMotionController::pushHome);
    ;
    class_<Orbit, bases<IMotionController>>("Orbit", init<>())
    ;

@@ -77,10 +77,11 @@ void Scene::save( const std::string& filename ) const {
 
 void Scene::update() {
    std::lock_guard<std::mutex> lock( loadLock );
-   UpdateParams ident;
    
-   for( auto& camera : cameras )
+   for( auto& camera : cameras ) {
+      UpdateParams ident( *camera );
       camera->update( ident );
+   }
 }
 
 void Scene::render() {

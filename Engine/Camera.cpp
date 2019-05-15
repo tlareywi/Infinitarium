@@ -22,6 +22,10 @@ void Camera::setMotionController( const std::shared_ptr<IMotionController>& ctrl
    motionController = ctrl;
 }
 
+std::shared_ptr<IMotionController> Camera::getMotionController() {
+   return motionController;
+}
+
 void Camera::setRenderContext( const std::shared_ptr<IRenderContext>& r ) {
    renderContext = r;
    dirty = true;
