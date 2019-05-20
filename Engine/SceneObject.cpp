@@ -19,7 +19,7 @@ void SceneObject::removeChild( unsigned int indx ) {
    children.erase( children.begin() + indx );
 }
 
-unsigned int SceneObject::numChildren() {
+size_t SceneObject::numChildren() {
    return children.size();
 }
 

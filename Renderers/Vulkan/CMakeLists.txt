@@ -14,6 +14,9 @@ set_property(TARGET IERenderer PROPERTY CXX_STANDARD_REQUIRED ON)
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
+find_path(VULKAN_INCLUDE_DIR vulkan/vulkan.h HINTS "C:\\Program Files (x86)\\VulkanSDK\\include")
+include_directories(${VULKAN_INCLUDE_DIR})
+
 find_library(VULKAN_LIB NAMES vulkan-1 vulkan)
 target_link_libraries(IERenderer ${VULKAN_LIB})
 

@@ -19,7 +19,9 @@
 #include "Camera.hpp"
 #include "ConsoleInterface.hpp"
 
-class Scene : public Reflection::IConsole<Scene> {
+#include "../config.h"
+
+class IE_EXPORT Scene : public Reflection::IConsole<Scene> {
 public:
    Scene();
    virtual ~Scene() {}

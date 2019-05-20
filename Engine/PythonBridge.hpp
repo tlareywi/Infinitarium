@@ -12,7 +12,7 @@
 
 #include <boost/python.hpp>
 
-class PythonInterpreter : public IPythonInterpreter {
+class IE_EXPORT PythonInterpreter : public IPythonInterpreter {
 public:
    PythonInterpreter();
    virtual ~PythonInterpreter();

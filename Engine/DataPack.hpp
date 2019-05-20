@@ -22,30 +22,6 @@
    #include "Python.h"
 #endif
 
-template<typename T> class DataPack;
-
-typedef DataPack<float> DataPack_FLOAT32;
-typedef DataPack<uint32_t> DataPack_UINT32;
-typedef DataPack<uint16_t> DataPack_UINT16;
-typedef DataPack<uint8_t> DataPack_UINT8;
-
-typedef std::variant<
-	DataPack_FLOAT32,
-	DataPack_UINT32,
-	DataPack_UINT16,
-	DataPack_UINT8> DataPackContainer;
-
-
-
-namespace boost {
-	namespace serialization {
-		template<class Archive> void serialize(Archive& ar, DataPackContainer& t, const unsigned int version) {
-			std::cout << "Serializing DataPackContainer" << std::endl;
-			std::visit([&ar](auto & e) { ar& e; }, t);
-		}
-	}
-}
-
 ///
 /// \brief Type independent large dataset abstraction with move semantics.
 ///
@@ -59,10 +35,10 @@ public:
       data.clear();
    }
    
-   DataPack( unsigned int num ) : container(nullptr) {
+   DataPack( unsigned int num ) {
       data.reserve( num );
    }
-   DataPack( const DataPack<T>& obj ) : container(nullptr), data(obj.data) {
+   DataPack( const DataPack<T>& obj ) : data(obj.data) {
       
    }
    DataPack( DataPack<T>&& obj ) : data(std::move(obj.data)) {
@@ -74,11 +50,11 @@ public:
       return *this;
    }
    
-   unsigned long sizeBytes() const {
+   size_t sizeBytes() const {
       return data.size() * sizeof(T);
    }
    
-   unsigned long capacityBytes() const {
+   size_t capacityBytes() const {
       return data.capacity() * sizeof(T);
    }
    
@@ -87,18 +63,6 @@ public:
          return nullptr;
       else
          return &(data[0]);
-   }
-   
-   operator DataPackContainer() {
-      return DataPackContainer{ std::move(*this) };
-   }
-   
-   std::unique_ptr<DataPackContainer> container;
-   operator DataPackContainer&() {
-      if( !container )
-         container = std::make_unique<DataPackContainer>(std::move(*this));
-      
-      return *container;
    }
    
    // Convinience data methods
@@ -135,4 +99,28 @@ private:
    
    std::vector<T> data;
 };
+
+typedef DataPack<float> DataPack_FLOAT32;
+typedef DataPack<uint32_t> DataPack_UINT32;
+typedef DataPack<uint16_t> DataPack_UINT16;
+typedef DataPack<uint8_t> DataPack_UINT8;
+
+typedef std::variant< DataPack_FLOAT32,
+	DataPack_UINT32,
+	DataPack_UINT16,
+	DataPack_UINT8
+> DataPackContainer;
+
+template<typename T> DataPackContainer wrapDataPack( DataPack<T>& dataPack ) {
+	return { std::move(dataPack) };
+}
+
+namespace boost {
+	namespace serialization {
+		template<class Archive> void serialize(Archive& ar, DataPackContainer& t, const unsigned int version) {
+			std::cout << "Serializing DataPackContainer" << std::endl;
+			std::visit([&ar](auto & e) { ar& e; }, t);
+		}
+	}
+}
 

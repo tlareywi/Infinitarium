@@ -27,7 +27,7 @@ public:
    
    void addChild( const std::shared_ptr<SceneObject>& );
    void removeChild( unsigned int );
-   unsigned int numChildren();
+   size_t numChildren();
    std::shared_ptr<SceneObject> getChild( unsigned int indx );
    
    void setName( const std::string& n ) {

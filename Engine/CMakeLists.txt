@@ -1,7 +1,10 @@
 cmake_minimum_required( VERSION "3.12" ) # For python3 find module
 project( InfinitariumEngine )
 
-set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+if( MSVC )
+else( MSCV )
+  set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+endif( MSVC )
 
 add_definitions(-DENGINE_BUILD)
 
@@ -33,6 +36,7 @@ target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
 
 if( MSVC )
+  add_compile_definitions(BOOST_ALL_NO_LIB) 
   find_path(GLM_INCLUDE_DIR glm/glm.hpp HINTS "C:\\Program Files (x86)\\glm\\include")
   include_directories(${GLM_INCLUDE_DIR})
   find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")

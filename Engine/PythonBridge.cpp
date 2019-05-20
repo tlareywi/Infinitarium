@@ -32,34 +32,35 @@ void (DataPack_UINT32::*addVec4u32)(uint32_t,uint32_t,uint32_t,uint32_t) = &Data
 BOOST_PYTHON_MODULE(libInfinitariumEngine)
 {
    class_<DataPack_FLOAT32>("DataPack_FLOAT32", init<unsigned int>())
-  //    .def("container", &DataPack_FLOAT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_FLOAT32::add)
       .def("getBuffer", &DataPack_FLOAT32::getBuffer)
       .def("addVec3", addVec3f)
       .def("addVec4", addVec3f)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
- //     .def("container", &DataPack_UINT16::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT16::add)
       .def("getBuffer", &DataPack_UINT16::getBuffer)
       .def("addVec3", addVec3u16)
       .def("addVec4", addVec3u16)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
-  //    .def("container", &DataPack_UINT32::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT32::add)
       .def("getBuffer", &DataPack_UINT32::getBuffer)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec3u32)
    ;
    class_<DataPack_UINT8>("DataPack_UINT8", init<unsigned int>())
-   //   .def("container", &DataPack_UINT8::operator DataPackContainer&, return_internal_reference<>())
       .def("add", &DataPack_UINT8::add)
       .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u8)
       .def("addVec4", addVec3u8)
    ;
-   
+
+   def("wrap", wrapDataPack<float>);
+   def("wrap", wrapDataPack<uint32_t>);
+   def("wrap", wrapDataPack<uint16_t>);
+   def("wrap", wrapDataPack<uint8_t>);
+
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)
    ;
    

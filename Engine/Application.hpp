@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-class IApplication {
+class IE_EXPORT IApplication {
 public:
    virtual ~IApplication() {}
    

@@ -11,7 +11,7 @@
 
 #include <thread>
 
-class Simulation {
+class IE_EXPORT Simulation {
 public:
    Simulation();
    ~Simulation();

@@ -23,6 +23,14 @@ if( APPLE )
 endif( APPLE )
 
 if( MSVC )
+    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+    add_compile_definitions(BOOST_ALL_NO_LIB)
+
+    find_path(GLM_INCLUDE_DIR glm/glm.hpp HINTS "C:\\Program Files (x86)\\glm\\include")
+    include_directories(${GLM_INCLUDE_DIR})
+    find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
+    include_directories(${RAPIDJSON_INCLUDE_DIR})
+
     add_subdirectory( Renderers/Vulkan )
     add_subdirectory( Platforms/Windows )
 endif( MSVC )

@@ -1,1 +1,11 @@
 #define INSTALL_ROOT "@CMAKE_INSTALL_PREFIX@"
+
+#if defined(__WIN32__) || defined(_WIN32)
+	#ifdef InfinitariumEngine_EXPORTS
+		#define IE_EXPORT __declspec(dllexport)
+	#else
+		#define IE_EXPORT __declspec(dllimport)
+	#endif
+#else
+	#define IE_EXPORT 
+#endif
