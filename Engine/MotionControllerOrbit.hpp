@@ -27,10 +27,20 @@ public:
    void getViewMatrix( glm::mat4& );
    
    void pushHome( const UniversalPoint& p ) {
+      glm::dvec3 eye = view[3];
+      UniversalPoint camera{ eye.x, eye.y, eye.z, getHome().getUnit() };
+      UniversalPoint localEye = camera.convert( p.getUnit() );
+      view[3] = glm::dvec4( localEye.getPoint(), 1.0 );
+      
       homeStack.push_back( p );
    }
    void popHome() {
+      glm::dvec3 eye = view[3];
+      UniversalPoint camera{ eye.x, eye.y, eye.z, getHome().getUnit() };
       homeStack.pop_back();
+      
+      UniversalPoint localEye = camera.convert( getHome().getUnit() );
+      view[3] = glm::dvec4( localEye.getPoint(), 1.0 );
    }
    UniversalPoint getHome() {
       return homeStack.back();

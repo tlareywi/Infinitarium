@@ -10,6 +10,7 @@
 #include "PythonBridge.hpp"
 #include "Delegate.hpp"
 #include "Application.hpp"
+#include "CoordinateSystem.hpp"
 
 #include "../config.h"
 
@@ -86,10 +87,12 @@ void PointCloud::render( IRenderPass& renderPass ) {
                
                std::cout<<mag<<std::endl;
                
+               UniversalPoint center( pos, UniversalPoint::LightYear );
+               std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
+               addChild( system );
+               
                break;
             }
-            
-            
          }
       };
       
