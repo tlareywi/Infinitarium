@@ -55,6 +55,7 @@ public:
    virtual void run() = 0;
    virtual void stop() = 0;
    virtual void addManipulator( const std::string& id, float, float, float ) = 0;
+   virtual void* platformInstance() = 0;
    
 private:
    std::shared_ptr<IPythonInterpreter> pyInterp;

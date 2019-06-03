@@ -33,7 +33,8 @@ public:
    void init();
    #endif
    
-   virtual void* getSurface() = 0;
+   virtual void* getSurface() = 0; 
+   virtual void setSurface( void* ) = 0;
    
    unsigned int x() {
       return _x;

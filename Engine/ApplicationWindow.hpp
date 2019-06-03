@@ -30,7 +30,7 @@ public:
    ApplicationWindowProxy() {}
    ApplicationWindowProxy( const IApplicationWindow& obj ) : IApplicationWindow(obj) {}
    
-   void init( IRenderContext& ) override {};
+   void init( IRenderContext& ) override {}
 
    template<class Archive> void serialize(Archive& ar);
    

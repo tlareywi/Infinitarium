@@ -16,6 +16,9 @@ public:
    
    void run() override;
    void stop() override;
+   void* platformInstance() override {
+      return nullptr;
+   }
    
    void addManipulator( const std::string&, float, float, float ) override;
    

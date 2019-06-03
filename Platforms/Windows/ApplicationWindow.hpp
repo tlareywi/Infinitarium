@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Engine/Application.hpp"
+#include "../../Engine/ApplicationWindow.hpp"
 
 #include <memory>
 
@@ -10,11 +10,12 @@
 class WinApplicationWindow : public IApplicationWindow {
 public:
 	WinApplicationWindow();
-	WinApplicationWindow(const IApplicationWindow& obj) : IApplicationWindow(obj) {};
-	virtual ~WinApplicationWindow() {};
+	WinApplicationWindow(const IApplicationWindow& obj) : window(nullptr), IApplicationWindow(obj) {};
+	virtual ~WinApplicationWindow();
 
 	void init(IRenderContext&) override;
 
 private:
 	GLFWwindow* window;
+	VkSurfaceKHR surface;
 };
