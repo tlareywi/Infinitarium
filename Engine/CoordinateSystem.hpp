@@ -63,6 +63,9 @@ public:
    
    void update( UpdateParams& ) override; // Convert matrix to this coordinate system if position outside radius, traverse proxy
    
+   // TODO: this assumes the viewer is outside the system. May not always return value in expected units.
+   glm::vec3 getCenter() override { return center.getPoint(); }
+   
 private:
    // Will need crossfade between these:
    // Implicit subgraph, SceneObject children, Visible when inside of system at this system's scale

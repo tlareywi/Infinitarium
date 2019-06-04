@@ -52,6 +52,11 @@ void PointCloud::prepare( IRenderContext& context ) {
    IRenderable::prepare( context );
 }
 
+void PointCloud::update( UpdateParams& params ) {
+   motionController = params.getCamera().getMotionController();
+   IRenderable::update( params );
+}
+
 void PointCloud::render( IRenderPass& renderPass ) {
    IRenderable::render(renderPass);
    
@@ -87,19 +92,18 @@ void PointCloud::render( IRenderPass& renderPass ) {
                
                std::cout<<mag<<std::endl;
                
-               UniversalPoint center( pos, UniversalPoint::LightYear );
+               UniversalPoint center( pos, UniversalPoint::Parsec );
                std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
                addChild( system );
+               motionController->select( system );
                
                break;
             }
          }
+         pickCoords = glm::uvec2(0.0);
       };
       
       renderPass.postRenderOperation( postRenderOp );
    }
 }
-
-
-
 

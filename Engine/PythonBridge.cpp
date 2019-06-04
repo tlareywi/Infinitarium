@@ -83,12 +83,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .export_values()
    ;
    
-   class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double>())
+   class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
    ;
    
    // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
-      .def("setHomeUnit", &IMotionController::pushHome);
+      .def("setHomeSystem", &IMotionController::pushHome);
    ;
    class_<Orbit, bases<IMotionController>>("Orbit", init<>())
    ;

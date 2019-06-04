@@ -69,6 +69,8 @@ public:
    virtual void update( UpdateParams& );
    virtual void render( IRenderPass& );
    
+   virtual glm::vec3 getCenter() { return {0,0,0}; }
+   
    void addChild( const std::shared_ptr<SceneObject>& );
    void removeChild( unsigned int );
    unsigned int numChildren();

@@ -87,7 +87,13 @@ extern "C" {
    button.y = pos.y;
    
    button.state = IEventSampler::DOWN;
-   eventSampler->push( button );
+   
+   if( theEvent.clickCount > 1 ) {
+      IEventSampler::MouseButtonDbl dblButton{ button };
+      eventSampler->push( dblButton );
+   }
+   else
+      eventSampler->push( button );
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {

@@ -13,6 +13,7 @@
 
 #include "EventSampler.hpp"
 #include "CoordinateSystem.hpp"
+#include "SceneObject.hpp"
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -26,25 +27,13 @@ public:
    void processEvents();
    void getViewMatrix( glm::mat4& );
    
-   void pushHome( const UniversalPoint& p ) {
-      glm::dvec3 eye = view[3];
-      UniversalPoint camera{ eye.x, eye.y, eye.z, getHome().getUnit() };
-      UniversalPoint localEye = camera.convert( p.getUnit() );
-      view[3] = glm::dvec4( localEye.getPoint(), 1.0 );
-      
-      homeStack.push_back( p );
-   }
-   void popHome() {
-      glm::dvec3 eye = view[3];
-      UniversalPoint camera{ eye.x, eye.y, eye.z, getHome().getUnit() };
-      homeStack.pop_back();
-      
-      UniversalPoint localEye = camera.convert( getHome().getUnit() );
-      view[3] = glm::dvec4( localEye.getPoint(), 1.0 );
-   }
+   void pushHome( const UniversalPoint& p );
+   void popHome();
    UniversalPoint getHome() {
       return homeStack.back();
    }
+   
+   void select( const std::shared_ptr<SceneObject>& );
       
 protected:
    virtual void onKeyDown( const IEventSampler::Key& ) {}
@@ -54,11 +43,16 @@ protected:
    virtual void onMouseMove( const IEventSampler::MouseMove& ) {}
    virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
+   virtual void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {}
+   
+   void setAnchor( const std::shared_ptr<SceneObject>& obj );
+   void animatePath();
 
    glm::mat4 view;
    std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;
+   std::shared_ptr<SceneObject> selectedObject;
    
 private:
    friend class boost::serialization::access;
@@ -76,6 +70,7 @@ protected:
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
    void onMouseButtonUp( const IEventSampler::MouseButton& ) override;
+   void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) override;
    
 private:
    friend class boost::serialization::access;

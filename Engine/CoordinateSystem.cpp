@@ -124,7 +124,7 @@ void CoordinateSystem::update( UpdateParams& params ) {
       UniversalPoint newHome( center.getPoint(), units );
       params.getCamera().getMotionController()->pushHome( newHome );
    }
-   else if( distance < radius ) {
+   else if( distance < radius ) { // This is a parent of the current coordinate system
       // Reset model matrix to identity
       glm::dmat4 model(1.0), view(params.getView());
       

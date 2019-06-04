@@ -43,10 +43,12 @@ scene.add( camera )
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
 camera.setRenderContext( context )
 
+origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
+
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
 motionController = engine.Orbit() 
-motionController.setHomeUnit( engine.Unit.Parsec )
+motionController.setHomeSystem( origin )
 camera.setMotionController( motionController )
 
 # Color target
@@ -103,8 +105,6 @@ for record in t.filled():
 hip2Cloud.setNumPoints( numRecrods )
 
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete or non-sensical data.')
-
-milkyway = engine.CoordinateSystem( engine.UniversalPoint(0,0,0,engine.Unit.Parsec), maxDist )
 
 hip2Cloud.addVertexBuffer( position.container(), 'position' )
 hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )

@@ -11,6 +11,7 @@
 
 #include "DataPack.hpp"
 #include "Renderable.hpp"
+#include "MotionControllerOrbit.hpp"
 
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
@@ -61,6 +62,7 @@ public:
    }
    
    void prepare( IRenderContext& ) override;
+   void update( UpdateParams& ) override;
    void render( IRenderPass& ) override;
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );
@@ -72,7 +74,7 @@ public:
 private:
    glm::uvec2 pickCoords;
    std::unique_ptr<IPointInstance> instanceMgr;
-   
+   std::shared_ptr<IMotionController> motionController;
    
    std::map<std::string, DataPackContainer> vertexBuffers;
    unsigned int numPoints;
