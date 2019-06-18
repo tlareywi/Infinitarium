@@ -61,10 +61,10 @@ renderPass.addRenderTarget( renderTarget )
 
 # Pick buffer
 pickTarget = engine.IRenderTarget.create( 1920, 1080,
-    engine.Format.RU32, engine.Type.Color,
+    engine.Format.RF32, engine.Type.Color,
     engine.Resource.Memory)
-renderTarget.setClear( True )
-renderTarget.setClearColor(0,0,0,0)
+pickTarget.setClear( True )
+pickTarget.setClearColor(0,0,0,0)
 renderPass.addRenderTarget( pickTarget )
 
 hip2Cloud = engine.PointCloud()

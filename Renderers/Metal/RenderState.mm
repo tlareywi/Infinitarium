@@ -27,14 +27,23 @@ void MetalRenderState::prepareImpl( IRenderContext& context ) {
    sanityCheck( currentDevice, context );
    
    // TODO: Temporary. Need to expose setters and serialize blend state.
-   MTLRenderPipelineColorAttachmentDescriptor* attachement = renderDescriptor.colorAttachments[0];
+   { MTLRenderPipelineColorAttachmentDescriptor* attachement = renderDescriptor.colorAttachments[0];
    attachement.blendingEnabled = YES;
    attachement.rgbBlendOperation = MTLBlendOperationAdd;
    attachement.alphaBlendOperation = MTLBlendOperationAdd;
    attachement.sourceRGBBlendFactor = MTLBlendFactorOne;
    attachement.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
    attachement.destinationRGBBlendFactor = MTLBlendFactorOne;
-   attachement.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+   attachement.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha; }
+   
+   { MTLRenderPipelineColorAttachmentDescriptor* attachement = renderDescriptor.colorAttachments[1];
+      attachement.blendingEnabled = YES;
+      attachement.rgbBlendOperation = MTLBlendOperationMax;
+      attachement.alphaBlendOperation = MTLBlendOperationMax;
+      attachement.sourceRGBBlendFactor = MTLBlendFactorOne;
+      attachement.sourceAlphaBlendFactor = MTLBlendFactorOne;
+      attachement.destinationRGBBlendFactor = MTLBlendFactorOne;
+      attachement.destinationAlphaBlendFactor = MTLBlendFactorOne; }
    
    [renderState release];
    renderState = nullptr;

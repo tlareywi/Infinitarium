@@ -29,7 +29,7 @@ struct VertexOut {
 
 struct FragmentOut {
    float4 color [[color(0)]];
-   uint pick [[color(1)]];
+   float pick [[color(1)]];
 };
 
 constant float3 eye(0, 0, 0);
@@ -84,7 +84,10 @@ fragment FragmentOut fragmentShader( VertexOut point [[stage_in]] ) {
    
    FragmentOut out;
    out.color = float4( point.color.rgb * (disk+psf), 1.0 );
-   out.pick = point.id;
+   if( len < 6.0f )
+      out.pick = float(point.id);
+   else
+      out.pick = 0.0f;
    return out;
 }
 

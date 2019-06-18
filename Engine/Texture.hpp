@@ -21,7 +21,8 @@ public:
       BRGA8_sRGB,
       RGBA8_sRGB,
       RU32,
-      RGBA8
+      RGBA8,
+      RF32
    };
 
    ITexture( const glm::uvec2& d, Format f) : dim(d), format(f) {}

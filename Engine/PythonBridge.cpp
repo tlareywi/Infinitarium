@@ -125,6 +125,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .value("RGBA8_sRGB", ITexture::Format::RGBA8_sRGB)
       .value("RU32", ITexture::Format::RU32)
       .value("RGBA8", ITexture::Format::RGBA8)
+      .value("RF32", ITexture::Format::RF32)
       .export_values()
    ;
    enum_<IRenderTarget::Type>("Type")

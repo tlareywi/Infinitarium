@@ -93,6 +93,9 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
       case RU32:
          textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
          break;
+      case RF32:
+         textureDescriptor.pixelFormat = MTLPixelFormatR32Float;
+         break;
       case RGBA8:
          textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
          break;
@@ -163,6 +166,9 @@ void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
          break;
       case RU32:
          textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
+         break;
+      case RF32:
+         textureDescriptor.pixelFormat = MTLPixelFormatR32Float;
          break;
       case BRGA8_sRGB:
       default:

@@ -76,7 +76,7 @@ void MetalDataBuffer::copy( IRenderTarget& rt, const glm::uvec4& rect ) {
    if( !mtlrt ) return;
    id<MTLTexture> source = mtlrt->getMetalTexture();
    
-   MTLOrigin origin = MTLOriginMake(rect.x, rect.y, 0);
+   MTLOrigin origin = MTLOriginMake(rect.x, source.height - rect.y, 0);
    MTLSize size = MTLSizeMake(rect.z, rect.w, 1);
    NSUInteger bpp = mtlrt->getBytesPerPixel();
    NSUInteger rectBytes = size.height * size.width * bpp;

@@ -9,6 +9,9 @@
 #include "Delegate.hpp"
 #include "Application.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(IMotionController)
 BOOST_CLASS_EXPORT(Orbit)
@@ -77,21 +80,40 @@ void IMotionController::select( const std::shared_ptr<SceneObject>& obj ) {
    selectedObject = obj;
 }
 
-void IMotionController::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
-   // view[2] -> center component of view matrix.
-  // view[2] = glm::vec4(obj->getCenter(), view[2][3]);
-   std::cout<<"Center of system "<<obj->getCenter().x<<" "<<obj->getCenter().y<<" "<<obj->getCenter().z<<std::endl;
-   view = glm::lookAt(glm::vec3(0.0,0.0,0.0), obj->getCenter(), glm::vec3(0.0,1.0,0.0));
+void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
+   center = obj->getCenter();
    
-   // TODO: add rotation to retain the appearance of not moving the center.
+   glm::dvec3 eye(0.0,0.0,0.0);
+   glm::dvec3 up(0.0,1.0,0.0);
+   
+   glm::dvec3 front{ center - eye };
+   distance = glm::length( front );
+   front = glm::normalize( front );
+   glm::dvec3 side{ glm::cross(front, up) };
+   side = glm::normalize( side );
+   glm::dvec3 u{ glm::cross(side, front) };
+   
+   glm::dmat4 rotation_matrix(1.0);
+   rotation_matrix[0][0] = side.x;
+   rotation_matrix[1][0] = side.y;
+   rotation_matrix[2][0] = side.z;
+   
+   rotation_matrix[0][1] = u.x;
+   rotation_matrix[1][1] = u.y;
+   rotation_matrix[2][1] = u.z;
+   
+   front = -front;
+   rotation_matrix[0][2] = front.x;
+   rotation_matrix[1][2] = front.y;
+   rotation_matrix[2][2] = front.z;
+   
+   rotation = glm::toQuat(rotation_matrix);
+   yawPitchRoll = glm::quat(1.0,0.0,0.0,0.0);
 }
 
-void IMotionController::animatePath() {
-   glm::vec3 eye = view[3];
-   glm::vec3 center = view[2];
-   
-   double distance = glm::distance(eye, center);
-   std::cout<<"Distance to system "<<distance<<std::endl;
+void Orbit::animatePath() {
+   glm::dvec3 eye = view * glm::dvec4(0.0,0.0,0.0,1.0);
+   glm::dvec3 center = view[2];
 }
 
 void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
@@ -116,13 +138,31 @@ void Orbit::onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {
 }
    
 void Orbit::onMouseMove( const IEventSampler::MouseMove& evt ) {
-   view = glm::rotate( view, glm::radians(evt.dx), glm::vec3(glm::vec4(0, 1, 0, 0) * view) );
-   view = glm::rotate( view, glm::radians(evt.dy), glm::vec3(glm::vec4(1, 0, 0, 0) * view) );
+ //  glm::dmat4 preRotate{ glm::toMat4(yawPitchRoll) };
+ //  glm::dvec3 a{ glm::dvec4(0.0,1.0,0.0,0.0) * preRotate };
+ //  yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dx), a );
+ //  glm::dvec3 b{ glm::dvec4(1.0,0.0,0.0,0.0) * preRotate };
+ //  yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dy), b );
 }
 
 void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {
-   view = glm::rotate( view, glm::radians(evt.dx), glm::vec3(glm::vec4(0, 1, 0, 0) * view) );
-   view = glm::rotate( view, glm::radians(evt.dy), glm::vec3(glm::vec4(1, 0, 0, 0) * view) );
+   glm::dmat4 preRotate{ glm::toMat4(yawPitchRoll) };
+   glm::dvec3 a{ glm::dvec4(0.0,1.0,0.0,0.0) * preRotate };
+   yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dx), a );
+   glm::dvec3 b{ glm::dvec4(1.0,0.0,0.0,0.0) * preRotate };
+   yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dy), b );
+}
+
+void Orbit::getViewMatrix( glm::mat4& out ) {
+   glm::dmat4 identity(1.0);
+   
+  view =
+   glm::toMat4( yawPitchRoll ) *
+   glm::translate( identity, glm::dvec3(0.0,0.0,distance) ) *
+   glm::toMat4( rotation ) *
+   glm::translate( identity, center );
+   
+   out = view;
 }
 
 template<class Archive> void IMotionController::serialize(Archive & ar, const unsigned int version) {

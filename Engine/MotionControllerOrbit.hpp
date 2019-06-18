@@ -9,7 +9,9 @@
 
 #include <iostream>
 
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "EventSampler.hpp"
 #include "CoordinateSystem.hpp"
@@ -25,7 +27,7 @@ public:
    virtual ~IMotionController() {}
       
    void processEvents();
-   void getViewMatrix( glm::mat4& );
+   virtual void getViewMatrix( glm::mat4& );
    
    void pushHome( const UniversalPoint& p );
    void popHome();
@@ -44,11 +46,8 @@ protected:
    virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
    virtual void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {}
-   
-   void setAnchor( const std::shared_ptr<SceneObject>& obj );
-   void animatePath();
 
-   glm::mat4 view;
+   glm::dmat4 view;
    std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;
@@ -62,8 +61,13 @@ private:
 
 class Orbit : public IMotionController {
 public:
-   Orbit() {}
+   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{0.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0) {}
    virtual ~Orbit() {}
+   
+   void getViewMatrix( glm::mat4& ) override;
+   
+   void setAnchor( const std::shared_ptr<SceneObject>& obj );
+   void animatePath();
       
 protected:
    void onKeyDown( const IEventSampler::Key& ) override;
@@ -73,6 +77,11 @@ protected:
    void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) override;
    
 private:
+   glm::dquat yawPitchRoll;
+   double distance;
+   glm::dquat rotation;
+   glm::dvec3 center;
+   
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int);
 };

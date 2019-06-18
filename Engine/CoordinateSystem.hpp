@@ -7,7 +7,9 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "SceneObject.hpp"
 
 #include <boost/multiprecision/mpfr.hpp>
@@ -64,7 +66,7 @@ public:
    void update( UpdateParams& ) override; // Convert matrix to this coordinate system if position outside radius, traverse proxy
    
    // TODO: this assumes the viewer is outside the system. May not always return value in expected units.
-   glm::vec3 getCenter() override { return center.getPoint(); }
+   glm::vec3 getCenter() override;
    
 private:
    // Will need crossfade between these:

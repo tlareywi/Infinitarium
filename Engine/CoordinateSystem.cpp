@@ -137,6 +137,22 @@ void CoordinateSystem::update( UpdateParams& params ) {
    }
 }
 
+glm::vec3 CoordinateSystem::getCenter() {
+   // TODO: cleanup, assumes J2000
+   const glm::dmat4 identity(1.0);
+   
+ /*  glm::mat4 worldToJ2000 {
+      glm::rotate( identity, glm::radians(0.0000275), glm::dvec3(0, 0, 1) ) *
+      glm::rotate( identity, glm::radians(23.4392803055555555556), glm::dvec3(1, 0, 0) ) *
+      glm::rotate( identity, glm::radians(180.0), glm::dvec3(0, 0, 1) ) *
+      glm::rotate( identity, glm::radians(90.0), glm::dvec3(1, 0, 0) )
+   }; */
+   
+   glm::dvec3 c {glm::dvec4(center.getPoint(), 1.0)};
+   
+   return c;
+}
+
 template<class Archive> void CoordinateSystem::serialize( Archive& ar, const unsigned int version ) {
    std::cout<<"Serializing CoordinateSystem"<<std::endl;
    
