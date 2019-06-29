@@ -61,7 +61,7 @@ private:
 
 class Orbit : public IMotionController {
 public:
-   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{0.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0) {}
+   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{1.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0) {}
    virtual ~Orbit() {}
    
    void getViewMatrix( glm::mat4& ) override;
@@ -77,6 +77,10 @@ protected:
    void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) override;
    
 private:
+   float projectToSphere( float r, float x, float y );
+   void trackball( glm::dvec3& axis, float& angle, float p1x, float p1y, float p2x, float p2y );
+   void rotateTrackball( float px0, float py0, float px1, float py1 );
+   
    glm::dquat yawPitchRoll;
    double distance;
    glm::dquat rotation;

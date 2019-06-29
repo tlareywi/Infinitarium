@@ -13,12 +13,19 @@
 
 class Transform : public SceneObject {
 public:
+   enum class System {
+      VSOP87,
+      J2000,
+      Galactic
+   };
+   
    Transform();
    virtual ~Transform() {}
    
    void update( UpdateParams& ) override;
    
    void setMatrix( const glm::mat4& );
+   void setTransform( System );
    glm::mat4x4 getMatrix();
    
    void identity();
@@ -32,3 +39,4 @@ private:
    friend class boost::serialization::access;
    template<class Archive> friend void boost::serialization::serialize( Archive&, Transform&, unsigned int );
 };
+

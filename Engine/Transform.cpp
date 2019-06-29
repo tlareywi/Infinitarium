@@ -27,6 +27,27 @@ void Transform::setMatrix( const glm::mat4& mat ) {
    transform = mat;
 }
 
+void Transform::setTransform( System coords ) {
+   glm::dmat4 identity(1.0);
+   
+   switch (coords) {
+      case System::VSOP87:
+         transform =  glm::rotate( identity, glm::radians(180.0), glm::dvec3(0, 0, 1) ) *
+         glm::rotate( identity, glm::radians(90.0), glm::dvec3(1, 0, 0) );
+         break;
+      case System::J2000:
+         transform = glm::rotate( identity, glm::radians(0.0000275), glm::dvec3(0, 0, 1) ) *
+         glm::rotate( identity, glm::radians(23.4392803055555555556), glm::dvec3(1, 0, 0) ) *
+         glm::rotate( identity, glm::radians(180.0), glm::dvec3(0, 0, 1) ) *
+         glm::rotate( identity, glm::radians(90.0), glm::dvec3(1, 0, 0) );
+         break;
+      case System::Galactic:
+         break;
+      default:
+         break;
+   }
+}
+
 glm::mat4x4 Transform::getMatrix() {
    return transform;
 }

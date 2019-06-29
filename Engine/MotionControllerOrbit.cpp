@@ -102,10 +102,9 @@ void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
    rotation_matrix[1][1] = u.y;
    rotation_matrix[2][1] = u.z;
    
-   front = -front;
-   rotation_matrix[0][2] = front.x;
-   rotation_matrix[1][2] = front.y;
-   rotation_matrix[2][2] = front.z;
+   rotation_matrix[0][2] = -front.x;
+   rotation_matrix[1][2] = -front.y;
+   rotation_matrix[2][2] = -front.z;
    
    rotation = glm::toQuat(rotation_matrix);
    yawPitchRoll = glm::quat(1.0,0.0,0.0,0.0);
@@ -117,7 +116,84 @@ void Orbit::animatePath() {
 }
 
 void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
+   switch( evt.key ) {
+      case 'a': {
+         rotateTrackball(0.f, 0.f, -0.01f, 0.0f);
+         break;
+      }
+      case 'd': {
+         rotateTrackball(0.f, 0.f, 0.01f, 0.0f);
+         break;
+      }
+      case 'w': {
+         distance += 0.2;
+         break;
+      }
+      case 's': {
+         distance -= 0.2;
+         break;
+      }
+      default:
+         break;
+   }
+}
+
+void Orbit::rotateTrackball( float px0, float py0, float px1, float py1 ) {
+   glm::dvec3 axis;
+   float angle;
    
+   trackball( axis, angle, px0 + (px1-px0), py0 + (py1-py0), px0, py0 );
+   
+   glm::dquat new_rotate(1.0,0.0,0.0,0.0);
+   new_rotate = glm::rotate( new_rotate, (double)angle, axis );
+   
+   rotation = new_rotate * rotation;
+}
+
+void Orbit::trackball( glm::dvec3& axis, float& angle, float p1x, float p1y, float p2x, float p2y ) {
+   glm::dmat4 rotation_matrix{ glm::toMat4(rotation) };
+   
+   glm::dvec3 uv = rotation_matrix * glm::dvec4(0.0,1.0,0.0,0.0);
+   glm::dvec3 sv = rotation_matrix * glm::dvec4(1.0,0.0,0.0,0.0);
+   glm::dvec3 lv = rotation_matrix * glm::dvec4(0.0,0.0,-1.0,0.0);
+   
+   glm::dvec3 p1 = sv * (double)p1x + uv * (double)p1y - lv * (double)projectToSphere(0.8, p1x, p1y);
+   glm::dvec3 p2 = sv * (double)p2x + uv * (double)p2y - lv * (double)projectToSphere(0.8, p2x, p2y);
+   
+   /*
+    *  Now, we want the cross product of P1 and P2
+    */
+   axis = glm::cross(p2, p1);
+   axis = glm::normalize(axis);
+   
+   /*
+    *  Figure out how much to rotate around that axis.
+    */
+   float t = (p2 - p1).length() / (2.0 * 0.8);
+   
+   /*
+    * Avoid problems with out-of-control values...
+    */
+   if (t > 1.0) t = 1.0;
+   if (t < -1.0) t = -1.0;
+   angle = glm::radians(asin(t)); // Check this ...
+}
+
+float Orbit::projectToSphere( float r, float x, float y ) {
+   float d, t, z;
+   
+   d = sqrt(x*x + y*y);
+   /* Inside sphere */
+   if (d < r * 0.70710678118654752440)
+   {
+      z = sqrt(r*r - d*d);
+   }                            /* On hyperbola */
+   else
+   {
+      t = r / 1.41421356237309504880;
+      z = t*t / d;
+   }
+   return z;
 }
 
 void Orbit::onMouseButtonUp( const IEventSampler::MouseButton& evt ) {
@@ -158,9 +234,9 @@ void Orbit::getViewMatrix( glm::mat4& out ) {
    
   view =
    glm::toMat4( yawPitchRoll ) *
-   glm::translate( identity, glm::dvec3(0.0,0.0,distance) ) *
+   glm::translate( identity, glm::dvec3(0.0,0.0,-distance) ) *
    glm::toMat4( rotation ) *
-   glm::translate( identity, center );
+   glm::translate( identity, -center );
    
    out = view;
 }

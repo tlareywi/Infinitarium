@@ -13,7 +13,7 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
 
 Camera::Camera() : dirty(true), motionController(nullptr) {
-   projection = glm::infinitePerspective( glm::radians(89.9), 16.0 / 9.0, 0.0001 );
+   projection = glm::infinitePerspective( glm::radians(60.0), 16.0 / 9.0, 0.0001 );
    renderPass = nullptr;
    renderContext = nullptr;
 }
