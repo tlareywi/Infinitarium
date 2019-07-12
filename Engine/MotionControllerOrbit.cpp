@@ -36,10 +36,11 @@ void IMotionController::processEvents() {
          onMouseButtonDown( evt );
       else if( evt.state == IEventSampler::UP )
          onMouseButtonUp( evt );
-   }
-   
-   for( auto& evt : eventSampler->mbuttonDbl )
+      else if( evt.state == IEventSampler::CLICKED )
+         onMouseButtonClick( evt );
+      else if( evt.state == IEventSampler::DBL_CLICKED )
          onMouseDoubleClick( evt );
+   }
    
    for( auto& evt : eventSampler->mmove )
       onMouseMove( evt );
@@ -118,19 +119,19 @@ void Orbit::animatePath() {
 void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
    switch( evt.key ) {
       case 'a': {
-         rotateTrackball(0.f, 0.f, -0.01f, 0.0f);
+         rotateAboutAnchor(glm::vec2(0.0f,0.0f), glm::vec2(-0.01f, 0.0f));
          break;
       }
       case 'd': {
-         rotateTrackball(0.f, 0.f, 0.01f, 0.0f);
+         rotateAboutAnchor(glm::vec2(0.0f,0.0f), glm::vec2(0.01f, 0.0f));
          break;
       }
       case 'w': {
-         distance += 0.2;
+         distance -= 0.4;
          break;
       }
       case 's': {
-         distance -= 0.2;
+         distance += 0.4;
          break;
       }
       default:
@@ -138,11 +139,11 @@ void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
    }
 }
 
-void Orbit::rotateTrackball( float px0, float py0, float px1, float py1 ) {
+void Orbit::rotateAboutAnchor( const glm::vec2& p1, const glm::vec2& p2 ) {
    glm::dvec3 axis;
    float angle;
    
-   trackball( axis, angle, px0 + (px1-px0), py0 + (py1-py0), px0, py0 );
+   calculateAngleAxis( axis, angle, glm::vec2(p1.x + (p2.x-p1.x), p1.y + (p2.y-p1.y)), p1 );
    
    glm::dquat new_rotate(1.0,0.0,0.0,0.0);
    new_rotate = glm::rotate( new_rotate, (double)angle, axis );
@@ -150,53 +151,33 @@ void Orbit::rotateTrackball( float px0, float py0, float px1, float py1 ) {
    rotation = new_rotate * rotation;
 }
 
-void Orbit::trackball( glm::dvec3& axis, float& angle, float p1x, float p1y, float p2x, float p2y ) {
+void Orbit::calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2& p1, const glm::vec2& p2 ) {
    glm::dmat4 rotation_matrix{ glm::toMat4(rotation) };
    
-   glm::dvec3 uv = rotation_matrix * glm::dvec4(0.0,1.0,0.0,0.0);
-   glm::dvec3 sv = rotation_matrix * glm::dvec4(1.0,0.0,0.0,0.0);
-   glm::dvec3 lv = rotation_matrix * glm::dvec4(0.0,0.0,-1.0,0.0);
+   glm::dvec3 up{ rotation_matrix * glm::dvec4(0.0,1.0,0.0,0.0) };
+   glm::dvec3 side{ rotation_matrix * glm::dvec4(1.0,0.0,0.0,0.0) };
+   glm::dvec3 front{ rotation_matrix * glm::dvec4(0.0,0.0,-1.0,0.0) };
    
-   glm::dvec3 p1 = sv * (double)p1x + uv * (double)p1y - lv * (double)projectToSphere(0.8, p1x, p1y);
-   glm::dvec3 p2 = sv * (double)p2x + uv * (double)p2y - lv * (double)projectToSphere(0.8, p2x, p2y);
-   
-   /*
-    *  Now, we want the cross product of P1 and P2
-    */
-   axis = glm::cross(p2, p1);
+   // Could use 'distance' instead of a separate sensitivity if we want a consistent angular distance. That may make sense for certain animations
+   // but setting a constant sensitivity for now.
+   glm::dvec3 pp1 = side * (double)p1.x + up * (double)p1.y - front * (double)project(sensitivity, p1.x, p1.y);
+   glm::dvec3 pp2 = side * (double)p2.x + up * (double)p2.y - front * (double)project(sensitivity, p2.x, p2.y);
+
+   axis = glm::cross(pp2, pp1);
    axis = glm::normalize(axis);
    
-   /*
-    *  Figure out how much to rotate around that axis.
-    */
-   float t = (p2 - p1).length() / (2.0 * 0.8);
-   
-   /*
-    * Avoid problems with out-of-control values...
-    */
-   if (t > 1.0) t = 1.0;
-   if (t < -1.0) t = -1.0;
-   angle = glm::radians(asin(t)); // Check this ...
+   // Angle between p1 and p2 at distance/sensitivity.
+   float t = (pp2 - pp1).length() / (2.0 * sensitivity);
+   t = std::clamp(t, -1.0f, 1.0f);
+   angle = glm::radians(asin(t));
 }
 
-float Orbit::projectToSphere( float r, float x, float y ) {
-   float d, t, z;
-   
-   d = sqrt(x*x + y*y);
-   /* Inside sphere */
-   if (d < r * 0.70710678118654752440)
-   {
-      z = sqrt(r*r - d*d);
-   }                            /* On hyperbola */
-   else
-   {
-      t = r / 1.41421356237309504880;
-      z = t*t / d;
-   }
-   return z;
+inline float Orbit::project( float r, float x, float y ) {
+   float d{sqrt(x*x + y*y)};
+   return sqrt(r*r - d*d);
 }
 
-void Orbit::onMouseButtonUp( const IEventSampler::MouseButton& evt ) {
+void Orbit::onMouseButtonClick( const IEventSampler::MouseButton& evt ) {
    // Fire picking event
    const glm::uvec2 pt(evt.x, evt.y);
    std::tuple<const glm::uvec2&> args( pt );
@@ -205,7 +186,7 @@ void Orbit::onMouseButtonUp( const IEventSampler::MouseButton& evt ) {
    IApplication::Create()->invoke( e );
 }
 
-void Orbit::onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {
+void Orbit::onMouseDoubleClick( const IEventSampler::MouseButton& ) {
    if( !selectedObject )
       return;
    
@@ -214,11 +195,7 @@ void Orbit::onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {
 }
    
 void Orbit::onMouseMove( const IEventSampler::MouseMove& evt ) {
- //  glm::dmat4 preRotate{ glm::toMat4(yawPitchRoll) };
- //  glm::dvec3 a{ glm::dvec4(0.0,1.0,0.0,0.0) * preRotate };
- //  yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dx), a );
- //  glm::dvec3 b{ glm::dvec4(1.0,0.0,0.0,0.0) * preRotate };
- //  yawPitchRoll = glm::rotate( yawPitchRoll, glm::radians((double)evt.dy), b );
+   
 }
 
 void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {

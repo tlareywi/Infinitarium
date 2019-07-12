@@ -20,6 +20,8 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include <chrono>
    
 class IMotionController {
 public:
@@ -45,7 +47,8 @@ protected:
    virtual void onMouseMove( const IEventSampler::MouseMove& ) {}
    virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
-   virtual void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) {}
+   virtual void onMouseDoubleClick( const IEventSampler::MouseButton& ) {}
+   virtual void onMouseButtonClick( const IEventSampler::MouseButton& ) {}
 
    glm::dmat4 view;
    std::vector<UniversalPoint> homeStack;
@@ -61,7 +64,7 @@ private:
 
 class Orbit : public IMotionController {
 public:
-   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{1.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0) {}
+   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{1.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0), sensitivity(1.0f) {}
    virtual ~Orbit() {}
    
    void getViewMatrix( glm::mat4& ) override;
@@ -73,18 +76,22 @@ protected:
    void onKeyDown( const IEventSampler::Key& ) override;
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
-   void onMouseButtonUp( const IEventSampler::MouseButton& ) override;
-   void onMouseDoubleClick( const IEventSampler::MouseButtonDbl& ) override;
+   void onMouseButtonClick( const IEventSampler::MouseButton& ) override;
+   void onMouseDoubleClick( const IEventSampler::MouseButton& ) override;
    
 private:
-   float projectToSphere( float r, float x, float y );
-   void trackball( glm::dvec3& axis, float& angle, float p1x, float p1y, float p2x, float p2y );
-   void rotateTrackball( float px0, float py0, float px1, float py1 );
+   inline float project( float r, float x, float y );
+   void calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&, const glm::vec2& );
+   void rotateAboutAnchor( const glm::vec2&, const glm::vec2& );
    
    glm::dquat yawPitchRoll;
    double distance;
    glm::dquat rotation;
    glm::dvec3 center;
+   
+   float sensitivity;
+   
+   std::chrono::time_point<std::chrono::high_resolution_clock> clickTimer;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int);

@@ -14,13 +14,16 @@ class IEventSampler {
 public:
    enum State {
       DOWN,
-      UP
+      UP,
+      CLICKED,
+      DBL_CLICKED
    };
    
    enum Button {
       LEFT,
       MIDDLE,
-      RIGHT
+      RIGHT,
+      NONE
    };
    
    struct Key {
@@ -41,20 +44,19 @@ public:
    };
    
    struct MouseButton {
+      MouseButton() : button(IEventSampler::NONE), state(IEventSampler::UP), x(0), y(0) {}
+      
       Button button;
       State state;
       float x;
       float y;
    };
    
-   struct MouseButtonDbl : public MouseButton {};
-   
    IEventSampler() {
       keys.reserve(128); // TODO: Hmm, think we need one queue actually. Order is potentially important.
       mmove.reserve(256);
       mdrag.reserve(256);
       mbutton.reserve(128);
-      mbuttonDbl.reserve(128);
    }
    virtual ~IEventSampler() {}
    
@@ -80,17 +82,11 @@ public:
       mbutton.push_back(b);
    }
    
-   void push( const MouseButtonDbl& b ) {
-      std::lock_guard<std::mutex> lock(eventMutex);
-      mbuttonDbl.push_back(b);
-   }
-   
    void clear() {
       keys.clear();
       mmove.clear();
       mdrag.clear();
       mbutton.clear();
-      mbuttonDbl.clear();
    }
    
 private:
@@ -100,5 +96,4 @@ private:
    std::vector<MouseMove> mmove;
    std::vector<MouseDrag> mdrag;
    std::vector<MouseButton> mbutton;
-   std::vector<MouseButtonDbl> mbuttonDbl;
 };

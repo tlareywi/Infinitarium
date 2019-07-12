@@ -32,9 +32,30 @@ extern "C" {
    }
 }
 
-@interface BorderlessWindow : NSWindow {} @end
+@interface BorderlessWindow : NSWindow {
+   enum {
+      LEFT = 0,
+      RIGHT
+   };
+   
+   std::chrono::time_point<std::chrono::high_resolution_clock> clickTimer;
+   std::vector<IEventSampler::MouseButton> mouseButtons;
+}
+
+@end
 
 @implementation BorderlessWindow
+
+- (instancetype)initWithContentRect:(NSRect)contentRect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backingStoreType defer:(BOOL)flag {
+   IEventSampler::MouseButton button;
+   button.button = IEventSampler::LEFT;
+   mouseButtons.push_back( button );
+   
+   button.button = IEventSampler::RIGHT;
+   mouseButtons.push_back( button );
+   
+   return [super initWithContentRect:contentRect styleMask:style backing:backingStoreType defer:flag];
+}
 
 - (BOOL)acceptsFirstResponder {
    return YES;
@@ -76,39 +97,51 @@ extern "C" {
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-   IEventSampler::MouseButton button;
+   unsigned short indx{0};
    if( [theEvent type] == NSEventTypeLeftMouseDown )
-      button.button = IEventSampler::LEFT;
+      indx = LEFT;
    else if( [theEvent type] == NSEventTypeRightMouseDown )
-      button.button = IEventSampler::RIGHT;
+      indx = RIGHT;
    
    NSPoint pos = [theEvent locationInWindow];
-   button.x = pos.x;
-   button.y = pos.y;
+   mouseButtons[indx].x = pos.x;
+   mouseButtons[indx].y = pos.y;
    
-   button.state = IEventSampler::DOWN;
+   clickTimer = std::chrono::high_resolution_clock::now();
+   mouseButtons[indx].state = IEventSampler::DOWN;
    
-   if( theEvent.clickCount > 1 ) {
-      IEventSampler::MouseButtonDbl dblButton{ button };
-      eventSampler->push( dblButton );
-   }
-   else
-      eventSampler->push( button );
+   eventSampler->push( mouseButtons[indx] );
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-   IEventSampler::MouseButton button;
+   unsigned short indx{0};
    if( [theEvent type] == NSEventTypeLeftMouseUp )
-      button.button = IEventSampler::LEFT;
+      indx = LEFT;
    else if( [theEvent type] == NSEventTypeRightMouseUp )
-      button.button = IEventSampler::RIGHT;
+      indx = RIGHT;
    
    NSPoint pos = [theEvent locationInWindow];
-   button.x = pos.x;
-   button.y = pos.y;
+   mouseButtons[indx].x = pos.x;
+   mouseButtons[indx].y = pos.y;
    
-   button.state = IEventSampler::UP;
-   eventSampler->push( button );
+   if( mouseButtons[indx].state == IEventSampler::DOWN || mouseButtons[indx].state == IEventSampler::CLICKED ) {
+      auto clickTime = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double, std::milli> t = clickTime - clickTimer;
+      
+      if( t.count() < 100 ) {
+         if( mouseButtons[indx].state == IEventSampler::DOWN )
+            mouseButtons[indx].state = IEventSampler::CLICKED;
+         else
+            mouseButtons[indx].state = IEventSampler::DBL_CLICKED;
+      }
+      else
+         mouseButtons[indx].state = IEventSampler::UP;
+   }
+   else
+      mouseButtons[indx].state = IEventSampler::UP;
+   
+   
+   eventSampler->push( mouseButtons[indx] );
 }
 
 - (void)mouseMoved:(NSEvent *)event {
