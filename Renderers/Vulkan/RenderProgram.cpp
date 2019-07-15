@@ -1,6 +1,7 @@
 #include "RenderProgram.hpp"
 #include "UniformMap.h"
 #include "RenderContext.hpp"
+#include "RenderState.hpp"
 
 #include "../../config.h"
 
@@ -15,12 +16,12 @@ VulkanRenderProgram::~VulkanRenderProgram() {
 }
 
 void VulkanRenderProgram::prepare(IRenderState& state) {
-	/*vertex = [program newFunctionWithName : @"vertexShader"];
-	fragment = [program newFunctionWithName : @"fragmentShader"];
+	VulkanRenderState* vkPipelineState = dynamic_cast<VulkanRenderState*>(&state);
 
-	MetalRenderState* metalState = dynamic_cast<MetalRenderState*>(&state);
-	metalState->getPipelineDescriptor().vertexFunction = vertex;
-	metalState->getPipelineDescriptor().fragmentFunction = fragment; */
+	VkGraphicsPipelineCreateInfo pipelineInfo = {};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.stageCount = 2;
+	pipelineInfo.pStages = shaderStages;
 }
 
 void VulkanRenderProgram::apply(IRenderState& state) {

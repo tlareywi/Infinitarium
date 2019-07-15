@@ -204,27 +204,26 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	VkPresentModeKHR presentMode{ VK_PRESENT_MODE_FIFO_KHR };
 	VkExtent2D extent = {_width, _height};
 
-	VkSwapchainCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = surface;
-	createInfo.minImageCount = imageCount;
-	createInfo.imageFormat = surfaceFormat.format;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1; // FYI: this in involved in setting up a VR pipeline
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // TODO: see VK_IMAGE_USAGE_TRANSFER_DST_BIT for blit from texture to swapchain.
+	swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchainCreateInfo.surface = surface;
+	swapchainCreateInfo.minImageCount = imageCount;
+	swapchainCreateInfo.imageFormat = surfaceFormat.format;
+	swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+	swapchainCreateInfo.imageExtent = extent;
+	swapchainCreateInfo.imageArrayLayers = 1; // FYI: this in involved in setting up a VR pipeline
+	swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // TODO: see VK_IMAGE_USAGE_TRANSFER_DST_BIT for blit from texture to swapchain.
 	// TODO: see comments in createDeviceGraphicsQueue. These need to change when that does.
-	createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	createInfo.queueFamilyIndexCount = 0; 
-	createInfo.pQueueFamilyIndices = nullptr;
+	swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchainCreateInfo.queueFamilyIndexCount = 0;
+	swapchainCreateInfo.pQueueFamilyIndices = nullptr;
 	////////////////////////////////////////////////////////////////////////////////////////
-	createInfo.preTransform = swapChainCaps.capabilities.currentTransform;
-	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE; // Fine unless we need readback from swapchain (can't imaine a case for this)
-	createInfo.oldSwapchain = VK_NULL_HANDLE; // For re-creating swapchain (e.g. window resize)
+	swapchainCreateInfo.preTransform = swapChainCaps.capabilities.currentTransform;
+	swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	swapchainCreateInfo.presentMode = presentMode;
+	swapchainCreateInfo.clipped = VK_TRUE; // Fine unless we need readback from swapchain (can't imaine a case for this)
+	swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE; // For re-creating swapchain (e.g. window resize)
 
-	if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+	if (vkCreateSwapchainKHR(logicalDevice, &swapchainCreateInfo, nullptr, &swapChain) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create swap chain!");
 	}
 

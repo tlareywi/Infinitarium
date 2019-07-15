@@ -9,10 +9,14 @@
 #include "RenderProgram.hpp"
 
 VulkanRenderState::VulkanRenderState() {
-
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 }
 
 VulkanRenderState::~VulkanRenderState() {
+	if (device) {
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+	}
 }
 
 void VulkanRenderState::commit(IRenderContext& context) {
@@ -67,6 +71,17 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
 	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
+	VkPipelineColorBlendStateCreateInfo colorBlending = {};
+	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlending.logicOpEnable = VK_FALSE;
+	colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
+	colorBlending.attachmentCount = 1;
+	colorBlending.pAttachments = &colorBlendAttachment;
+	colorBlending.blendConstants[0] = 0.0f; // Optional
+	colorBlending.blendConstants[1] = 0.0f; // Optional
+	colorBlending.blendConstants[2] = 0.0f; // Optional
+	colorBlending.blendConstants[3] = 0.0f; // Optional
+
 	// To change state dynamically without recreating pipleine, see stucture below ...
 
 	/* VkDynamicState dynamicStates[] = {
@@ -78,6 +93,34 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicState.dynamicStateCount = 2;
 	dynamicState.pDynamicStates = dynamicStates; */
+
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = 0; // Optional
+	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&context);
+	device = vkContext->getVulkanDevice();
+	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create pipeline layout!");
+	}
+
+	pipelineInfo.pViewportState = &viewportState;
+	pipelineInfo.pRasterizationState = &rasterizer;
+	pipelineInfo.pMultisampleState = &multisampling;
+	pipelineInfo.pDepthStencilState = nullptr; // Optional
+	pipelineInfo.pColorBlendState = &colorBlending;
+	pipelineInfo.pDynamicState = nullptr; // Optional
+	pipelineInfo.layout = pipelineLayout;
+	// Future use; create new pipeline derived on current (faster)
+	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+	pipelineInfo.basePipelineIndex = -1; // Optional
+
+	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create graphics pipeline!");
+	}
 }
 
 

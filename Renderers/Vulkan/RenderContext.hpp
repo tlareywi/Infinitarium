@@ -28,6 +28,10 @@ public:
 		return logicalDevice;
 	}
 
+	void getVulkanSwapchainInfo( VkSwapchainCreateInfoKHR& info ) {
+		memcpy(&info, &swapchainCreateInfo, sizeof(info));
+	}
+
 private:
 	void initializeGraphicsDevice( const VkSurfaceKHR& );
 	unsigned int rateDeviceCompatiblities(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails&);
@@ -40,6 +44,7 @@ private:
 	VkDevice logicalDevice;
 	VkQueue graphicsQueue;
 	SwapChainSupportDetails swapChainCaps;
+	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
 	std::vector<VkImageView> swapChainImageViews;

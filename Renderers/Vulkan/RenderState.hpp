@@ -12,7 +12,14 @@ public:
 
 	void commit(IRenderContext& context) override;
 
-private:
+	VkGraphicsPipelineCreateInfo& getVulkanPipelineInfoRef() {
+		return pipelineInfo;
+	}
 
+private:
+	VkGraphicsPipelineCreateInfo pipelineInfo;
+	VkPipelineLayout pipelineLayout;
+	VkPipeline graphicsPipeline;
+	VkDevice device;
 };
 
