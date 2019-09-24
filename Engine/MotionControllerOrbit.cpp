@@ -14,17 +14,18 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Orbit)
 
+static std::mutex viewMutex{ std::mutex() };
+
 void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
    glm::mat4 oldView;
    getViewMatrix(oldView);
    
-   center = obj->getCenter();
+   glm::dvec3 localCenter = obj->getCenter();
    
    glm::dvec3 eye(0.0,0.0,0.0);
    glm::dvec3 up(0.0,1.0,0.0);
    
-   glm::dvec3 front{ center - eye };
-   distance = glm::length( front );
+   glm::dvec3 front{ localCenter - eye };
    front = glm::normalize( front );
    glm::dvec3 side{ glm::cross(front, up) };
    side = glm::normalize( side );
@@ -43,16 +44,21 @@ void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
    rotation_matrix[1][2] = -front.y;
    rotation_matrix[2][2] = -front.z;
    
-   rotation = glm::toQuat(rotation_matrix);
-   yawPitchRoll = glm::quat(1.0,0.0,0.0,0.0);
+   {
+      std::scoped_lock<std::mutex> lock{ viewMutex };
+      center = localCenter;
+      distance = glm::length( front );
+      rotation = glm::toQuat(rotation_matrix);
+      yawPitchRoll = glm::quat(1.0,0.0,0.0,0.0);
+   }
    
-   glm::mat4 newView;
-   getViewMatrix(newView);
+ //  glm::mat4 newView;
+ //  getViewMatrix(newView);
    
-   glm::dmat4 difference{ glm::inverse(oldView) * newView };
+  // glm::dmat4 difference{ glm::inverse(oldView) * newView };
    //yawPitchRoll = glm::toQuat(glm::inverse(difference));
-   glm::dvec3 scale, translation, skew;
-   glm::dvec4 perspective;
+ //  glm::dvec3 scale, translation, skew;
+  // glm::dvec4 perspective;
 //   glm::decompose(difference, scale, yawPitchRoll, translation, skew, perspective);
  //  yawPitchRoll = glm::inverse(yawPitchRoll);
 }
@@ -153,6 +159,8 @@ void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {
 
 void Orbit::getViewMatrix( glm::mat4& out ) {
    glm::dmat4 identity(1.0);
+ 
+   std::scoped_lock<std::mutex> lock {viewMutex};
    
   view =
    glm::toMat4( yawPitchRoll ) *

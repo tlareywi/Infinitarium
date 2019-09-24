@@ -73,6 +73,8 @@
    NSURL* url = [NSURL fileURLWithPath:@"/usr/local/share/Infinitarium/UI/defaultOverlay.html"];
    NSURLRequest* request = [NSURLRequest requestWithURL:url];
    [_uiOverlay loadRequest:request];
+   
+d   float scale = [NSScreen mainScreen].backingScaleFactor;
 }
 
 - (void)addManipulator :(NSString*)name :(float)min :(float)max :(float)step {

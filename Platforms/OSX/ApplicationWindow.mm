@@ -104,7 +104,7 @@ extern "C" {
    
    if( theEvent.clickCount > 1 ) {
       if( doubleClickTimer ) {
-         [doubleClickTimer invalidate];
+d         [doubleClickTimer invalidate];
          doubleClickTimer = nullptr;
       }
       button.state = IEventSampler::DBL_CLICKED;

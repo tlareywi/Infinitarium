@@ -104,7 +104,7 @@ void PointCloud::render( IRenderPass& renderPass ) {
                color = glm::vec3( e[3*pick], e[3*pick+1], e[3*pick+2] );
             }, p->second ); }
          
-         std::cout<<"Pick ID "<<pick<<", mag "<<maxMag<<std::endl;
+         std::cout<<"Pick ID "<<pick<<", mag "<<maxMag<<" pos "<<pos.x<< " "<<pos.y <<" "<< pos.z<<std::endl;
          
          UniversalPoint center( pos, UniversalPoint::Parsec );
          std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
