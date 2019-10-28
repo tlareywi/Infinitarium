@@ -34,23 +34,22 @@ void* VulkanRenderContext::getSurface() {
 	return nullptr;
 }
 
-void VulkanRenderContext::setSurface( void* s ) {
+void VulkanRenderContext::setSurface( void* s, void* i ) {
 	VkSurfaceKHR surface = reinterpret_cast<VkSurfaceKHR>(s);
-	initializeGraphicsDevice( surface );
+	VkInstance instance = reinterpret_cast<VkInstance>(i);
+	initializeGraphicsDevice( surface, instance );
 }
 
-void VulkanRenderContext::initializeGraphicsDevice( const VkSurfaceKHR& surface ) {
+void VulkanRenderContext::initializeGraphicsDevice( const VkSurfaceKHR& surface, const VkInstance& instance) {
 	physicalDevice = VK_NULL_HANDLE;
-	
-	VkInstance vkInstance = reinterpret_cast<VkInstance>(IApplication::Create()->platformInstance());
 
 	uint32_t deviceCount = 0;
-	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 	if (deviceCount < 1)
 		throw std::runtime_error("No GPUs with Vulkan support!");
 
 	std::vector<VkPhysicalDevice> devices(deviceCount);
-	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
+	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 	unsigned int rating{ 0 };
 	for (const auto& device : devices) {
@@ -231,6 +230,7 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	swapChainImages.resize(imageCount);
 	vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data());
 
+	// Image views
 	swapChainImageViews.resize(swapChainImages.size());
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 		VkImageViewCreateInfo createInfo = {};

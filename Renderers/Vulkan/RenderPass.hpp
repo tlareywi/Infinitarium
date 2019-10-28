@@ -24,6 +24,8 @@ public:
 private:
 	VkRenderPass renderPass;
 	VkDevice device;
+
+	std::vector<VkFramebuffer> swapChainFramebuffers;
 };
 
 

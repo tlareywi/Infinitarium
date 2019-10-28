@@ -34,7 +34,7 @@ public:
    #endif
    
    virtual void* getSurface() = 0; 
-   virtual void setSurface( void* ) = 0;
+   virtual void setSurface( void*, void* ) = 0;
    
    unsigned int x() {
       return _x;
@@ -72,6 +72,7 @@ public:
    RenderContextProxy( const IRenderContext& obj ) : IRenderContext(obj) {}
    
    void* getSurface() override { return nullptr; };
+   void setSurface(void*, void*) override {};
   
 private:
 #if defined ENGINE_BUILD

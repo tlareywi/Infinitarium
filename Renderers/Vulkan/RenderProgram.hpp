@@ -11,7 +11,7 @@
 ///
 class VulkanRenderProgram : public IRenderProgram {
 public:
-	VulkanRenderProgram() : device(nullptr), vertShaderModule(nullptr), fragShaderModule(nullptr) {}
+	VulkanRenderProgram() : device(nullptr), vertShaderModule(VK_NULL_HANDLE), fragShaderModule(VK_NULL_HANDLE) {}
 	virtual ~VulkanRenderProgram();
 
 	void prepare(IRenderState& state) override;
@@ -29,6 +29,8 @@ private:
 
 	VkShaderModule vertShaderModule;
 	VkShaderModule fragShaderModule;
+
+	VkPipelineShaderStageCreateInfo shaderStages[2];
 
 	std::string uniformBlock;
 };

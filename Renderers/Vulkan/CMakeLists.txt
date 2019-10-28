@@ -20,7 +20,7 @@ include_directories(${VULKAN_INCLUDE_DIR})
 find_library(VULKAN_LIB NAMES vulkan-1 vulkan HINTS "C:\\Program Files (x86)\\VulkanSDK\\lib" "C:\\local\\VulkanSDK\\lib")
 target_link_libraries(IERenderer ${VULKAN_LIB})
 
-find_library(GLSL_LIB NAMES shaderc_combined HINTS "C:\\Program Files (x86)\\VulkanSDK\\lib" "C:\\local\\VulkanSDK\\lib")
+find_library(GLSL_LIB NAMES shaderc_shared HINTS "C:\\local\\VulkanSDK\\shaderc\\build\\install\\lib" "C:\\Program Files (x86)\\VulkanSDK\\lib")
 target_link_libraries(IERenderer ${GLSL_LIB})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)

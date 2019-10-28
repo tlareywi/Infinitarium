@@ -32,7 +32,7 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 		throw std::runtime_error("Failed to create Vulkan window surface!");
 	}
 
-	renderContext.init(*this);
+	renderContext.setSurface(surface, instance->getVkInstance());
 }
 
 __declspec(dllexport) std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {

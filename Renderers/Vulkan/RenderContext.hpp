@@ -22,7 +22,7 @@ public:
 	virtual ~VulkanRenderContext();
 
 	void* getSurface() override;
-	void setSurface(void*) override;
+	void setSurface(void*, void*) override;
 
 	VkDevice getVulkanDevice() {
 		return logicalDevice;
@@ -32,8 +32,12 @@ public:
 		memcpy(&info, &swapchainCreateInfo, sizeof(info));
 	}
 
+	const std::vector<VkImageView>& getImageViews() {
+		return swapChainImageViews;
+	}
+
 private:
-	void initializeGraphicsDevice( const VkSurfaceKHR& );
+	void initializeGraphicsDevice( const VkSurfaceKHR&, const VkInstance& );
 	unsigned int rateDeviceCompatiblities(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails&);
 	void createDeviceGraphicsQueue(const VkPhysicalDevice&, const VkSurfaceKHR&);
 	bool checkDeviceExtensionSupport(const VkPhysicalDevice&);

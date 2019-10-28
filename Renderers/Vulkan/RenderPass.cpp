@@ -2,8 +2,12 @@
 #include "RenderContext.hpp"
 
 VulkanRenderPass::~VulkanRenderPass() {
-	if( device )
+	if (device) {
 		vkDestroyRenderPass(device, renderPass, nullptr);
+		for (auto framebuffer : swapChainFramebuffers) {
+			vkDestroyFramebuffer(device, framebuffer, nullptr);
+		}
+	}
 }
 
 void VulkanRenderPass::prepare(std::shared_ptr<IRenderContext>& context) {
@@ -13,7 +17,6 @@ void VulkanRenderPass::prepare(std::shared_ptr<IRenderContext>& context) {
 	vkContext->getVulkanSwapchainInfo(swapchainCreateInfo);
 
 	VkAttachmentDescription colorAttachment = {};
-	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	colorAttachment.format = swapchainCreateInfo.imageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
@@ -47,6 +50,28 @@ void VulkanRenderPass::prepare(std::shared_ptr<IRenderContext>& context) {
 
 	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create render pass!");
+	}
+
+	// Framebuffers
+	const std::vector<VkImageView>& swapChainImageViews{ vkContext->getImageViews() };
+	swapChainFramebuffers.resize(swapChainImageViews.size());
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+		VkImageView attachments[] = {
+			swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = renderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = swapchainCreateInfo.imageExtent.width;
+		framebufferInfo.height = swapchainCreateInfo.imageExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create framebuffer!");
+		}
 	}
 }
 

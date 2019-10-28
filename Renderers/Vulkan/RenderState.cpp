@@ -21,8 +21,8 @@ VulkanRenderState::~VulkanRenderState() {
 
 void VulkanRenderState::commit(IRenderContext& context) {
 	VkViewport viewport = {};
-	viewport.x = context.x;
-	viewport.y = context.y;
+	viewport.x = (float)context.x();
+	viewport.y = (float)context.y();
 	viewport.width = (float)context.width();
 	viewport.height = (float)context.height();
 	viewport.minDepth = 0.0f;

@@ -41,7 +41,7 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 		std::cerr << "Error locating " << name << std::endl;
 		return;
 	}
-	
+
 	{
 		std::stringstream buffer;
 		buffer << "#version 450\n" << uniformBlock << vertFile.rdbuf();
@@ -84,7 +84,8 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 	fragShaderStageInfo.module = fragShaderModule;
 	fragShaderStageInfo.pName = "main";
 
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+	shaderStages[0] = vertShaderStageInfo;
+	shaderStages[1] = fragShaderStageInfo;
 }
 
 void VulkanRenderProgram::injectUniformStruct(const std::vector<std::pair<std::string, UniformType>>& uniforms) {
