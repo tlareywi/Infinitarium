@@ -71,7 +71,7 @@ extern "C" {
    std::string str( [chars UTF8String] );
    for( auto c : str ) {
       if( c == '`' ) {
-         for( NSView* object in _contentView.subviews ) {
+         for( NSView* object in self.contentView.subviews ) {
             bool hidden = [object isHidden];
             [object setHidden:!hidden];
          }
@@ -104,7 +104,7 @@ extern "C" {
    
    if( theEvent.clickCount > 1 ) {
       if( doubleClickTimer ) {
-d         [doubleClickTimer invalidate];
+         [doubleClickTimer invalidate];
          doubleClickTimer = nullptr;
       }
       button.state = IEventSampler::DBL_CLICKED;

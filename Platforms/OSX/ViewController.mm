@@ -74,7 +74,7 @@
    NSURLRequest* request = [NSURLRequest requestWithURL:url];
    [_uiOverlay loadRequest:request];
    
-d   float scale = [NSScreen mainScreen].backingScaleFactor;
+   float scale = [NSScreen mainScreen].backingScaleFactor;
 }
 
 - (void)addManipulator :(NSString*)name :(float)min :(float)max :(float)step {
