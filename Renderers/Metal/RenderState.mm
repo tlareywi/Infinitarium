@@ -62,8 +62,7 @@ id<MTLRenderPipelineState> MetalRenderState::getPipelineState() const {
    return renderState;
 }
 
-extern "C" {
-   std::shared_ptr<IRenderState> CreateRenderState() {
-      return std::make_shared<MetalRenderState>();
-   }
+std::shared_ptr<IRenderState> CreateRenderState() {
+   return std::make_shared<MetalRenderState>();
 }
+

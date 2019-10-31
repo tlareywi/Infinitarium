@@ -64,16 +64,12 @@ MTLRenderPassDescriptor* MetalRenderPass::getPassDescriptor() {
    return renderPass;
 }
 
-extern "C" {
-   std::shared_ptr<IRenderPass> CreateRenderPass() {
-      return std::make_shared<MetalRenderPass>();
-   }
+std::shared_ptr<IRenderPass> CreateRenderPass() {
+   return std::make_shared<MetalRenderPass>();
 }
 
-extern "C" {
-   std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
-      return std::make_shared<MetalRenderPass>( rp );
-   }
+std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
+   return std::make_shared<MetalRenderPass>( rp );
 }
 
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
@@ -160,26 +156,21 @@ void MetalRenderTarget::prepare( std::shared_ptr<IRenderContext>& renderContext 
    [textureDescriptor release];
 }
 
-extern "C" {
-   std::shared_ptr<IRenderTarget> CreateRenderTarget( const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) {
-      return std::make_shared<MetalRenderTarget>( vec, f, t, r );
-   }
+
+std::shared_ptr<IRenderTarget> CreateRenderTarget( const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) {
+   return std::make_shared<MetalRenderTarget>( vec, f, t, r );
 }
 
-extern "C" {
-   std::shared_ptr<IRenderTarget> CloneRenderTarget( const IRenderTarget& obj ) {
-      return std::make_shared<MetalRenderTarget>( obj );
-   }
+std::shared_ptr<IRenderTarget> CloneRenderTarget( const IRenderTarget& obj ) {
+   return std::make_shared<MetalRenderTarget>( obj );
 }
 
-extern "C" {
-   std::shared_ptr<ITexture> CreateTexture( const glm::uvec2& vec, ITexture::Format f  ) {
-      return std::make_shared<MetalTexture>( vec, f );
-   }
+
+std::shared_ptr<ITexture> CreateTexture( const glm::uvec2& vec, ITexture::Format f  ) {
+   return std::make_shared<MetalTexture>( vec, f );
 }
 
-extern "C" {
-   std::shared_ptr<ITexture> CloneTexture( const ITexture& obj ) {
-      return std::make_shared<MetalTexture>( obj );
-   }
+std::shared_ptr<ITexture> CloneTexture( const ITexture& obj ) {
+   return std::make_shared<MetalTexture>( obj );
 }
+

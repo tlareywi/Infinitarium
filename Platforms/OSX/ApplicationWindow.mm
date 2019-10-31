@@ -26,10 +26,8 @@ private:
 
 static std::shared_ptr<IEventSampler> eventSampler = std::make_shared<OSXEventSampler>();
 
-extern "C" {
-   std::shared_ptr<IEventSampler> CreateEventSampler() {
-      return eventSampler;
-   }
+std::shared_ptr<IEventSampler> CreateEventSampler() {
+   return eventSampler;
 }
 
 @interface BorderlessWindow : NSWindow {} @end
@@ -62,7 +60,7 @@ extern "C" {
    std::string str( [chars UTF8String] );
    for( auto c : str ) {
       if( c == '`' ) {
-         for( NSView* object in _contentView.subviews ) {
+         for( NSView* object in self.contentView.subviews ) {
             bool hidden = [object isHidden];
             [object setHidden:!hidden];
          }
@@ -151,18 +149,14 @@ void OSXSimulationWindow::init( IRenderContext& context ) {
    [window setLevel:NSNormalWindowLevel];
 }
 
-extern "C" {
-   std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
-      std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>();
-      return window;
-   }
+std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
+   std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>();
+   return window;
 }
 
-extern "C" {
-   std::shared_ptr<IApplicationWindow> CloneApplicationWindow( const IApplicationWindow& obj ) {
-      std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>( obj );
-      return window;
-   }
+std::shared_ptr<IApplicationWindow> CloneApplicationWindow( const IApplicationWindow& obj ) {
+   std::shared_ptr<IApplicationWindow> window = std::make_shared<OSXSimulationWindow>( obj );
+   return window;
 }
 
 

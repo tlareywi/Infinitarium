@@ -74,9 +74,7 @@ id<MTLBuffer> MetalDataBuffer::getMTLBuffer() {
    return GPU;
 }
 
-extern "C" {
-   std::shared_ptr<IDataBuffer> CreateDataBuffer( IRenderContext& context ) {
-      std::shared_ptr<MetalDataBuffer> databuf = std::make_shared<MetalDataBuffer>(context);
-      return databuf;
-   }
+std::shared_ptr<IDataBuffer> CreateDataBuffer( IRenderContext& context ) {
+   std::shared_ptr<MetalDataBuffer> databuf = std::make_shared<MetalDataBuffer>(context);
+   return databuf;
 }

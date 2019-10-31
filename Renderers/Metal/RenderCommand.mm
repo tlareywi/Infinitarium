@@ -78,8 +78,7 @@ void MetalRenderCommand::encode( IRenderPass& renderPass, IRenderState& state ) 
    }
 }
 
-extern "C" {
-   std::shared_ptr<IRenderCommand> CreateRenderCommand() {
-      return std::make_shared<MetalRenderCommand>();
-   }
+std::shared_ptr<IRenderCommand> CreateRenderCommand() {
+   return std::make_shared<MetalRenderCommand>();
 }
+

@@ -60,16 +60,14 @@ void* MetalRenderContext::getSurface() {
    return (__bridge void*)surface;
 }
 
-extern "C" {
-   std::shared_ptr<IRenderContext> CreateRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs) {
-      std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(x, y, w, h, fs);
-      return context;
-   }
+std::shared_ptr<IRenderContext> CreateRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs) {
+   std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(x, y, w, h, fs);
+   return context;
 }
 
-extern "C" {
-   std::shared_ptr<IRenderContext> CloneRenderContext( const IRenderContext& obj ) {
-      std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(obj);
-      return context;
-   }
+
+std::shared_ptr<IRenderContext> CloneRenderContext( const IRenderContext& obj ) {
+   std::shared_ptr<IRenderContext> context = std::make_shared<MetalRenderContext>(obj);
+   return context;
 }
+

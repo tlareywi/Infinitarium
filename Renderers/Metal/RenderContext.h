@@ -23,7 +23,7 @@ public:
    CGRect getCGRect();
    
    void* getSurface() override;
-   void setSurface( void* ) override {}
+   void setSurface( void*, void* ) override {}
    
 private:
    id<MTLDevice> device;

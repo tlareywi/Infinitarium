@@ -76,10 +76,8 @@ void OSXApplication::addManipulator( const std::string& name, float min, float m
    [controler addManipulator:nameStr :min :max :step];
 }
 
-extern "C" {
-   std::shared_ptr<IApplication> CreateApplication() {
-      return OSXApplication::Instance();
-   }
+std::shared_ptr<IApplication> CreateApplication() {
+   return OSXApplication::Instance();
 }
 
 //

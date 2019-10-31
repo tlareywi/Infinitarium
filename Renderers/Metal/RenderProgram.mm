@@ -65,8 +65,6 @@ void MetalRenderProgram::injectUniformStruct( const std::vector<std::pair<std::s
    uniformBlock = ss.str();
 }
 
-extern "C" {
-   std::shared_ptr<IRenderProgram> CreateRenderProgram() {
-      return std::make_shared<MetalRenderProgram>();
-   }
+std::shared_ptr<IRenderProgram> CreateRenderProgram() {
+   return std::make_shared<MetalRenderProgram>();
 }
