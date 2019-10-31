@@ -40,6 +40,7 @@ void Scene::load( const std::string& filename ) {
    std::ifstream ifs( filename, std::ofstream::binary );
    if( !ifs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have read permissions?"<<std::endl;
+	  return;
    }
    
    boost::archive::binary_iarchive ia( ifs );

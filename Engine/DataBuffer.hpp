@@ -1,5 +1,5 @@
 //
-//  Texture.hpp
+//  DataBuffer.hpp
 //  Infinitaruim-Engine
 //
 //  Created by Trystan (Home) on 10/12/18.
@@ -11,8 +11,6 @@
 #include "RenderContext.hpp"
 
 #include <memory>
-
-class IDataBuffer;
 
 class IDataBuffer {
 public:

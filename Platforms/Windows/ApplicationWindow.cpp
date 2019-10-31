@@ -7,6 +7,10 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+///////////////////////////////////////////////////////////////////////////////
+// WinApplicationWindow
+///////////////////////////////////////////////////////////////////////////////
+
 WinApplicationWindow::WinApplicationWindow() : window(nullptr), surface(VK_NULL_HANDLE) {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // TODO: make resizeable for desktop mode
@@ -44,6 +48,10 @@ __declspec(dllexport) std::shared_ptr<IApplicationWindow> CloneApplicationWindow
 	std::shared_ptr<IApplicationWindow> window = std::make_shared<WinApplicationWindow>(obj);
 	return window;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// WinEventSampler
+///////////////////////////////////////////////////////////////////////////////
 
 class WinEventSampler : public IEventSampler {
 public:

@@ -83,3 +83,12 @@ void VulkanRenderPass::end() {
 
 }
 
+__declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {
+	return std::make_shared<VulkanRenderPass>();
+}
+
+__declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
+	return std::make_shared<VulkanRenderPass>( rp );
+}
+
+
