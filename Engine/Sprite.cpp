@@ -78,12 +78,12 @@ template<class Archive> void Sprite::load( Archive& ar ) {
 namespace boost { namespace serialization {
    template<class Archive> inline void load(Archive& ar, Sprite& t, unsigned int version) {
       std::cout<<"Loading Sprite"<<std::endl;
-      ar >> BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(t));
+      ar >> boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(t));
       t.load( ar );
    }
    template<class Archive> inline void save(Archive& ar, const Sprite& t, unsigned int version) {
       std::cout<<"Saving Sprite"<<std::endl;
-      ar << BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(t));
+      ar << boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(t));
       t.save( ar );
    }
    template<class Archive> inline void serialize(Archive& ar, Sprite& t, unsigned int version) {

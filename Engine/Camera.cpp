@@ -62,7 +62,7 @@ void Camera::render( IRenderPass& ) {
 // SERIALIZATION
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Archive> void Camera::load( Archive& ar ) {
-   ar >> BOOST_SERIALIZATION_NVP(boost::serialization::base_object<Transform>(*this));
+   ar >> boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
    
    ar >> BOOST_SERIALIZATION_NVP(motionController);
    
@@ -78,16 +78,17 @@ template<class Archive> void Camera::load( Archive& ar ) {
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
-   ar << BOOST_SERIALIZATION_NVP(boost::serialization::base_object<Transform>(*this));
+   // Cannot use 'Transform' as XML name
+   ar << boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
    
-   ar << BOOST_SERIALIZATION_NVP(motionController);
+ //  ar << BOOST_SERIALIZATION_NVP(motionController);
    
    // Force renderPass to be serialized as base class to maintain scene file platform independence.
    std::unique_ptr<RenderPassProxy> rp = std::make_unique<RenderPassProxy>(*renderPass);
-   ar << BOOST_SERIALIZATION_NVP(rp);
+ //  ar << BOOST_SERIALIZATION_NVP(rp);
   
    std::unique_ptr<RenderContextProxy> rc = std::make_unique<RenderContextProxy>(*renderContext);
-   ar << BOOST_SERIALIZATION_NVP(rc);
+ //  ar << BOOST_SERIALIZATION_NVP(rc);
 }
 
 namespace boost { namespace serialization {

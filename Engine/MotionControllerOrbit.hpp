@@ -60,6 +60,6 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Orbit MotionController"<<std::endl;
       boost::serialization::void_cast_register<Orbit,IMotionController>();
-      ar & BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IMotionController>(*this));
+      ar & boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
    }
 };

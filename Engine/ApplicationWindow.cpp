@@ -25,6 +25,7 @@ template<class Archive> void ApplicationWindowProxy::serialize(Archive& ar) {
 
 namespace boost { namespace serialization {
    template<class Archive> inline void serialize(Archive& ar, ApplicationWindowProxy& t, const unsigned int version) {
+      std::cout << "Serializing ApplicationWindowProxy" << std::endl;
 	   t.serialize( ar );
    }
 }}

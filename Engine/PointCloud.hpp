@@ -53,7 +53,7 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Pointcloud"<<std::endl;
       boost::serialization::void_cast_register<PointCloud,IRenderable>();
-      ar & BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(*this));
+      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
       ar & BOOST_SERIALIZATION_NVP(vertexBuffers);
       ar & BOOST_SERIALIZATION_NVP(numPoints);
    }

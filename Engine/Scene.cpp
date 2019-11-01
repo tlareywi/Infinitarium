@@ -43,7 +43,7 @@ void Scene::load( const std::string& filename ) {
    
    {
       std::lock_guard<std::mutex> lock( loadLock );
-      ia >> BOOST_SERIALIZATION_NVP(*this);
+      ia >> boost::serialization::make_nvp( "Scene", *this );
       
       for( auto& camera : cameras )
          camera->init();
@@ -68,7 +68,7 @@ void Scene::save( const std::string& filename ) const {
    
    // According to boost docs we want the wide version for portable UTF-8
    boost::archive::xml_woarchive oa( ofs );
-   oa << BOOST_SERIALIZATION_NVP(*this);
+   oa << boost::serialization::make_nvp( "Scene", *this );
    
    ofs.close();
 }

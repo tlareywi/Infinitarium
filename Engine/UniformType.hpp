@@ -46,10 +46,10 @@ namespace boost {
       }
       
       template<class Archive, class T> void save( Archive& ar, const T& t, const unsigned int version ) {
-         ar & BOOST_SERIALIZATION_NVP(boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
+         ar & boost::serialization::make_nvp("Uniform", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
       }
       template<class Archive, class T> void load( Archive& ar, T& t, const unsigned int version ) {
-         ar & BOOST_SERIALIZATION_NVP(boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
+         ar & boost::serialization::make_nvp("Uniform", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
       }
    }
 }

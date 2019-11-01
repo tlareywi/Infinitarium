@@ -25,6 +25,7 @@ std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& rp ) {
 }
 
 template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
+   std::cout << "Serializing RenderPassProxy" << std::endl;
    size_t sz;
    ar >> BOOST_SERIALIZATION_NVP(sz);
    if( sz > 0 ) {
@@ -38,6 +39,7 @@ template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned 
 }
 
 template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned int version ) const {
+   std::cout << "Serializing RenderPassProxy" << std::endl;
    // We need to serialize a 'proxy' class in order to maintain platform independent
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
