@@ -8,8 +8,8 @@
 #include "RenderPass.hpp"
 #include "Module.hpp"
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_woarchive.hpp>
+#include <boost/archive/xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
@@ -26,10 +26,10 @@ std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& rp ) {
 
 template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
    size_t sz;
-   ar >> sz;
+   ar >> BOOST_SERIALIZATION_NVP(sz);
    if( sz > 0 ) {
       std::vector<std::shared_ptr<RenderTargetProxy>> baseTargets;
-      ar >> baseTargets;
+      ar >> BOOST_SERIALIZATION_NVP(baseTargets);
       targets.reserve(baseTargets.size());
       for( auto& t : baseTargets ) {
          targets.push_back( IRenderTarget::Clone(*t) );
@@ -42,7 +42,7 @@ template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned 
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
    size_t sz {targets.size()};
-   ar << sz;
+   ar << BOOST_SERIALIZATION_NVP(sz);
    
    std::vector<std::shared_ptr<RenderTargetProxy>> baseTargets;
    baseTargets.reserve( sz );
@@ -50,7 +50,7 @@ template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned 
       baseTargets.push_back( std::make_shared<RenderTargetProxy>(*t) );
    
    if( sz )
-      ar << baseTargets;
+      ar << BOOST_SERIALIZATION_NVP(baseTargets);
 }
 
 

@@ -62,32 +62,32 @@ void Camera::render( IRenderPass& ) {
 // SERIALIZATION
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Archive> void Camera::load( Archive& ar ) {
-   ar >> boost::serialization::base_object<Transform>(*this);
+   ar >> BOOST_SERIALIZATION_NVP(boost::serialization::base_object<Transform>(*this));
    
-   ar >> motionController;
+   ar >> BOOST_SERIALIZATION_NVP(motionController);
    
    // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
    // need to do it manually for platform specific instances such as this.
    std::unique_ptr<RenderPassProxy> rp;
-   ar >> rp;
+   ar >> BOOST_SERIALIZATION_NVP(rp);
    renderPass = IRenderPass::Clone( *rp );
    
    std::unique_ptr<RenderContextProxy> rc;
-   ar >> rc;
+   ar >> BOOST_SERIALIZATION_NVP(rc);
    renderContext = IRenderContext::Clone( *rc );
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
-   ar << boost::serialization::base_object<Transform>(*this);
+   ar << BOOST_SERIALIZATION_NVP(boost::serialization::base_object<Transform>(*this));
    
-   ar << motionController;
+   ar << BOOST_SERIALIZATION_NVP(motionController);
    
    // Force renderPass to be serialized as base class to maintain scene file platform independence.
    std::unique_ptr<RenderPassProxy> rp = std::make_unique<RenderPassProxy>(*renderPass);
-   ar << rp;
+   ar << BOOST_SERIALIZATION_NVP(rp);
   
    std::unique_ptr<RenderContextProxy> rc = std::make_unique<RenderContextProxy>(*renderContext);
-   ar << rc;
+   ar << BOOST_SERIALIZATION_NVP(rc);
 }
 
 namespace boost { namespace serialization {

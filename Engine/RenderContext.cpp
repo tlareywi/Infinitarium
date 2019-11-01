@@ -31,11 +31,11 @@ void IRenderContext::init() {
 
 template<class Archive> void RenderContextProxy::serialize(Archive& ar, const unsigned int version) {
 	std::cout << "Serializing RenderContextProxy" << std::endl;
-	ar & _x;
-	ar & _y;
-	ar & _width;
-	ar & _height;
-	ar & _fullScreen;
+	ar & BOOST_SERIALIZATION_NVP(_x);
+	ar & BOOST_SERIALIZATION_NVP(_y);
+	ar & BOOST_SERIALIZATION_NVP(_width);
+	ar & BOOST_SERIALIZATION_NVP(_height);
+	ar & BOOST_SERIALIZATION_NVP(_fullScreen);
 }
 
 

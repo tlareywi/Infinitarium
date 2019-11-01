@@ -26,9 +26,9 @@ std::shared_ptr<ITexture> ITexture::Clone( const ITexture& obj ) {
 
 template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing Texture" << std::endl;
-	ar & dim;
-	ar & format;
-	ar & image;
+	ar & BOOST_SERIALIZATION_NVP(dim);
+	ar & BOOST_SERIALIZATION_NVP(format);
+	ar & BOOST_SERIALIZATION_NVP(image);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -45,11 +45,11 @@ std::shared_ptr<IRenderTarget> IRenderTarget::Clone( const IRenderTarget& obj ) 
 
 template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing RenderTargetProxy" << std::endl;
-	ar & dim;
-	ar & format;
-	ar & type;
-	ar & resource;
-	ar & clear;
-	ar & clearColor;
+	ar & BOOST_SERIALIZATION_NVP(dim);
+	ar & BOOST_SERIALIZATION_NVP(format);
+	ar & BOOST_SERIALIZATION_NVP(type);
+	ar & BOOST_SERIALIZATION_NVP(resource);
+	ar & BOOST_SERIALIZATION_NVP(clear);
+	ar & BOOST_SERIALIZATION_NVP(clearColor);
 }
 

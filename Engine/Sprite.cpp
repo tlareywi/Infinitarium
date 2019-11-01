@@ -66,24 +66,24 @@ void Sprite::setMotionController( const std::shared_ptr<ITexture>& ) {
 
 template<class Archive> void Sprite::save( Archive& ar ) const {
    std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
-   ar << t;
+   ar << BOOST_SERIALIZATION_NVP(t);
 }
 
 template<class Archive> void Sprite::load( Archive& ar ) {
    std::unique_ptr<TextureProxy> t;
-   ar >> t;
+   ar >> BOOST_SERIALIZATION_NVP(t);
    texture = ITexture::Clone( *t );
 }
 
 namespace boost { namespace serialization {
    template<class Archive> inline void load(Archive& ar, Sprite& t, unsigned int version) {
       std::cout<<"Loading Sprite"<<std::endl;
-      ar >> boost::serialization::base_object<IRenderable>(t);
+      ar >> BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(t));
       t.load( ar );
    }
    template<class Archive> inline void save(Archive& ar, const Sprite& t, unsigned int version) {
       std::cout<<"Saving Sprite"<<std::endl;
-      ar << boost::serialization::base_object<IRenderable>(t);
+      ar << BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(t));
       t.save( ar );
    }
    template<class Archive> inline void serialize(Archive& ar, Sprite& t, unsigned int version) {

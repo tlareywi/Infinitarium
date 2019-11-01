@@ -33,8 +33,8 @@ glm::mat4x4 Transform::getMatrix() {
 template<class Archive> void Transform::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing Transform" << std::endl;
 	boost::serialization::void_cast_register<Transform, SceneObject>();
-	ar & boost::serialization::base_object<SceneObject>(*this);
-	ar & transform;
+	ar & BOOST_SERIALIZATION_NVP(boost::serialization::base_object<SceneObject>(*this));
+	ar & BOOST_SERIALIZATION_NVP(transform);
 }
 
 

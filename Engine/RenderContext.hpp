@@ -11,8 +11,8 @@
 #include <iostream>
 
 #if defined ENGINE_BUILD
-   #include <boost/archive/binary_oarchive.hpp>
-   #include <boost/archive/binary_iarchive.hpp>
+   #include <boost/archive/xml_woarchive.hpp>
+   #include <boost/archive/xml_wiarchive.hpp>
 #endif
 
 class IRenderContext {

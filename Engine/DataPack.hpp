@@ -12,8 +12,8 @@
 #include <variant>
 #include <iostream>
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_woarchive.hpp>
+#include <boost/archive/xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 
@@ -93,7 +93,7 @@ public:
 private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      ar & data;
+      ar & BOOST_SERIALIZATION_NVP(data);
       std::cout<<"Serializing Databuffer, size "<<data.size()<<std::endl;
    }
    
@@ -119,7 +119,7 @@ namespace boost {
 	namespace serialization {
 		template<class Archive> void serialize(Archive& ar, DataPackContainer& t, const unsigned int version) {
 			std::cout << "Serializing DataPackContainer" << std::endl;
-			std::visit([&ar](auto & e) { ar& e; }, t);
+			std::visit([&ar](auto & e) { ar & BOOST_SERIALIZATION_NVP(e); }, t);
 		}
 	}
 }

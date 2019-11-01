@@ -13,8 +13,8 @@
 
 #include "EventSampler.hpp"
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_woarchive.hpp>
+#include <boost/archive/xml_wiarchive.hpp>
    
 class IMotionController {
 public:
@@ -60,6 +60,6 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Orbit MotionController"<<std::endl;
       boost::serialization::void_cast_register<Orbit,IMotionController>();
-      ar & boost::serialization::base_object<IMotionController>(*this);
+      ar & BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IMotionController>(*this));
    }
 };

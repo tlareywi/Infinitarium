@@ -44,6 +44,6 @@ void SceneObject::render( IRenderPass& r ) {
 
 template<class Archive> void SceneObject::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing SceneObject" << std::endl;
-	ar & children;
+	ar & BOOST_SERIALIZATION_NVP(children);
 }
 

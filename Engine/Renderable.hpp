@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_woarchive.hpp>
+#include <boost/archive/xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/variant.hpp>
@@ -83,8 +83,8 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing IRenderable"<<std::endl;
       boost::serialization::void_cast_register<IRenderable,SceneObject>();
-      ar & uniforms;
-      ar & programName;
+      ar & BOOST_SERIALIZATION_NVP(uniforms);
+      ar & BOOST_SERIALIZATION_NVP(programName);
    }
 };
 
@@ -96,6 +96,6 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing ClearScreen"<<std::endl;
       boost::serialization::void_cast_register<ClearScreen,IRenderable>();
-      ar & boost::serialization::base_object<IRenderable>(*this);
+      ar & BOOST_SERIALIZATION_NVP(boost::serialization::base_object<IRenderable>(*this));
    }
 };

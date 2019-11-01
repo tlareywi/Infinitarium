@@ -16,11 +16,6 @@
 Scene::Scene() {
 }
 
-template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {
-   std::cout<<"Serializing Scene"<<std::endl;
-   ar & cameras;
-}
-
 void Scene::clear() {
    std::lock_guard<std::mutex> lock( loadLock );
    for( auto& camera : cameras )
@@ -37,17 +32,18 @@ void Scene::add( const std::shared_ptr<Camera>& camera ) {
 void Scene::load( const std::string& filename ) {
    clear();
    
-   std::ifstream ifs( filename, std::ofstream::binary );
+   std::wifstream ifs( filename );
    if( !ifs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have read permissions?"<<std::endl;
 	  return;
    }
    
-   boost::archive::binary_iarchive ia( ifs );
+   // According to boost docs we want the wide version for portable UTF-8
+   boost::archive::xml_wiarchive ia( ifs );
    
    {
       std::lock_guard<std::mutex> lock( loadLock );
-      ia >> *this;
+      ia >> BOOST_SERIALIZATION_NVP(*this);
       
       for( auto& camera : cameras )
          camera->init();
@@ -65,13 +61,14 @@ void Scene::setLocalScenePath( const std::string& path ) {
 }
 
 void Scene::save( const std::string& filename ) const {
-   std::ofstream ofs( filename, std::ofstream::binary );
+   std::wofstream ofs( filename );
    if( !ofs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have write permissions?"<<std::endl;
    }
    
-   boost::archive::binary_oarchive oa( ofs );
-   oa << *this;
+   // According to boost docs we want the wide version for portable UTF-8
+   boost::archive::xml_woarchive oa( ofs );
+   oa << BOOST_SERIALIZATION_NVP(*this);
    
    ofs.close();
 }
@@ -90,6 +87,11 @@ void Scene::render() {
    
    for( auto& camera : cameras )
       camera->render( stub );
+}
+
+template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {
+   std::cout<<"Serializing Scene"<<std::endl;
+   ar & BOOST_SERIALIZATION_NVP(cameras);
 }
 
 
