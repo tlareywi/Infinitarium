@@ -8,7 +8,7 @@ sys.path.append('/usr/local/lib')
 import libInfinitariumEngine
 importlib.reload(libInfinitariumEngine)
 
-exportPath = './empty.ieb'
+exportPath = '../data/empty.ieb'
 
 engine = libInfinitariumEngine
 

@@ -32,6 +32,45 @@ AAAAAACAPw==
 						</Uniform>
 					</transform>
 				</Transform>
+				<motionController class_id="12" tracking_level="0" version="1">
+					<px class_id="-1"></px>
+				</motionController>
+				<rp class_id="14" tracking_level="0" version="0">
+					<tx class_id="15" tracking_level="1" version="0" object_id="_4">
+						<sz>1</sz>
+						<baseTargets class_id="16" tracking_level="0" version="0">
+							<count>1</count>
+							<item_version>1</item_version>
+							<item class_id="17" tracking_level="0" version="1">
+								<px class_id="18" tracking_level="1" version="0" object_id="_5">
+									<dim class_id="19" tracking_level="0" version="0">
+										<Uniform>
+gAcAADgEAAA=
+										</Uniform>
+									</dim>
+									<format>1</format>
+									<type>0</type>
+									<resource>0</resource>
+									<clear>1</clear>
+									<clearColor class_id="20" tracking_level="0" version="0">
+										<Uniform>
+zczMPQAAAAAAAIA+AACAPw==
+										</Uniform>
+									</clearColor>
+								</px>
+							</item>
+						</baseTargets>
+					</tx>
+				</rp>
+				<rc class_id="21" tracking_level="0" version="0">
+					<tx class_id="22" tracking_level="1" version="0" object_id="_6">
+						<_x>0</_x>
+						<_y>0</_y>
+						<_width>1920</_width>
+						<_height>1080</_height>
+						<_fullScreen>0</_fullScreen>
+					</tx>
+				</rc>
 			</px>
 		</item>
 	</cameras>
