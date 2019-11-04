@@ -32,17 +32,17 @@ void Scene::add( const std::shared_ptr<Camera>& camera ) {
 void Scene::load( const std::string& filename ) {
    clear();
    
-   std::wifstream ifs( filename );
+   std::wifstream ifs( filename, std::fstream::binary );
    if( !ifs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have read permissions?"<<std::endl;
 	  return;
    }
    
-   // According to boost docs we want the wide version for portable UTF-8
-   boost::archive::xml_wiarchive ia( ifs );
-   
    {
       std::lock_guard<std::mutex> lock( loadLock );
+      
+      // According to boost docs we want the wide version for portable UTF-8
+      boost::archive::xml_wiarchive ia( ifs );
       ia >> boost::serialization::make_nvp( "Scene", *this );
       
       for( auto& camera : cameras )
@@ -61,14 +61,15 @@ void Scene::setLocalScenePath( const std::string& path ) {
 }
 
 void Scene::save( const std::string& filename ) const {
-   std::wofstream ofs( filename );
+   std::wofstream ofs( filename, std::fstream::binary );
    if( !ofs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have write permissions?"<<std::endl;
    }
    
-   // According to boost docs we want the wide version for portable UTF-8
-   boost::archive::xml_woarchive oa( ofs );
-   oa << boost::serialization::make_nvp( "Scene", *this );
+   {  // According to boost docs we want the wide version for portable UTF-8
+      boost::archive::xml_woarchive oa( ofs );
+      oa << boost::serialization::make_nvp( "Scene", *this );
+   }
    
    ofs.close();
 }
