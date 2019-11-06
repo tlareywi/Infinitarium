@@ -1,5 +1,7 @@
 #include "Module.hpp"
 
+#include <map>
+
 #if defined(WIN32)
 static const char* libRenderer = "IERenderer.dll";
 static const char* libPlatform = "IEPlatform.dll";

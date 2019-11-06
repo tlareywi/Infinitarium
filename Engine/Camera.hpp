@@ -16,11 +16,13 @@
 #include "MotionControllerOrbit.hpp"
 #include "ConsoleInterface.hpp"
 
+#include "../config.h"
+
 ///
 /// \brief A Camera encapsulates a motion controller (which holds the view matrix), a set of renderables, a render pass, the render context (physical device).
 /// TOOD: Should contain a viewport was well?
 ///
-class Camera : public Transform, public Reflection::IConsole<Camera> {
+class IE_EXPORT Camera : public Transform, public Reflection::IConsole<Camera> {
 public:
    Camera();
    virtual ~Camera() {}
@@ -49,6 +51,7 @@ public:
    
 private:
    friend class boost::serialization::access;
+   template<class Archive> void serialize(Archive&, const unsigned int);
 
    bool dirty;
    
