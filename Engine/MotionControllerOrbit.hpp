@@ -13,6 +13,8 @@
 
 #include "EventSampler.hpp"
 
+#include "../config.h"
+
 #include <boost/archive/xml_woarchive.hpp>
 #include <boost/archive/xml_wiarchive.hpp>
    
@@ -45,7 +47,7 @@ private:
 };
 
 
-class Orbit : public IMotionController {
+class IE_EXPORT Orbit : public IMotionController {
 public:
    Orbit() {}
    virtual ~Orbit() {}

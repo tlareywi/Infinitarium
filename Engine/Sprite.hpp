@@ -11,8 +11,9 @@
 #include "Renderable.hpp"
 #include "DataPack.hpp"
 #include "Texture.hpp"
+#include "../config.h"
 
-class Sprite : public IRenderable {
+class IE_EXPORT Sprite : public IRenderable {
 public:
    Sprite() {
        setProgram("sprite");

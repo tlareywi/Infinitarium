@@ -25,7 +25,7 @@ protected:
    IApplicationWindow() {}
 };
 
-class ApplicationWindowProxy : public IApplicationWindow {
+class IE_EXPORT ApplicationWindowProxy : public IApplicationWindow {
 public:
    ApplicationWindowProxy() {}
    ApplicationWindowProxy( const IApplicationWindow& obj ) : IApplicationWindow(obj) {}

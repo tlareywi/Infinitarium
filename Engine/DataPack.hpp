@@ -22,10 +22,12 @@
    #include "Python.h"
 #endif
 
+#include "../config.h"
+
 ///
 /// \brief Type independent large dataset abstraction with move semantics.
 ///
-template<typename T> class DataPack {
+template<typename T> class IE_EXPORT DataPack {
 public:
    DataPack() {
       

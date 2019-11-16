@@ -14,6 +14,8 @@
 #include "RenderContext.hpp"
 #include "Texture.hpp"
 
+#include "../config.h"
+
 class IRenderPass {
 public:
    virtual ~IRenderPass() {
@@ -42,7 +44,7 @@ protected:
 ///
 /// \brief Proxy for serialize/deserialize
 ///
-class RenderPassProxy : public IRenderPass {
+class IE_EXPORT RenderPassProxy : public IRenderPass {
 public:
    RenderPassProxy() {}
    RenderPassProxy( const IRenderPass& obj ) : IRenderPass(obj) {}

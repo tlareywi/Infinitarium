@@ -12,6 +12,8 @@
 #include "DataPack.hpp"
 #include "Renderable.hpp"
 
+#include "../config.h"
+
 #include <boost/serialization/map.hpp>
 
 ///
@@ -26,7 +28,7 @@ private:
 ///
 /// \brief Collection of renderable points with arbirtary properties defined by buffers/DataPacks.
 ///
-class PointCloud : public IRenderable {
+class IE_EXPORT PointCloud : public IRenderable {
 public:
    PointCloud();
    PointCloud( const PointCloud& ) {}

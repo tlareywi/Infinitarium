@@ -10,6 +10,8 @@
 #include <memory>
 #include <iostream>
 
+#include "../config.h"
+
 #if defined ENGINE_BUILD
    #include <boost/archive/xml_woarchive.hpp>
    #include <boost/archive/xml_wiarchive.hpp>
@@ -66,7 +68,7 @@ protected:
    bool _fullScreen;
 };
 
-class RenderContextProxy : public IRenderContext {
+class IE_EXPORT RenderContextProxy : public IRenderContext {
 public:
    RenderContextProxy() {}
    RenderContextProxy( const IRenderContext& obj ) : IRenderContext(obj) {}

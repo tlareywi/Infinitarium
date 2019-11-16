@@ -88,7 +88,7 @@ private:
    }
 };
 
-class ClearScreen : public IRenderable {
+class IE_EXPORT ClearScreen : public IRenderable {
 public:
    
 private:

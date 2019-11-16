@@ -13,6 +13,7 @@
 
 #include "RenderContext.hpp"
 #include "DataBuffer.hpp"
+#include "../config.h"
 
 class ITexture {
 public:
@@ -87,7 +88,7 @@ protected:
 
 // TODO: Move to separate header to cleanup if defs
 
-class RenderTargetProxy : public IRenderTarget {
+class IE_EXPORT RenderTargetProxy : public IRenderTarget {
 public:
    RenderTargetProxy() {}
    RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
@@ -101,7 +102,7 @@ private:
 #endif
 };
 
-class TextureProxy : public ITexture {
+class IE_EXPORT TextureProxy : public ITexture {
 public:
    TextureProxy() {}
    TextureProxy(const ITexture& obj) : ITexture(obj) {}

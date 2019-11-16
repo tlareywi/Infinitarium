@@ -8,10 +8,11 @@
 #pragma once
 
 #include "SceneObject.hpp"
+#include "../config.h"
 
 #include <glm/glm.hpp>
 
-class Transform : public SceneObject {
+class IE_EXPORT Transform : public SceneObject {
 public:
    Transform();
    virtual ~Transform() {}
