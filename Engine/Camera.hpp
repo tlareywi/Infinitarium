@@ -22,7 +22,7 @@
 /// \brief A Camera encapsulates a motion controller (which holds the view matrix), a set of renderables, a render pass, the render context (physical device).
 /// TOOD: Should contain a viewport was well?
 ///
-class IE_EXPORT Camera : public Transform, public Reflection::IConsole<Camera> {
+class Camera : public Transform, public Reflection::IConsole<Camera> {
 public:
    Camera();
    virtual ~Camera() {}
@@ -64,5 +64,8 @@ private:
    
    glm::mat4 projection;
 };
+
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT_KEY(Camera);
 
 

@@ -9,8 +9,7 @@
 #include "Module.hpp"
 #include "ApplicationWindow.hpp"
 
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(RenderContextProxy)
+BOOST_CLASS_EXPORT_IMPLEMENT(RenderContextProxy)
 
 static std::shared_ptr<IApplicationWindow> window = nullptr;
 

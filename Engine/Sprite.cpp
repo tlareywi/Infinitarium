@@ -10,7 +10,7 @@
 
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT(Sprite)
+BOOST_CLASS_EXPORT_IMPLEMENT(Sprite)
 
 std::shared_ptr<IDataBuffer> Sprite::quad = nullptr;
 

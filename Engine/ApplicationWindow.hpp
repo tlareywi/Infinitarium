@@ -25,7 +25,7 @@ protected:
    IApplicationWindow() {}
 };
 
-class IE_EXPORT ApplicationWindowProxy : public IApplicationWindow {
+class ApplicationWindowProxy : public IApplicationWindow {
 public:
    ApplicationWindowProxy() {}
    ApplicationWindowProxy( const IApplicationWindow& obj ) : IApplicationWindow(obj) {}
@@ -39,3 +39,7 @@ private:
    friend class boost::serialization::access;
 #endif
 };
+
+#if defined ENGINE_BUILD
+BOOST_CLASS_EXPORT_KEY(ApplicationWindowProxy);
+#endif

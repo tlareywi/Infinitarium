@@ -44,7 +44,7 @@ protected:
 ///
 /// \brief Proxy for serialize/deserialize
 ///
-class IE_EXPORT RenderPassProxy : public IRenderPass {
+class RenderPassProxy : public IRenderPass {
 public:
    RenderPassProxy() {}
    RenderPassProxy( const IRenderPass& obj ) : IRenderPass(obj) {}
@@ -60,6 +60,10 @@ public:
    BOOST_SERIALIZATION_SPLIT_MEMBER()
 #endif
 };
+
+#if defined ENGINE_BUILD
+BOOST_CLASS_EXPORT_KEY(RenderPassProxy);
+#endif
 
 
 

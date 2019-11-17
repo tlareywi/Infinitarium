@@ -15,6 +15,7 @@
 #if defined ENGINE_BUILD
    #include <boost/archive/polymorphic_xml_woarchive.hpp>
    #include <boost/archive/polymorphic_xml_wiarchive.hpp>
+   #include <boost/serialization/export.hpp>
 #endif
 
 class IRenderContext {
@@ -68,7 +69,7 @@ protected:
    bool _fullScreen;
 };
 
-class IE_EXPORT RenderContextProxy : public IRenderContext {
+class RenderContextProxy : public IRenderContext {
 public:
    RenderContextProxy() {}
    RenderContextProxy( const IRenderContext& obj ) : IRenderContext(obj) {}
@@ -82,4 +83,8 @@ private:
    template<class Archive> void serialize( Archive &, const unsigned int );
 #endif
 };
+
+#if defined ENGINE_BUILD
+BOOST_CLASS_EXPORT_KEY(RenderContextProxy);
+#endif
 

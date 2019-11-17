@@ -88,7 +88,7 @@ private:
    }
 };
 
-class IE_EXPORT ClearScreen : public IRenderable {
+class ClearScreen : public IRenderable {
 public:
    
 private:
@@ -99,3 +99,6 @@ private:
       ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
    }
 };
+
+BOOST_CLASS_EXPORT_KEY(IRenderable);
+BOOST_CLASS_EXPORT_KEY(ClearScreen);

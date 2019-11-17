@@ -12,7 +12,8 @@
 
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT(ClearScreen)
+BOOST_CLASS_EXPORT_IMPLEMENT(IRenderable)
+BOOST_CLASS_EXPORT_IMPLEMENT(ClearScreen)
 
 IRenderable::IRenderable() : dirty(true) {
    pipelineState = IRenderState::Create();

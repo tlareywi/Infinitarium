@@ -9,7 +9,7 @@
 #include "Module.hpp"
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(ApplicationWindowProxy)
+BOOST_CLASS_EXPORT_IMPLEMENT(ApplicationWindowProxy)
 
 std::shared_ptr<IApplicationWindow> IApplicationWindow::Create() {
    return ModuleFactory<PlatformFactory>::Instance()->createApplicationWindow();

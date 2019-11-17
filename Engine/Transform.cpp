@@ -12,8 +12,7 @@
 //#include <glm/gtx/string_cast.hpp>
 //#include <glm/ext.hpp>
 
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Transform)
+BOOST_CLASS_EXPORT_IMPLEMENT(Transform)
 
 Transform::Transform() : transform(glm::mat4(1.0)) {
 }

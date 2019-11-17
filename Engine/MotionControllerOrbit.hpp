@@ -47,7 +47,7 @@ private:
 };
 
 
-class IE_EXPORT Orbit : public IMotionController {
+class Orbit : public IMotionController {
 public:
    Orbit() {}
    virtual ~Orbit() {}
@@ -65,3 +65,7 @@ private:
       ar & boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
    }
 };
+
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT_KEY(IMotionController)
+BOOST_CLASS_EXPORT_KEY(Orbit)

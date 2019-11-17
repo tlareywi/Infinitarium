@@ -7,7 +7,6 @@
 
 #include "Camera.hpp"
 
-#include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
 
 Camera::Camera() : dirty(true), motionController(nullptr) {

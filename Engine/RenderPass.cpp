@@ -14,7 +14,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(RenderPassProxy)
+BOOST_CLASS_EXPORT_IMPLEMENT(RenderPassProxy)
 
 std::shared_ptr<IRenderPass> IRenderPass::Create() {
    return ModuleFactory<RendererFactory>::Instance()->createRenderPass();

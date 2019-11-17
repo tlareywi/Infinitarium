@@ -9,7 +9,7 @@
 
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT(SceneObject)
+BOOST_CLASS_EXPORT_IMPLEMENT(SceneObject)
 
 void SceneObject::addChild( const std::shared_ptr<SceneObject>& child ) {
    children.push_back( child );

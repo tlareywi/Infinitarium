@@ -88,7 +88,7 @@ protected:
 
 // TODO: Move to separate header to cleanup if defs
 
-class IE_EXPORT RenderTargetProxy : public IRenderTarget {
+class RenderTargetProxy : public IRenderTarget {
 public:
    RenderTargetProxy() {}
    RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
@@ -102,7 +102,7 @@ private:
 #endif
 };
 
-class IE_EXPORT TextureProxy : public ITexture {
+class TextureProxy : public ITexture {
 public:
    TextureProxy() {}
    TextureProxy(const ITexture& obj) : ITexture(obj) {}
@@ -119,6 +119,9 @@ private:
 };
 
 #if defined ENGINE_BUILD
+	#include <boost/serialization/export.hpp>
    BOOST_SERIALIZATION_ASSUME_ABSTRACT(ITexture)
    BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderTarget)
+   BOOST_CLASS_EXPORT_KEY(RenderTargetProxy)
+   BOOST_CLASS_EXPORT_KEY(TextureProxy)
 #endif

@@ -12,7 +12,7 @@
 
 #include <glm/glm.hpp>
 
-class IE_EXPORT Transform : public SceneObject {
+class Transform : public SceneObject {
 public:
    Transform();
    virtual ~Transform() {}
@@ -28,3 +28,5 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);
 };
+
+BOOST_CLASS_EXPORT_KEY(Transform)

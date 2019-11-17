@@ -13,7 +13,7 @@
 #include "Texture.hpp"
 #include "../config.h"
 
-class IE_EXPORT Sprite : public IRenderable {
+class Sprite : public IRenderable {
 public:
    Sprite() {
        setProgram("sprite");
@@ -36,3 +36,5 @@ private:
    friend class boost::serialization::access;
 //   template<class Archive> friend void boost::serialization::serialize( Archive &, Sprite&, unsigned int );
 };
+
+BOOST_CLASS_EXPORT_KEY(Sprite);

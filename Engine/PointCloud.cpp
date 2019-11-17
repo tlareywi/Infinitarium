@@ -11,9 +11,7 @@
 
 #include "../config.h"
 
-#include <boost/serialization/export.hpp>
-
-BOOST_CLASS_EXPORT(PointCloud)
+BOOST_CLASS_EXPORT_IMPLEMENT(PointCloud)
 
 PointCloud::PointCloud() {
 }

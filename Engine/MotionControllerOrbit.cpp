@@ -7,9 +7,8 @@
 
 #include "MotionControllerOrbit.hpp"
 
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(IMotionController)
-BOOST_CLASS_EXPORT(Orbit)
+BOOST_CLASS_EXPORT_IMPLEMENT(IMotionController)
+BOOST_CLASS_EXPORT_IMPLEMENT(Orbit)
 
 IMotionController::IMotionController() {
    view = glm::lookAt( glm::vec3(0,0,0), glm::vec3(0,0,1), glm::vec3(0,1,0) );

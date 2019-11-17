@@ -28,7 +28,7 @@ private:
 ///
 /// \brief Collection of renderable points with arbirtary properties defined by buffers/DataPacks.
 ///
-class IE_EXPORT PointCloud : public IRenderable {
+class PointCloud : public IRenderable {
 public:
    PointCloud();
    PointCloud( const PointCloud& ) {}
@@ -60,5 +60,8 @@ private:
       ar & BOOST_SERIALIZATION_NVP(numPoints);
    }
 };
+
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT_KEY(PointCloud);
 
 

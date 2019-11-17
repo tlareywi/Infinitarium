@@ -60,3 +60,5 @@ private:
    
    std::string localScenePath;
 };
+
+BOOST_CLASS_EXPORT_KEY(Scene);
