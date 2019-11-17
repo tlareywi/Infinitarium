@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="17">
-<Scene class_id="0" tracking_level="0" version="0">
+<Scene class_id="0" tracking_level="1" version="0" object_id="_0">
 	<cameras class_id="1" tracking_level="0" version="0">
 		<count>1</count>
 		<item_version>1</item_version>
 		<item class_id="2" tracking_level="0" version="1">
-			<px class_id="3" tracking_level="1" version="0" object_id="_0">
-				<Transform class_id="4" tracking_level="1" version="0" object_id="_1">
-					<SceneObject class_id="5" tracking_level="1" version="0" object_id="_2">
+			<px class_id="3" tracking_level="1" version="0" object_id="_1">
+				<Transform class_id="4" tracking_level="1" version="0" object_id="_2">
+					<SceneObject class_id="5" tracking_level="1" version="0" object_id="_3">
 						<children class_id="6" tracking_level="0" version="0">
 							<count>1</count>
 							<item_version>1</item_version>
 							<item class_id="7" tracking_level="0" version="1">
-								<px class_id="8" class_name="ClearScreen" tracking_level="1" version="0" object_id="_3">
-									<IRenderable class_id="9" tracking_level="0" version="0">
+								<px class_id="8" class_name="ClearScreen" tracking_level="1" version="0" object_id="_4">
+									<IRenderable class_id="9" tracking_level="1" version="0" object_id="_5">
 										<uniforms class_id="10" tracking_level="0" version="0">
 											<count>0</count>
 											<item_version>0</item_version>
@@ -36,13 +36,13 @@ AAAAAACAPw==
 					<px class_id="-1"></px>
 				</motionController>
 				<rp class_id="14" tracking_level="0" version="0">
-					<tx class_id="15" tracking_level="1" version="0" object_id="_4">
+					<tx class_id="15" tracking_level="1" version="0" object_id="_6">
 						<sz>1</sz>
 						<baseTargets class_id="16" tracking_level="0" version="0">
 							<count>1</count>
 							<item_version>1</item_version>
 							<item class_id="17" tracking_level="0" version="1">
-								<px class_id="18" tracking_level="1" version="0" object_id="_5">
+								<px class_id="18" tracking_level="1" version="0" object_id="_7">
 									<dim class_id="19" tracking_level="0" version="0">
 										<Uniform>
 gAcAADgEAAA=
@@ -63,7 +63,7 @@ zczMPQAAAAAAAIA+AACAPw==
 					</tx>
 				</rp>
 				<rc class_id="21" tracking_level="0" version="0">
-					<tx class_id="22" tracking_level="1" version="0" object_id="_6">
+					<tx class_id="22" tracking_level="1" version="0" object_id="_8">
 						<_x>0</_x>
 						<_y>0</_y>
 						<_width>1920</_width>
