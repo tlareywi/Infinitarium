@@ -15,8 +15,8 @@
 
 #include "../config.h"
 
-#include <boost/archive/xml_woarchive.hpp>
-#include <boost/archive/xml_wiarchive.hpp>
+#include <boost/archive/polymorphic_xml_woarchive.hpp>
+#include <boost/archive/polymorphic_xml_wiarchive.hpp>
    
 class IMotionController {
 public:

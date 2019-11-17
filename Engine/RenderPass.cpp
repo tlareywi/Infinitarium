@@ -8,8 +8,8 @@
 #include "RenderPass.hpp"
 #include "Module.hpp"
 
-#include <boost/archive/xml_woarchive.hpp>
-#include <boost/archive/xml_wiarchive.hpp>
+#include <boost/archive/polymorphic_xml_woarchive.hpp>
+#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 

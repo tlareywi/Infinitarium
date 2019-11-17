@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include <boost/archive/xml_woarchive.hpp>
-#include <boost/archive/xml_wiarchive.hpp>
+#include <boost/archive/polymorphic_xml_woarchive.hpp>
+#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>

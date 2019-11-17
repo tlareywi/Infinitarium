@@ -12,8 +12,8 @@
 #include <variant>
 #include <iostream>
 
-#include <boost/archive/xml_woarchive.hpp>
-#include <boost/archive/xml_wiarchive.hpp>
+#include <boost/archive/polymorphic_xml_woarchive.hpp>
+#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 

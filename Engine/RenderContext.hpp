@@ -13,8 +13,8 @@
 #include "../config.h"
 
 #if defined ENGINE_BUILD
-   #include <boost/archive/xml_woarchive.hpp>
-   #include <boost/archive/xml_wiarchive.hpp>
+   #include <boost/archive/polymorphic_xml_woarchive.hpp>
+   #include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #endif
 
 class IRenderContext {
