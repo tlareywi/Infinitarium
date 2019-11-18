@@ -19,6 +19,7 @@
 #include "ApplicationWindow.hpp"
 #include "Texture.hpp"
 
+
 ///
 /// \brief Encapsulate some boiler-plate aspects of runtime module loading. Enforces
 /// one copy of module referenced (singleton).
@@ -46,13 +47,14 @@ public:
    
 protected:
    ModuleFactory( const std::string& module ) {
+	  std::string err;
 #if defined(WIN32)
 	  handle = (void*)LoadLibraryA( module.c_str() );
 #else
       handle = dlopen( module.c_str(), RTLD_LOCAL|RTLD_LAZY );
 #endif
       if( !handle ) {
-         throw std::runtime_error("CRITICAL: Unable to load module!");
+         throw std::runtime_error( std::string("CRITICAL: Unable to load ") + module + std::string(". Are Vulkan dependencies present?") );
       }
    }
    

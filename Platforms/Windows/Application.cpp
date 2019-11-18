@@ -46,19 +46,22 @@ WinApplication::WinApplication() {
 	createInfo.pApplicationInfo = &appInfo;
 
 	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
+	const char** glfwExt = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+	std::vector<const char*> extensions;
+	for (unsigned int i = 0; i < glfwExtensionCount; ++i)
+		extensions.push_back(glfwExt[i]);
 	createInfo.enabledLayerCount = 0;
 
-//#ifdef NDEBUG
-//	enableValidation{ false };
-//#else
-//	enableValidation = initValidationLayers(createInfo);
-//	if( enableValidation )
-//		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-//#endif
+#ifdef NDEBUG
+	enableValidation{ false };
+#else
+	enableValidation = initValidationLayers(createInfo);
+	if( enableValidation )
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 
-	createInfo.enabledExtensionCount = glfwExtensionCount;
-	createInfo.ppEnabledExtensionNames = glfwExtensions;
+	createInfo.enabledExtensionCount = (uint32_t)extensions.size();
+	createInfo.ppEnabledExtensionNames = extensions.data();
 
     if( vkCreateInstance( &createInfo, nullptr, &vkInstance) != VK_SUCCESS )
 		throw std::runtime_error("Failed to initialize Vulkan runtime.");
@@ -91,10 +94,6 @@ void WinApplication::addManipulator(const std::string& id, float, float, float) 
 }
 
 bool WinApplication::initValidationLayers( VkInstanceCreateInfo& createInfo ) {
-	const std::vector<const char*> validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
-	};
-
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -141,5 +140,9 @@ void WinApplication::registerValidationCallBack( VkInstance vkInstance ) {
 
 __declspec(dllexport) std::shared_ptr<IApplication> CreateApplication() {
 	return WinApplication::Instance();
+}
+
+BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID ) {
+	return TRUE;
 }
 

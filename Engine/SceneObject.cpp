@@ -7,8 +7,6 @@
 
 #include "SceneObject.hpp"
 
-#include <boost/serialization/export.hpp>
-
 BOOST_CLASS_EXPORT_IMPLEMENT(SceneObject)
 
 void SceneObject::addChild( const std::shared_ptr<SceneObject>& child ) {

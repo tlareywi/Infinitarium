@@ -24,6 +24,10 @@ public:
 	}
 
 private:
+	const std::vector<const char*> validationLayers = {
+		"VK_LAYER_KHRONOS_validation"
+	};
+
 	bool initValidationLayers( VkInstanceCreateInfo& ); 
 	void registerValidationCallBack( VkInstance );
 

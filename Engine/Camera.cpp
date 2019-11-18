@@ -98,10 +98,6 @@ namespace boost { namespace serialization {
       std::cout<<"Saving Camera"<<std::endl;
       t.save( ar );
    }
-//   template<class Archive> inline void serialize(Archive& ar, Camera& t, unsigned int version) {
-//      boost::serialization::void_cast_register<Camera,Transform>();
-//      boost::serialization::split_free(ar, t, version);
- //  }
 }}
 
 template<class Archive> void Camera::serialize(Archive& ar, const unsigned int version) {

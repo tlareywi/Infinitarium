@@ -80,24 +80,16 @@ private:
    std::string programName;
    
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing IRenderable"<<std::endl;
-      boost::serialization::void_cast_register<IRenderable,SceneObject>();
-      ar & BOOST_SERIALIZATION_NVP(uniforms);
-      ar & BOOST_SERIALIZATION_NVP(programName);
-   }
+   template<class Archive> void serialize(Archive&, const unsigned int);
 };
 
 class ClearScreen : public IRenderable {
 public:
-   
+	ClearScreen() {}
+
 private:
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing ClearScreen"<<std::endl;
-      boost::serialization::void_cast_register<ClearScreen,IRenderable>();
-      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
-   }
+   template<class Archive> void serialize(Archive&, const unsigned int);
 };
 
 BOOST_CLASS_EXPORT_KEY(IRenderable);

@@ -300,7 +300,12 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
 }
 
 void PythonInterpreter::setScene( std::shared_ptr<Scene>& scene ) {
-   boost::python::import("__main__").attr("activeScene") = scene;
+	try {
+		boost::python::import("__main__").attr("activeScene") = scene;
+	}
+	catch ( ... ) {
+		boost::python::handle_exception();
+	}
 }
 
 

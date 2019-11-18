@@ -151,4 +151,17 @@ void IRenderable::listUniforms() {
    console.write( ss.str() );
 }
 
+template<class Archive> void ClearScreen::serialize(Archive& ar, const unsigned int version) {
+	std::cout << "Serializing ClearScreen" << std::endl;
+	boost::serialization::void_cast_register<ClearScreen, IRenderable>();
+	ar& boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+}
+
+template<class Archive> void IRenderable::serialize(Archive& ar, const unsigned int version) {
+	std::cout << "Serializing IRenderable" << std::endl;
+	boost::serialization::void_cast_register<IRenderable, SceneObject>();
+	ar & BOOST_SERIALIZATION_NVP(uniforms);
+	ar & BOOST_SERIALIZATION_NVP(programName);
+}
+
 

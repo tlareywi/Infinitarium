@@ -6,6 +6,8 @@
 #include "../../Engine/Application.hpp"
 #include "../../Engine/ApplicationWindow.hpp"
 
+#include <Windows.h>
+
 #include <set>
 
 VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs) : IRenderContext(x, y, w, h, fs) {
@@ -205,6 +207,7 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 
 	swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchainCreateInfo.surface = surface;
+	swapchainCreateInfo.pNext = nullptr;
 	swapchainCreateInfo.minImageCount = imageCount;
 	swapchainCreateInfo.imageFormat = surfaceFormat.format;
 	swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -221,6 +224,7 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	swapchainCreateInfo.presentMode = presentMode;
 	swapchainCreateInfo.clipped = VK_TRUE; // Fine unless we need readback from swapchain (can't imaine a case for this)
 	swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE; // For re-creating swapchain (e.g. window resize)
+	swapchainCreateInfo.flags = 0;
 
 	if (vkCreateSwapchainKHR(logicalDevice, &swapchainCreateInfo, nullptr, &swapChain) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create swap chain!");
@@ -265,3 +269,7 @@ __declspec(dllexport)
 		std::shared_ptr<IRenderContext> context = std::make_shared<VulkanRenderContext>(obj);
 		return context;
 	}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
+	return TRUE;
+}
