@@ -36,10 +36,12 @@ find_package(Python3 COMPONENTS Development)
 target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
 
-# GMP and MPFR (multiprecision number lib)
+if( MSVC )
+else( MSVC ) # On OSX and Linux we can use GMP and MPFR (multiprecision number lib) for increased big number performance.
 find_library( LIB_MPFR mpfr )
 find_library( LIB_GMP gmp )
 target_link_libraries( InfinitariumEngine ${LIB_GMP} ${LIB_MPFR} )
+endif( MSVC )
 
 if( MSVC )
   add_compile_definitions(BOOST_ALL_NO_LIB) 
@@ -47,8 +49,6 @@ if( MSVC )
   include_directories(${GLM_INCLUDE_DIR})
   find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
   include_directories(${RAPIDJSON_INCLUDE_DIR})
-  find_path(GMP_INCLUDE_DIR gmp.h HINTS "C:\\local\\include")
-  include_directories(${GMP_INCLUDE_DIR})
 endif( MSVC )
 
 install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)

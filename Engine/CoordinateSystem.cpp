@@ -18,21 +18,21 @@ BOOST_CLASS_EXPORT_IMPLEMENT(CoordinateSystem)
 using namespace boost::multiprecision;
 
 double UniversalPoint::distance( const UniversalPoint& p ) const {
-   mpf_float_100 ax{point.x}, ay{point.y}, az{point.z};
-   mpf_float_100 bx{p.point.x}, by{p.point.y}, bz{p.point.z};
+   mpf ax{point.x}, ay{point.y}, az{point.z};
+   mpf bx{p.point.x}, by{p.point.y}, bz{p.point.z};
    
-   mpf_float_100 mult{ getMultiplier(unit, p.unit) };
+   mpf mult{ getMultiplier(unit, p.unit) };
    
    bx *= mult; by *= mult; bz *= mult;
    
-   mpf_float_100 d{ boost::multiprecision::sqrt( (ax - bx)*(ax - bx) + (ay - by)*(ay - by) + (az - bz)*(az - bz) ) };
+   mpf d{ boost::multiprecision::sqrt( (ax - bx)*(ax - bx) + (ay - by)*(ay - by) + (az - bz)*(az - bz) ) };
    
    return d.convert_to<double>();
 }
 
 UniversalPoint UniversalPoint::convert( UniversalPoint::Unit u ) const {
-   mpf_float_100 ax{point.x}, ay{point.y}, az{point.z};
-   mpf_float_100 mult{ getMultiplier(unit, u) };
+   mpf ax{point.x}, ay{point.y}, az{point.z};
+   mpf mult{ getMultiplier(unit, u) };
    
    UniversalPoint p;
    p.unit = u;
@@ -44,8 +44,8 @@ UniversalPoint UniversalPoint::convert( UniversalPoint::Unit u ) const {
    return p;
 }
 
-mpf_float_100 UniversalPoint::toMeters( Unit source ) const {
-    mpf_float_100 retVal{ 1.0 };
+mpf UniversalPoint::toMeters( Unit source ) const {
+	mpf retVal{ 1.0 };
     
     switch( source ) {
        case Kilometer:
@@ -77,7 +77,7 @@ mpf_float_100 UniversalPoint::toMeters( Unit source ) const {
     return retVal;
 }
 
-mpf_float_100 UniversalPoint::getMultiplier( Unit source, Unit dest ) const {
+mpf UniversalPoint::getMultiplier( Unit source, Unit dest ) const {
    return toMeters( source ) / toMeters( dest );
 }
 

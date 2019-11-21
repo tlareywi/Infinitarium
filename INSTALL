@@ -20,11 +20,10 @@
 * Install Boost prebuilt binaries; https://sourceforge.net/projects/boost/files/boost-binaries/
 * Build and install RapidJSON; https://github.com/Tencent/rapidjson/tree/v1.1.0
 * Build and install GLM; https://glm.g-truc.net/0.9.9/index.html
-* For the next two packages, you'll need to build the libs under MSys2 unfortunately. Install Msys2 and run `pacman -Syuu` in the terminal. Then do `pacman -S --needed mingw-w64-x86_64-toolchain`. Use the following options for configure; ./configure --enable-fat --disable-static --enable-shared --prefix=/c/[source path]/out.
-* Build and install GNU in the MSys2 environment; https://gmplib.org/ (numeric library)
-* Build and install MPFR in the MSys2 environment; https://www.mpfr.org/ (multiple-precision numeric libary)
 * Run CMake or CMake GUI. Fill in library and header paths as needed. Target Visual Stuio 2019 project. 
 * Build in Visual Studio 2019
+
+* Note: The GMP and MPFR numberic libraries are not easilly supported on Windows. Boost::Multiprecesion will fall back to its header only implementation on Windows, which is less performant.  
 
 
 

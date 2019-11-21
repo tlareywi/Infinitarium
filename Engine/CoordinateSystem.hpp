@@ -16,7 +16,13 @@
 #pragma warning( disable : 4244 ) // The underlying gmp header generates lots of spurious type conversion warnings.
 #pragma warning( push )
 #pragma warning( disable : 4146 )
-#include <boost/multiprecision/mpfr.hpp>
+#if defined(WIN32)
+#include <boost/multiprecision/cpp_bin_float.hpp>
+using mpf = boost::multiprecision::cpp_bin_float_100;
+#else
+#include <boost/multiprecision/mpfr.hpp> // Faster support lib for OSX and Linux
+using mpf = boost::multiprecision::mpf_float_100;
+#endif
 #pragma warning( pop )
 #pragma warning( pop )
 
@@ -45,7 +51,7 @@ public:
          return false;
    }
    
-   boost::multiprecision::mpf_float_100 getMultiplier(Unit, Unit) const;
+   mpf getMultiplier(Unit, Unit) const;
   
    Unit getUnit() const { return unit; }
    glm::dvec3 getPoint() { return point; }
@@ -54,7 +60,7 @@ public:
    UniversalPoint convert( Unit ) const;
    
 private:
-   boost::multiprecision::mpf_float_100 toMeters(Unit) const;
+   mpf toMeters(Unit) const;
    
    glm::dvec3 point;
    Unit unit;

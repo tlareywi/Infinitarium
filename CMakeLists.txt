@@ -28,11 +28,6 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(Python3 COMPONENTS Development)
 include_directories(${Python3_INCLUDE_DIRS})
 
-if( MSVC )
-  find_path(GMP_INCLUDE_DIR gmp.h HINTS "C:\\local\\include")
-  include_directories(${GMP_INCLUDE_DIR})
-endif( MSVC )
-
 if( APPLE )
     add_subdirectory( Renderers/Metal )
     add_subdirectory( Platforms/OSX )
