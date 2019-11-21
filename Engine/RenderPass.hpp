@@ -41,6 +41,10 @@ public:
       postRenderOps.push_back( op );
    }
    
+   const std::vector<std::shared_ptr<IRenderTarget>>& getRenderTargets() const {
+      return targets;
+   }
+   
    void runPostRenderOperations() {
       for( auto& f : postRenderOps )
          f( *this );

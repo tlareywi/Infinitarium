@@ -52,19 +52,11 @@ void MetalRenderState::prepareImpl( IRenderContext& context ) {
 void MetalRenderState::applyImpl( IRenderPass& renderPass ) {
    if( renderState || !currentDevice ) return;
    
-   MetalRenderPass& metalRenderPass = dynamic_cast<MetalRenderPass&>( renderPass );
-   MTLRenderPassDescriptor* desc = metalRenderPass.getPassDescriptor();
    unsigned int i = 0;
-   MTLRenderPassColorAttachmentDescriptor* obj = nil;
-   while( i < 8 ) {
-      obj = desc.colorAttachments[i];
-      if( obj == nil ) break;
-      if( obj.texture )
-         renderDescriptor.colorAttachments[i].pixelFormat = obj.texture.pixelFormat;
-      else
-         renderDescriptor.colorAttachments[i].pixelFormat = MTLPixelFormatInvalid;
+   for( const auto& attachment : renderPass.getRenderTargets() )
+      const MetalRenderTarget& target = dynamic_cast<const MetalRenderTarget&>( attachment );
+      renderDescriptor.colorAttachments[i++].pixelFormat = target.getPixelFormat();
       
-      ++i;
    }
    
    NSError* err {nullptr};

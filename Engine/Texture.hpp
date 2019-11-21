@@ -14,6 +14,53 @@
 #include "RenderContext.hpp"
 #include "DataPack.hpp"
 
+struct BlendState {
+   enum Op {
+      Add,
+      Subtract,
+      ReverseSubtract,
+      Min,
+      Max
+   };
+   enum Factor {
+      Zero,
+      One,
+      SourceColor,
+      OneMinusSourceColor,
+      SourceAlpha,
+      OneMinusSourceAlpha,
+      DestinationColor,
+      OneMinusDestinationColor,
+      DestinationAlpha,
+      OneMinusDestinationAlpha,
+      SourceAlphaSaturated,
+      BlendColor,
+      OneMinusBlendColor,
+      BlendAlpha,
+      OneMinusBlendAlpha,
+      Source1Color,
+      OneMinusSource1Color,
+      Source1Alpha,
+      OneMinusSource1Alpha
+   };
+   
+   BlendState() : enabled(false) {}
+   
+   bool enabled;
+   Op rgbBlendOperation;
+   Op alphaBlendOperation;
+   Factor sourceRGB;
+   Factor sourceAlpha;
+   Factor destinationRGB;
+   Factor destinationAlpha;
+   
+private:
+#if defined ENGINE_BUILD
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, BlendState&, unsigned int );
+#endif
+};
+
 class ITexture {
 public:
    enum Format {
@@ -80,6 +127,7 @@ protected:
    Resource resource;
    bool clear;
    glm::vec4 clearColor;
+   BlendState blending;
 };
 
 //

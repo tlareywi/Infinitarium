@@ -53,6 +53,8 @@ public:
       return bytesPerRow;
    }
    
+   MTLPixelFormat getPixelFormat() const;
+   
    unsigned short getBytesPerPixel() {
       return bpp;
    }
