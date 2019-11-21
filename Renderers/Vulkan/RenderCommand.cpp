@@ -37,19 +37,6 @@ void VulkanRenderCommand::setPrimitiveType(PrimitiveType t) {
 
 void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
-
-	VulkanRenderState* vkPipelineState = dynamic_cast<VulkanRenderState*>(&state);
-	VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(&renderPass);
-	vkPipelineState->getVulkanPipelineInfoRef().pVertexInputState = &vertexInputInfo;
-	vkPipelineState->getVulkanPipelineInfoRef().pInputAssemblyState = &inputAssembly;
-	vkPipelineState->getVulkanPipelineInfoRef().renderPass = vkRenderPass->getVulkanRenderPass();
-	vkPipelineState->getVulkanPipelineInfoRef().subpass = 0;
-
 /*	MetalRenderPass* metalRenderPass = dynamic_cast<MetalRenderPass*>(&renderPass);
 		const MetalRenderState& metalRenderState = dynamic_cast<const MetalRenderState&>(state);
 		if (!metalRenderPass) {

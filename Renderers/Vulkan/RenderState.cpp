@@ -7,6 +7,7 @@
 
 #include "RenderState.hpp"
 #include "RenderProgram.hpp"
+#include "RenderPass.hpp"
 
 VulkanRenderState::VulkanRenderState() {
 	memset(&pipelineInfo, 0, sizeof(pipelineInfo));
@@ -21,7 +22,6 @@ VulkanRenderState::~VulkanRenderState() {
 }
 
 void VulkanRenderState::commit(IRenderContext& context) {
-	VkViewport viewport = {};
 	viewport.x = (float)context.x();
 	viewport.y = (float)context.y();
 	viewport.width = (float)context.width();
@@ -29,18 +29,15 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
-	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
 	scissor.extent = VkExtent2D{ context.width(), context.height() };
 
-	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewportState.viewportCount = 1;
 	viewportState.pViewports = &viewport;
 	viewportState.scissorCount = 1;
 	viewportState.pScissors = &scissor;
 
-	VkPipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -53,7 +50,6 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	rasterizer.depthBiasClamp = 0.0f;
 	rasterizer.depthBiasSlopeFactor = 0.0f;
 
-	VkPipelineMultisampleStateCreateInfo multisampling = {};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -62,7 +58,6 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	multisampling.alphaToCoverageEnable = VK_FALSE;
 	multisampling.alphaToOneEnable = VK_FALSE;
 
-	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = VK_TRUE;
 	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
@@ -72,7 +67,6 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
 	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
-	VkPipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	colorBlending.logicOpEnable = VK_FALSE;
 	colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
@@ -95,7 +89,6 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	dynamicState.dynamicStateCount = 2;
 	dynamicState.pDynamicStates = dynamicStates; */
 
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 0; // Optional
 	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
@@ -108,7 +101,6 @@ void VulkanRenderState::commit(IRenderContext& context) {
 		throw std::runtime_error("Failed to create pipeline layout!");
 	}
 
-
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizer;
 	pipelineInfo.pMultisampleState = &multisampling;
@@ -120,11 +112,32 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
+	dirty = true;
+}
+
+void VulkanRenderState::apply(IRenderPass& renderPass) {
+	IRenderState::apply(renderPass);
+
+	if (!dirty) return;
+
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexBindingDescriptionCount = 0;
+	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
+	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+
+	VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(&renderPass);
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
+	pipelineInfo.pInputAssemblyState = &inputAssembly;
+	pipelineInfo.renderPass = vkRenderPass->getVulkanRenderPass();
+	pipelineInfo.subpass = 0;
+
 	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
-}
 
+	dirty = false;
+}
 
 /*MTLRenderPipelineDescriptor* MetalRenderState::getPipelineDescriptor() {
 	return renderDescriptor;

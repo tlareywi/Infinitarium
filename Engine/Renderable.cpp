@@ -77,7 +77,7 @@ void IRenderable::prepare( IRenderContext& context ) {
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {
-   pipelineState->apply();
+   pipelineState->apply( renderPass );
    renderCommand->encode( renderPass, *pipelineState );
 }
 

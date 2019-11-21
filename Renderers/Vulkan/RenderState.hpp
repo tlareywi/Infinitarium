@@ -11,15 +11,21 @@ public:
 	virtual ~VulkanRenderState();
 
 	void commit(IRenderContext& context) override;
-
-	VkGraphicsPipelineCreateInfo& getVulkanPipelineInfoRef() {
-		return pipelineInfo;
-	}
+	void apply(IRenderPass&) override;
 
 private:
 	VkGraphicsPipelineCreateInfo pipelineInfo;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 	VkDevice device;
+
+	VkViewport viewport;
+	VkRect2D scissor;
+	VkPipelineViewportStateCreateInfo viewportState;
+	VkPipelineRasterizationStateCreateInfo rasterizer;
+	VkPipelineMultisampleStateCreateInfo multisampling;
+	VkPipelineColorBlendAttachmentState colorBlendAttachment;
+	VkPipelineColorBlendStateCreateInfo colorBlending;
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo;
 };
 

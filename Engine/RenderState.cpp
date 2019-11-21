@@ -28,7 +28,7 @@ void IRenderState::prepare( IRenderContext& context ) {
    commit( context );
 }
 
-void IRenderState::apply() {
+void IRenderState::apply( IRenderPass& ) {
    if( renderProgram )
       renderProgram->apply( *this );
 }
