@@ -25,14 +25,12 @@ public:
    }
    
    void prepare( IRenderContext& context );
+   void apply( IRenderPass& );
+   virtual void prepareImpl( IRenderContext& context ) = 0;
+   virtual void applyImpl( IRenderPass& ) = 0;
    
-   virtual void commit( IRenderContext& ) = 0;
-   
-   virtual void apply( IRenderPass& );
-
-protected:
-	bool dirty;
-
+   void apply( IRenderPass& );
 private:
    std::shared_ptr<IRenderProgram> renderProgram;
+   bool dirty;
 };

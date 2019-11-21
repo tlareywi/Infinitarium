@@ -29,12 +29,13 @@ public:
    
    void init();
    
-   void update( const glm::mat4x4& ) override;
+   void update( UpdateParams& ) override;
    void render( IRenderPass& ) override;
    
    void setRenderPass( const std::shared_ptr<IRenderPass>& );
    
    void setMotionController( const std::shared_ptr<IMotionController>& );
+   std::shared_ptr<IMotionController> getMotionController();
    void setRenderContext( const std::shared_ptr<IRenderContext>& );
    
    auto reflect() {  // IConsole /////////////////////

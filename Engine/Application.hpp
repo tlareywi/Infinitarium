@@ -51,6 +51,12 @@ public:
          }
       }
    }
+   void invoke( IEvent& event ) {
+      for( auto& i : subscribers ) {
+         if( i.first == event.getName() )
+            i.second->operator()(event);
+      }
+   }
    
    virtual void run() = 0;
    virtual void stop() = 0;

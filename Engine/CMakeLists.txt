@@ -15,10 +15,12 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   RenderState.hpp DataBuffer.hpp MotionControllerOrbit.hpp RenderProgram.hpp Scene.hpp
   EventSampler.cpp ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp
   Camera.cpp Texture.cpp Pipeline.cpp Sprite.cpp Transform.cpp SceneObject.cpp
+  Spheroid.cpp CoordinateSystem.cpp
   Application.hpp Simulation.cpp Simulation.hpp RenderContext.cpp RenderContext.hpp
   PythonBridge.hpp EngineInterface.hpp ConsoleInterface.cpp ConsoleInterface.hpp
   PyUtil.hpp UniformType.hpp Delegate.hpp Camera.hpp Texture.hpp Pipeline.hpp
-  Sprite.hpp SceneObject.hpp Transform.hpp
+  Sprite.hpp SceneObject.hpp Transform.hpp Spheroid.hpp CoordinateSystem.hpp
+  MotionController.cpp MotionController.hpp
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)
@@ -33,6 +35,11 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(Python3 COMPONENTS Development)
 target_link_libraries(InfinitariumEngine ${Python3_LIBRARIES})
 include_directories(${Python3_INCLUDE_DIRS})
+
+# GMP and MPFR (multiprecision number lib)
+find_library( LIB_MPFR mpfr )
+find_library( LIB_GMP gmp )
+target_link_libraries( InfinitariumEngine ${LIB_GMP} ${LIB_MPFR} )
 
 if( MSVC )
   add_compile_definitions(BOOST_ALL_NO_LIB) 

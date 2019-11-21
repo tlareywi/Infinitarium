@@ -30,9 +30,9 @@ void SceneObject::prepare( IRenderContext& c ) {
       child->prepare( c );
 }
 
-void SceneObject::update( const glm::mat4& mat ) {
+void SceneObject::update( UpdateParams& params ) {
    for( auto& child : children )
-      child->update( mat );
+      child->update( params );
 }
 
 void SceneObject::render( IRenderPass& r ) {

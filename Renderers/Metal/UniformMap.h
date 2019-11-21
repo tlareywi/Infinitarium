@@ -34,21 +34,21 @@ std::ostream& operator<<( std::ostream& os, const UniformType& uniform ) {
    {
       auto val = std::get_if<glm::ivec2>( &uniform );
       if( val ) {
-         os << "int2";
+         os << "packed_int2";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::ivec3>( &uniform );
       if( val ) {
-         os << "int3";
+         os << "packed_int3";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::ivec4>( &uniform );
       if( val ) {
-         os << "int4";
+         os << "packed_int4";
          return os;
       }
    }
@@ -62,42 +62,42 @@ std::ostream& operator<<( std::ostream& os, const UniformType& uniform ) {
    {
       auto val = std::get_if<glm::uvec2>( &uniform );
       if( val ) {
-         os << "uint2";
+         os << "packed_uint2";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::uvec3>( &uniform );
       if( val ) {
-         os << "uint3";
+         os << "packed_uint3";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::uvec4>( &uniform );
       if( val ) {
-         os << "uint4";
+         os << "packed_uint4";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::vec2>( &uniform );
       if( val ) {
-         os << "float2";
+         os << "packed_float2";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::vec3>( &uniform );
       if( val ) {
-         os << "float3";
+         os << "packed_float3";
          return os;
       }
    }
    {
       auto val = std::get_if<glm::vec4>( &uniform );
       if( val ) {
-         os << "float4";
+         os << "packed_float4";
          return os;
       }
    }

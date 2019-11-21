@@ -2,6 +2,7 @@
 
 #include "../../Engine/RenderState.hpp"
 #include "RenderContext.h"
+#include "RenderPass.h"
 
 #import <Metal/Metal.h>
 
@@ -10,7 +11,8 @@ public:
    MetalRenderState();
    virtual ~MetalRenderState();
    
-   void commit( IRenderContext& context ) override;
+   void prepareImpl( IRenderContext& context ) override;
+   void applyImpl( IRenderPass& ) override;
    
    void sanityCheck( id<MTLDevice> device, IRenderContext& context );
    
@@ -21,4 +23,5 @@ public:
 private:
    MTLRenderPipelineDescriptor* renderDescriptor;
    id<MTLRenderPipelineState> renderState;
+   id<MTLDevice> currentDevice;
 };

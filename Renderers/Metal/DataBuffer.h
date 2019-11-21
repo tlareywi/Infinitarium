@@ -20,6 +20,9 @@ public:
    void set( const void* const, unsigned int ) override;
    void set( const void* const, unsigned int, unsigned int ) override;
    
+   void copy( IRenderTarget&, const glm::uvec4& ) override;
+   void getData( void* ) override;
+   
    id<MTLBuffer> getMTLBuffer();
    
 private:

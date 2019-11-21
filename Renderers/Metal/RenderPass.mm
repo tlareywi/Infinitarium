@@ -5,7 +5,7 @@
 #include "RenderPass.h"
 #include "RenderContext.h"
 
-void MetalRenderPass::prepare( std::shared_ptr<IRenderContext>& renderContext ) {   
+void MetalRenderPass::prepare( IRenderContext& renderContext ) {   
    for( auto& target : targets )
       target->prepare( renderContext );
 }
@@ -74,8 +74,8 @@ std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
 
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
 
-void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
-   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+void MetalTexture::prepare( IRenderContext& renderContext ) {
+   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( &renderContext );
    
    [texture release];
    
@@ -89,8 +89,14 @@ void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
       case RU32:
          textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
          break;
+      case RF32:
+         textureDescriptor.pixelFormat = MTLPixelFormatR32Float;
+         break;
       case RGBA8:
          textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+         break;
+      case RGBA8_sRGB:
+         textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm_sRGB;
          break;
       case BRGA8_sRGB:
       default:
@@ -104,43 +110,67 @@ void MetalTexture::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
    textureDescriptor.mipmapLevelCount = 1;
    textureDescriptor.sampleCount = 1;
    textureDescriptor.arrayLength = 1;
-   textureDescriptor.storageMode = MTLStorageModePrivate;
-   textureDescriptor.allowGPUOptimizedContents = true;
+   textureDescriptor.storageMode = MTLStorageModeManaged;
+   textureDescriptor.allowGPUOptimizedContents = false;
    textureDescriptor.usage = MTLTextureUsageShaderRead;
    
+   // Stage to temporary CPU texture for copy. Strip bitmap header.
+   std::uint8_t* data = std::get<DataPack_UINT8>(image).get();
+   std::uint32_t offset = *reinterpret_cast<uint32_t*>(&data[10]);
+   
+   id<MTLTexture> tmpTexture = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   [tmpTexture replaceRegion:MTLRegionMake2D(0, 0, dim.x, dim.y) mipmapLevel:0 slice:0 withBytes:(data + offset) bytesPerRow:(dim.x*bypp) bytesPerImage:0];
+   
+   // Explicit copy to GPU
+   textureDescriptor.storageMode = MTLStorageModePrivate;
+   textureDescriptor.allowGPUOptimizedContents = true;
    texture = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   id<MTLCommandBuffer> cmdBuf = [context->getMTLCommandQ() commandBuffer];
+   id<MTLBlitCommandEncoder> bltEncoder = [cmdBuf blitCommandEncoder];
+   [bltEncoder copyFromTexture:tmpTexture
+                   sourceSlice:0
+                   sourceLevel:0
+                   sourceOrigin:MTLOriginMake(0, 0, 0)
+                   sourceSize:MTLSizeMake(dim.x, dim.y, 1)
+                   toTexture:texture
+                   destinationSlice:0
+                   destinationLevel:0
+                   destinationOrigin:MTLOriginMake(0, 0, 0)];
+   [bltEncoder endEncoding];
+   [cmdBuf commit];
+   [cmdBuf waitUntilCompleted];
    
    [textureDescriptor release];
-   
-   std::visit( [bypp, this](auto& e) {
-      [texture replaceRegion:MTLRegionMake2D(0, 0, dim.x, dim.y) mipmapLevel:0 withBytes:e.get() bytesPerRow:(dim.x*bypp)];
-   }, image );
+   [tmpTexture release];
 }
 
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :
    IRenderTarget( d, f, t, r ) {
+      bytesPerRow = 0;
 }
 
-void MetalRenderTarget::prepare( std::shared_ptr<IRenderContext>& renderContext ) {
-   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( renderContext.get() );
+MTLPixelFormat MetalRenderTarget::getPixelFormat const {
+   switch( format ) {
+       case BRGA8:
+          return MTLPixelFormatBGRA8Unorm;
+       case RU32:
+          return MTLPixelFormatR32Uint;
+       case RF32:
+          return MTLPixelFormatR32Float;
+       case BRGA8_sRGB:
+       default:
+          return MTLPixelFormatBGRA8Unorm_sRGB;
+    }
+}
+
+void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
+   MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( &renderContext );
    
    [renderTarget release];
    
    MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
    
-   switch( format ) {
-      case BRGA8:
-         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
-         break;
-      case RU32:
-         textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
-         break;
-      case BRGA8_sRGB:
-      default:
-         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
-         break;
-   }
-   
+   textureDescriptor.pixelFormat = getPixelFormat( format );
    textureDescriptor.width = dim.x;
    textureDescriptor.height = dim.y;
    textureDescriptor.depth = 1;
@@ -152,8 +182,19 @@ void MetalRenderTarget::prepare( std::shared_ptr<IRenderContext>& renderContext 
    textureDescriptor.usage = MTLTextureUsageRenderTarget;
    
    renderTarget = [context->getMTLDevice() newTextureWithDescriptor:textureDescriptor];
+   // TODO: fix hardcoded bytes per pixel
+   bytesPerRow = 4 * dim.x;
+   bpp = 4;
    
    [textureDescriptor release];
+   
+   // Initialize buffer for GPU->CPU copies
+   copyBuffer = std::make_unique<MetalDataBuffer>( renderContext );
+}
+
+void MetalRenderTarget::getData( const glm::uvec4& rect, void* data ) {
+   copyBuffer->copy( *this, rect );
+   copyBuffer->getData( data );
 }
 
 

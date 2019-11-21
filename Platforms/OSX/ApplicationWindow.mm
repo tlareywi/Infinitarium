@@ -30,9 +30,18 @@ std::shared_ptr<IEventSampler> CreateEventSampler() {
    return eventSampler;
 }
 
-@interface BorderlessWindow : NSWindow {} @end
+@interface BorderlessWindow : NSWindow {
+   NSTimer* doubleClickTimer;
+}
+
+@end
 
 @implementation BorderlessWindow
+
+- (instancetype)initWithContentRect:(NSRect)contentRect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backingStoreType defer:(BOOL)flag {
+   doubleClickTimer = nullptr;
+   return [super initWithContentRect:contentRect styleMask:style backing:backingStoreType defer:flag];
+}
 
 - (BOOL)acceptsFirstResponder {
    return YES;
@@ -70,6 +79,41 @@ std::shared_ptr<IEventSampler> CreateEventSampler() {
       k.key = c;
       k.state = IEventSampler::DOWN;
       eventSampler->push( k );
+   }
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+   // Thinking if we have clicked, dbl_clicked, dragged, and move we don't really need individual mouse down/up events.
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+   IEventSampler::MouseButton button;
+   
+   if( [theEvent type] == NSEventTypeLeftMouseUp )
+      button.button = IEventSampler::LEFT;
+   else if( [theEvent type] == NSEventTypeRightMouseUp )
+      button.button = IEventSampler::RIGHT;
+   
+   NSPoint pos = [theEvent locationInWindow];
+   button.x = pos.x;
+   button.y = pos.y;
+   
+   button.state = IEventSampler::CLICKED;
+   
+   if( theEvent.clickCount > 1 ) {
+      if( doubleClickTimer ) {
+         [doubleClickTimer invalidate];
+         doubleClickTimer = nullptr;
+      }
+      button.state = IEventSampler::DBL_CLICKED;
+      eventSampler->push( button );
+      std::cout<<"Pushed double click"<<std::endl;
+   }
+   else if( theEvent.clickCount == 1 ) {
+      doubleClickTimer = [NSTimer scheduledTimerWithTimeInterval:0.25 repeats:NO block:^void(NSTimer*){
+         eventSampler->push( button );
+          std::cout<<"Pushed click"<<std::endl;
+      }];
    }
 }
 

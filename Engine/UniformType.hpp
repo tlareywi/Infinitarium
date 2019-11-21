@@ -19,6 +19,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ConsoleInterface.hpp"
+
 typedef std::variant<
 float, int, unsigned int,
 glm::ivec2, glm::ivec3, glm::ivec4,
@@ -35,6 +37,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(glm::ivec3)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::ivec4)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::vec2)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::vec3)
+BOOST_SERIALIZATION_SPLIT_FREE(glm::dvec3)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::vec4)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::mat4x4)
 

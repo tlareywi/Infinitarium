@@ -11,18 +11,44 @@
 
 #include "DataPack.hpp"
 #include "Renderable.hpp"
+#include "MotionControllerOrbit.hpp"
 
 #include "../config.h"
 
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
+
+#include <chrono>
 
 ///
 /// \brief Handles a 'complex' instance of a point cloud item. Base class can implement default behavior for instance lifetime.
 ///
-class IPointInstance {
+class IPointInstance : public IRenderable {
+public:
+   enum Type {
+      Star,
+      Asteroid
+   };
+   
+   void update( UpdateParams& ) override;
+   
+protected:
+   IPointInstance() {}
+   std::vector<std::unique_ptr<IPointInstance>> instances;
    
 private:
-   std::vector<std::unique_ptr<IPointInstance>> instances;
+   std::chrono::high_resolution_clock::time_point birth;
+};
+
+///
+/// \brief Calculations and rendering specific to an instance of a star.
+///
+class Star : public IPointInstance {
+public:
+   Star( const glm::vec3&, const glm::vec3&, float );
+   
+   void prepare( IRenderContext& ) override;
+   void render( IRenderPass& ) override;
 };
 
 ///
@@ -38,6 +64,8 @@ public:
    }
    
    void prepare( IRenderContext& ) override;
+   void update( UpdateParams& ) override;
+   void render( IRenderPass& ) override;
    
    void addVertexBuffer( DataPackContainer&, const std::string& name );
    
@@ -46,7 +74,9 @@ public:
    }
    
 private:
+   glm::uvec2 pickCoords;
    std::unique_ptr<IPointInstance> instanceMgr;
+   std::shared_ptr<IMotionController> motionController;
    
    std::map<std::string, DataPackContainer> vertexBuffers;
    unsigned int numPoints;

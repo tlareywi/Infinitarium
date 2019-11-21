@@ -14,6 +14,7 @@ brew install glm
 brew install boost  
 brew install boost-python3  
 brew install rapidjson
+brew install mpfr
 
 ### Required Runtime Dependencies
 brew install python

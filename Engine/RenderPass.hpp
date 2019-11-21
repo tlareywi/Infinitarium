@@ -31,14 +31,36 @@ public:
       targets.push_back( t );
    }
    
-   virtual void prepare( std::shared_ptr<IRenderContext>& ) = 0;
+   virtual void prepare( IRenderContext& ) = 0;
    virtual void begin( std::shared_ptr<IRenderContext>& ) = 0;
    virtual void end() = 0;
+   
+   void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
+      targets[indx]->getData( rect, data );
+   }
+   
+   void postRenderOperation( std::function<void(IRenderPass&)>& op ) {
+      postRenderOps.push_back( op );
+   }
+   
+   const std::vector<std::shared_ptr<IRenderTarget>>& getRenderTargets() const {
+      return targets;
+   }
+   
+   void runPostRenderOperations() {
+      for( auto& f : postRenderOps )
+         f( *this );
+      
+      postRenderOps.clear();
+   }
 
 protected:
    IRenderPass() {};
    
    std::vector<std::shared_ptr<IRenderTarget>> targets;
+   
+private:
+   std::vector<std::function<void(IRenderPass&)>> postRenderOps;
 };
 
 ///
@@ -49,7 +71,7 @@ public:
    RenderPassProxy() {}
    RenderPassProxy( const IRenderPass& obj ) : IRenderPass(obj) {}
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
    void begin( std::shared_ptr<IRenderContext>& ) override {};
    void end() override {};
    

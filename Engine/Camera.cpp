@@ -6,17 +6,23 @@
 //
 
 #include "Camera.hpp"
+#include "Delegate.hpp"
+#include "Application.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
 
 Camera::Camera() : dirty(true), motionController(nullptr) {
-   projection = glm::perspective( glm::radians(60.0), 16.0 / 9.0, 0.0001, 100.0 );
+   projection = glm::infinitePerspective( glm::radians(60.0), 16.0 / 9.0, 0.0001 );
    renderPass = nullptr;
    renderContext = nullptr;
 }
 
 void Camera::setMotionController( const std::shared_ptr<IMotionController>& ctrl ) {
    motionController = ctrl;
+}
+
+std::shared_ptr<IMotionController> Camera::getMotionController() {
+   return motionController;
 }
 
 void Camera::setRenderContext( const std::shared_ptr<IRenderContext>& r ) {
@@ -32,29 +38,30 @@ void Camera::init() {
    renderContext->init();
 }
 
-void Camera::update( const glm::mat4x4& /* identity */ ) {
+void Camera::update( UpdateParams& /* identity */ ) {
    glm::mat4 view;
 
    if( motionController ) {
       motionController->processEvents();
       motionController->getViewMatrix( view );
    }
-
-   glm::mat4 vp = projection * view;
    
-   Transform::prepare(*renderContext);
-   Transform::update(vp);
+   UpdateParams params( projection, view, *this );
+   
+   Transform::prepare( *renderContext );
+   Transform::update( params );
 }
 
 void Camera::render( IRenderPass& ) {
    if( dirty ) {
       dirty = false;
-      renderPass->prepare( renderContext );
+      renderPass->prepare( *renderContext );
    }
    
    renderPass->begin( renderContext );
    Transform::render( *renderPass );
    renderPass->end();
+   renderPass->runPostRenderOperations();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +71,16 @@ template<class Archive> void Camera::load( Archive& ar ) {
    ar >> boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
    
    ar >> BOOST_SERIALIZATION_NVP(motionController);
+   
+   if( motionController.get() ) {
+      // The assumption here is if we set a motion controller then we're the main navigational eye/camera.
+      // Make responder to runtime add node events. Should refactor at some point.
+      auto fun = [this]( const std::shared_ptr<SceneObject>& n ) {
+         addChild( n );
+      };
+      std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const std::shared_ptr<SceneObject>&>>( fun );
+      IApplication::Create()->subscribe("addSubgraph", delegate);
+   }
    
    // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
    // need to do it manually for platform specific instances such as this.

@@ -19,20 +19,28 @@ IRenderable::IRenderable() : dirty(true) {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
+   texture = nullptr;
    
    // Set built-in uniforms.
    allUniforms.reserve(30);
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("viewport", glm::uvec2()) );
 }
 
-void IRenderable::update( const glm::mat4& mvp ) {
+void IRenderable::update( UpdateParams& params ) {
    if( !uniformData ) return;
 
    uint32_t offset {0};
    
    // Built-ins
+   glm::fmat4x4 mvp = params.getMVP();
    uniformData->set( &mvp, offset, sizeof(mvp) );
    offset += sizeof(mvp);
+   glm::fmat4x4 mv = params.getView() * params.getModel();
+   uniformData->set( &mv, offset, sizeof(mv) );
+   offset += sizeof(mv);
+   offset += sizeof(glm::uvec2); // viewport
    
    // Update values for all uniforms
    for( auto& i : uniforms ) {
@@ -51,18 +59,32 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    uniformData = IDataBuffer::Create( context );
    renderCommand->add( uniformData );
+   if( texture != nullptr ) {
+      renderCommand->add( texture );
+      texture->prepare( context );
+   }
+   
+   glm::uvec2 viewport(context.width(), context.height());
    
    // Merge built-ins with user uniforms
    allUniforms.clear();
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::mat4()) );
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
+   allUniforms.push_back( std::make_pair("viewport", viewport) );
    allUniforms.insert( allUniforms.end(), uniforms.begin(), uniforms.end() );
    
    unsigned int sizeBytes {0};
-   for( auto& i : allUniforms )
-      std::visit( [&sizeBytes](auto& e){ sizeBytes += sizeof(e); }, i.second );
+   for( auto& i : allUniforms ) {
+      std::visit( [&sizeBytes](auto& e) {
+         sizeBytes += sizeof(e);
+      }, i.second );
+   }
    
    // Reserve enough GPU memory for all uniforms.
-   uniformData->reserve( sizeBytes );
+   // TODO: +12 Seems to be a Metal bug. Double check alignment and padding. No explaination why we need the extra bytes to avoid
+   // validation failure. Plus, nothing actually breaks, the values pass through fine. Just trips API validation flag.
+   uniformData->reserve( sizeBytes + 12 );
+   uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   
    if( !programName.empty() ) {
       std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
@@ -79,6 +101,10 @@ void IRenderable::prepare( IRenderContext& context ) {
 void IRenderable::render( IRenderPass& renderPass ) {
    pipelineState->apply( renderPass );
    renderCommand->encode( renderPass, *pipelineState );
+}
+
+void IRenderable::setTexture( const std::shared_ptr<ITexture>& t ) {
+   texture = t;
 }
 
 void IRenderable::setUniform( const std::string& name, UniformType value ) {
@@ -126,7 +152,7 @@ void IRenderable::manipulateUniform( const std::string& name, float min, float m
                [](std::string& s) {}
             }, args[0]);
          };
-         std::shared_ptr<IDelegate> delegate = std::make_shared<Delegate<decltype(fun), JSONEvent::Args&>>( fun );
+         std::shared_ptr<IDelegate> delegate = std::make_shared<JSONDelegate<decltype(fun)>>( fun );
          IApplication::Create()->subscribe(name, delegate);
          IApplication::Create()->addManipulator(name, min, max, step);
          break;
@@ -151,17 +177,47 @@ void IRenderable::listUniforms() {
    console.write( ss.str() );
 }
 
-template<class Archive> void ClearScreen::serialize(Archive& ar, const unsigned int version) {
-	std::cout << "Serializing ClearScreen" << std::endl;
-	boost::serialization::void_cast_register<ClearScreen, IRenderable>();
-	ar& boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+template<class Archive> void IRenderable::save( Archive& ar ) const {
+   ar << uniforms;
+   ar << programName;
+   
+   if( texture == nullptr )
+      ar << false;
+   else {
+      ar << true;
+      std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
+      ar << t;
+   }
 }
 
-template<class Archive> void IRenderable::serialize(Archive& ar, const unsigned int version) {
-	std::cout << "Serializing IRenderable" << std::endl;
-	boost::serialization::void_cast_register<IRenderable, SceneObject>();
-	ar & BOOST_SERIALIZATION_NVP(uniforms);
-	ar & BOOST_SERIALIZATION_NVP(programName);
+template<class Archive> void IRenderable::load( Archive& ar ) {
+   ar >> uniforms;
+   ar >> programName;
+   
+   bool hasTextureResource{ false };
+   ar >> hasTextureResource;
+   if( hasTextureResource ) {
+      std::unique_ptr<TextureProxy> t;
+      ar >> t;
+      texture = ITexture::Clone( *t );
+   }
 }
+
+namespace boost { namespace serialization {
+   template<class Archive> inline void load(Archive& ar, IRenderable& t, unsigned int version) {
+      std::cout<<"Loading IRenderable"<<std::endl;
+      ar >> boost::serialization::base_object<SceneObject>(t);
+      t.load( ar );
+   }
+   template<class Archive> inline void save(Archive& ar, const IRenderable& t, unsigned int version) {
+      std::cout<<"Saving IRenderable"<<std::endl;
+      ar << boost::serialization::base_object<SceneObject>(t);
+      t.save( ar );
+   }
+   template<class Archive> inline void serialize(Archive& ar, IRenderable& t, unsigned int version) {
+      boost::serialization::void_cast_register<IRenderable,SceneObject>();
+      boost::serialization::split_free(ar, t, version);
+   }
+}}
 
 

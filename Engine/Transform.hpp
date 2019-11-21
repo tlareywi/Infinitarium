@@ -14,13 +14,25 @@
 
 class Transform : public SceneObject {
 public:
+   enum class System {
+      VSOP87,
+      J2000,
+      Galactic
+   };
+   
    Transform();
    virtual ~Transform() {}
    
-   void update( const glm::mat4& ) override;
+   void update( UpdateParams& ) override;
    
    void setMatrix( const glm::mat4& );
+   void setTransform( System );
    glm::mat4x4 getMatrix();
+   
+   void identity();
+   void scale( float x, float y, float z );
+   void translate( float x, float y, float z );
+   void rotate( float angle, float x, float y, float z );
    
 private:
    glm::mat4x4 transform;

@@ -7,57 +7,45 @@
 
 #pragma once
 
-#include <iostream>
-
-#include <glm/gtc/matrix_transform.hpp>
-
-#include "EventSampler.hpp"
+#include "MotionController.hpp"
 
 #include "../config.h"
 
 #include <boost/archive/polymorphic_xml_woarchive.hpp>
 #include <boost/archive/polymorphic_xml_wiarchive.hpp>
-   
-class IMotionController {
-public:
-   IMotionController();
-   virtual ~IMotionController() {}
-      
-   void processEvents();
-   void getViewMatrix( glm::mat4& );
-      
-protected:
-   virtual void onKeyDown( const IEventSampler::Key& ) {}
-   virtual void onKeyUp( const IEventSampler::Key& ) {}
-   virtual void onMouseButtonDown( const IEventSampler::MouseButton& ) {}
-   virtual void onMouseButtonUp( const IEventSampler::MouseButton& ) {}
-   virtual void onMouseMove( const IEventSampler::MouseMove& ) {}
-   virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
-   virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
 
-   glm::mat4 view;
-   
-   std::shared_ptr<IEventSampler> eventSampler;
-   
-private:
-   friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing IMotionController"<<std::endl;
-   }
-};
-
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/quaternion.hpp>
 
 class Orbit : public IMotionController {
 public:
-   Orbit() {}
+   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{1.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0), sensitivity(1.0f) {}
    virtual ~Orbit() {}
+   
+   void getViewMatrix( glm::mat4& ) override;
+   
+   void setAnchor( const std::shared_ptr<SceneObject>& obj );
+   void animatePath();
       
 protected:
    void onKeyDown( const IEventSampler::Key& ) override;
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
+   void onMouseButtonClick( const IEventSampler::MouseButton& ) override;
+   void onMouseDoubleClick( const IEventSampler::MouseButton& ) override;
    
 private:
+   inline float project( float r, float x, float y );
+   void calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&, const glm::vec2& );
+   void rotateAboutAnchor( const glm::vec2&, const glm::vec2& );
+   
+   glm::dquat yawPitchRoll;
+   double distance;
+   glm::dquat rotation;
+   glm::dvec3 center;
+   
+   float sensitivity;
+   
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Orbit MotionController"<<std::endl;

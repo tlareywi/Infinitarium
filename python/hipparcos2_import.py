@@ -43,16 +43,29 @@ scene.add( camera )
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
 camera.setRenderContext( context )
 
+origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
+
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
-camera.setMotionController( engine.Orbit() )
+motionController = engine.Orbit() 
+motionController.setHomeSystem( origin )
+camera.setMotionController( motionController )
 
+# Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
-    engine.Format.BRGA8_sRGB, engine.Type.Color,
+    engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.FrameBuffer)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
 renderPass.addRenderTarget( renderTarget )
+
+# Pick buffer
+pickTarget = engine.IRenderTarget.create( 1920, 1080,
+    engine.Format.RF32, engine.Type.Color,
+    engine.Resource.Memory)
+pickTarget.setClear( True )
+pickTarget.setClearColor(0,0,0,0)
+renderPass.addRenderTarget( pickTarget )
 
 hip2Cloud = engine.PointCloud()
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
@@ -72,11 +85,14 @@ print('Processing ...')
 
 skipped = 0
 numRecrods = 0
+maxDist = 0
 for record in t.filled():
     if( record['Plx'] <= 0 ): # TODO: maybe negative plx can be corrected somehow? plx error field?
         skipped += 1
         continue
     distPC = distParsecs(record['Plx'])
+    if( distPC > maxDist ):
+        maxDist = distPC
     pos = sphereToRectZUpRads( record['RArad'], record['DErad'], distPC )
     bv = record['B-V']
     rgb = parser.KelvinToRGB( 8540/(bv+0.865) )
@@ -95,6 +111,6 @@ hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
 hip2Cloud.addVertexBuffer( color.container(), 'color' )
 camera.addChild( hip2Cloud )
 
-exportPath = './hip2.ieb'
+exportPath = '../data/hip2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

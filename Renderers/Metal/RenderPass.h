@@ -3,6 +3,8 @@
 #include "../../Engine/RenderPass.hpp"
 #include "../../Engine/Texture.hpp"
 
+#include "DataBuffer.h"
+
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -18,7 +20,7 @@ public:
       texture = nullptr;
    }
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   void prepare( IRenderContext& ) override;
    
    id<MTLTexture> getMTLTexture() {
       return texture;
@@ -33,21 +35,36 @@ private:
 ///
 class MetalRenderTarget : public IRenderTarget {
 public:
-   MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj) {}
+   MetalRenderTarget( const IRenderTarget& obj ) : IRenderTarget(obj), bytesPerRow(0) {}
    MetalRenderTarget( const glm::uvec2&, Format, Type, Resource );
    virtual ~MetalRenderTarget() {
       [renderTarget release];
       renderTarget = nullptr;
    }
    
+   void prepare( IRenderContext& ) override;
+   void getData( const glm::uvec4&, void* ) override;
+   
    id<MTLTexture> getMetalTexture() {
       return renderTarget;
    }
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   unsigned int getBytesPerRow() {
+      return bytesPerRow;
+   }
+   
+   MTLPixelFormat getPixelFormat() const;
+   
+   unsigned short getBytesPerPixel() {
+      return bpp;
+   }
    
 private:
    id<MTLTexture> renderTarget = nullptr;
+   std::unique_ptr<MetalDataBuffer> copyBuffer;
+   
+   unsigned int bytesPerRow;
+   unsigned short bpp;
 };
 
 ///
@@ -57,7 +74,7 @@ class MetalRenderPass : public IRenderPass {
 public:
    MetalRenderPass() {}
    MetalRenderPass(const IRenderPass& obj) : IRenderPass(obj) {}
-   void prepare( std::shared_ptr<IRenderContext>& ) override;
+   void prepare( IRenderContext& ) override;
    void begin( std::shared_ptr<IRenderContext>& ) override;
    void end() override;
    

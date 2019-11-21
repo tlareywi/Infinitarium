@@ -15,29 +15,75 @@
 #include "DataBuffer.hpp"
 #include "../config.h"
 
+struct BlendState {
+   enum Op {
+      Add,
+      Subtract,
+      ReverseSubtract,
+      Min,
+      Max
+   };
+   enum Factor {
+      Zero,
+      One,
+      SourceColor,
+      OneMinusSourceColor,
+      SourceAlpha,
+      OneMinusSourceAlpha,
+      DestinationColor,
+      OneMinusDestinationColor,
+      DestinationAlpha,
+      OneMinusDestinationAlpha,
+      SourceAlphaSaturated,
+      BlendColor,
+      OneMinusBlendColor,
+      BlendAlpha,
+      OneMinusBlendAlpha,
+      Source1Color,
+      OneMinusSource1Color,
+      Source1Alpha,
+      OneMinusSource1Alpha
+   };
+   
+   BlendState() : enabled(false) {}
+   
+   bool enabled;
+   Op rgbBlendOperation;
+   Op alphaBlendOperation;
+   Factor sourceRGB;
+   Factor sourceAlpha;
+   Factor destinationRGB;
+   Factor destinationAlpha;
+   
+private:
+#if defined ENGINE_BUILD
+   friend class boost::serialization::access;
+   template<class Archive> friend void boost::serialization::serialize( Archive &, BlendState&, unsigned int );
+#endif
+};
+
 class ITexture {
 public:
    enum Format {
       BRGA8,
       BRGA8_sRGB,
+      RGBA8_sRGB,
       RU32,
-      RGB8,
-      RGBA8
+      RGBA8,
+      RF32
    };
 
    ITexture( const glm::uvec2& d, Format f) : dim(d), format(f) {}
    ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image) {}
    virtual ~ITexture() {}
    
-   virtual void prepare( std::shared_ptr<IRenderContext>& ) = 0;
+   virtual void prepare( IRenderContext& ) = 0;
    
    static std::shared_ptr<ITexture> Create( unsigned int, unsigned int, Format );
    static std::shared_ptr<ITexture> Clone( const ITexture& );
    
    void set( DataPackContainer& i ) {
-      std::visit( [this](auto& e) {
-         image = std::move(e);
-      }, i );
+         image = std::move(i);
    }
    
 protected:
@@ -73,6 +119,8 @@ public:
    glm::vec4 getClearColor() { return clearColor; }
    void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
    
+   virtual void getData( const glm::uvec4&, void* ) = 0;
+   
 protected:
    IRenderTarget() : clear(false), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
    IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clear(false), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
@@ -80,6 +128,7 @@ protected:
    Resource resource;
    bool clear;
    glm::vec4 clearColor;
+   BlendState blending;
 };
 
 //
@@ -93,12 +142,16 @@ public:
    RenderTargetProxy() {}
    RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
+   void getData( const glm::uvec4&, void* ) override {};
+   
+   template<class Archive> void load( Archive& ar );
+   template<class Archive> void save( Archive& ar ) const;
    
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> void serialize( Archive& ar, const unsigned int );
+   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderTargetProxy&, unsigned int );
 #endif
 };
 
@@ -107,14 +160,15 @@ public:
    TextureProxy() {}
    TextureProxy(const ITexture& obj) : ITexture(obj) {}
    
-   void prepare( std::shared_ptr<IRenderContext>& ) override {};
+   void prepare( IRenderContext& ) override {};
    
-   template<class Archive> void serialize(Archive& ar);
+   template<class Archive> void load( Archive& ar );
+   template<class Archive> void save( Archive& ar ) const;
    
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> void serialize( Archive& ar, const unsigned int );
+   template<class Archive> friend void boost::serialization::serialize( Archive &, TextureProxy&, unsigned int );
 #endif
 };
 

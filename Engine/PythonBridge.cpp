@@ -14,6 +14,8 @@
 #include "PyUtil.hpp"
 #include "ApplicationWindow.hpp"
 #include "Sprite.hpp"
+#include "Spheroid.hpp"
+#include "CoordinateSystem.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -35,25 +37,25 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("add", &DataPack_FLOAT32::add)
       .def("getBuffer", &DataPack_FLOAT32::getBuffer)
       .def("addVec3", addVec3f)
-      .def("addVec4", addVec3f)
+      .def("addVec4", addVec4f)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
       .def("add", &DataPack_UINT16::add)
       .def("getBuffer", &DataPack_UINT16::getBuffer)
       .def("addVec3", addVec3u16)
-      .def("addVec4", addVec3u16)
+      .def("addVec4", addVec4u16)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
       .def("add", &DataPack_UINT32::add)
       .def("getBuffer", &DataPack_UINT32::getBuffer)
       .def("addVec3", addVec3u32)
-      .def("addVec4", addVec3u32)
+      .def("addVec4", addVec4u32)
    ;
    class_<DataPack_UINT8>("DataPack_UINT8", init<unsigned int>())
       .def("add", &DataPack_UINT8::add)
       .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u8)
-      .def("addVec4", addVec3u8)
+      .def("addVec4", addVec4u8)
    ;
 
    def("wrap", wrapDataPack<float>);
@@ -70,8 +72,24 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def(init<unsigned int>())
    ;
    
+   class_<UniversalPoint>("UniversalPoint", init<double, double, double, UniversalPoint::Unit>())
+   ;
+   enum_<UniversalPoint::Unit>("Unit")
+      .value("Meter", UniversalPoint::Unit::Meter)
+      .value("Kilometer", UniversalPoint::Unit::Kilometer)
+      .value("AstronomicalUnit", UniversalPoint::Unit::AstronomicalUnit)
+      .value("Parsec", UniversalPoint::Unit::Parsec)
+      .value("KiloParsec", UniversalPoint::Unit::KiloParsec)
+      .value("MegaParsec", UniversalPoint::Unit::MegaParsec)
+      .export_values()
+   ;
+   
+   class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
+   ;
+   
    // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
+      .def("setHomeSystem", &IMotionController::pushHome);
    ;
    class_<Orbit, bases<IMotionController>>("Orbit", init<>())
    ;
@@ -105,8 +123,10 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    enum_<ITexture::Format>("Format")
       .value("BRGA8", ITexture::Format::BRGA8)
       .value("BRGA8_sRGB", ITexture::Format::BRGA8_sRGB)
+      .value("RGBA8_sRGB", ITexture::Format::RGBA8_sRGB)
       .value("RU32", ITexture::Format::RU32)
       .value("RGBA8", ITexture::Format::RGBA8)
+      .value("RF32", ITexture::Format::RF32)
       .export_values()
    ;
    enum_<IRenderTarget::Type>("Type")
@@ -126,6 +146,9 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addChild", &SceneObject::addChild)
    ;
    class_<Transform, bases<SceneObject>>("Transform", init<>())
+      .def("translate", &Transform::translate)
+      .def("rotate", &Transform::rotate)
+      .def("scale", &Transform::scale)
    ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +160,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setDirty", &IRenderable::setDirty)
       .def("removeUniform", &IRenderable::removeUniform)
       .def("manipulateUniform", &IRenderable::manipulateUniform)
+      .def("setTexture", &IRenderable::setTexture)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
    ;
@@ -145,7 +169,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setNumPoints", &PointCloud::setNumPoints)
    ;
    class_<Sprite, bases<IRenderable>>("Sprite", init<>())
-      .def("setTexture", &Sprite::setTexture)
+   ;
+   class_<Spheroid, bases<IRenderable>>("Spheroid", init<unsigned int, unsigned int, float, bool>())
    ;
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +265,11 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
    std::string retVal {""};
    std::string inStr {expr};
    
-   boost::replace_all(inStr, "‘", "'");
+   // Replace html 'smart quotes'
+   boost::replace_all(inStr, "‘","'");
+   boost::replace_all(inStr, "’","'");
+   boost::replace_all(inStr, "“","\"");
+   boost::replace_all(inStr, "”","\"");
    
    try {
       object result = exec( str(inStr), main_namespace );

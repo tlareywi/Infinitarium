@@ -15,20 +15,20 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Sprite)
 std::shared_ptr<IDataBuffer> Sprite::quad = nullptr;
 
 struct SpriteVertex {
-   glm::fvec2 coord;
+   glm::fvec3 coord;
    glm::fvec2 textCoord;
 };
 
 static const SpriteVertex quadVerts[] =
 {
    // Pixel positions, Texture coordinates
-   { {  1.f,  -1.f },  { 1.f, 0.f } },
-   { { -1.f,  -1.f },  { 0.f, 0.f } },
-   { { -1.f,   1.f },  { 0.f, 1.f } },
+   { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
+   { { -1.f,  -1.f, 0.0 },  { 0.f, 0.f } },
+   { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
    
-   { {  1.f,  -1.f },  { 1.f, 0.f } },
-   { { -1.f,   1.f },  { 0.f, 1.f } },
-   { {  1.f,   1.f },  { 1.f, 1.f } },
+   { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
+   { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
+   { {  1.f,   1.f, 0.0 },  { 1.f, 1.f } }
 };
 
 Sprite::Sprite( float nativeAspect ) {
@@ -48,47 +48,20 @@ void Sprite::prepare( IRenderContext& context ) {
    // TODO: need to design a general way to cache/reuse databuffers
    if( !quad ) {
       quad = IDataBuffer::Create( context );
-      quad->set( quadVerts, sizeof(quad) );
+      quad->set( quadVerts, sizeof(quadVerts) );
+      quad->commit();
    }
    
    renderCommand->add( quad );
-   renderCommand->add( texture );
    
    IRenderable::prepare( context );
 }
 
-void Sprite::setTexture( const std::shared_ptr<ITexture>& t ) {
-   texture = t;
-}
-
-void Sprite::setMotionController( const std::shared_ptr<ITexture>& ) {
-}
-
-template<class Archive> void Sprite::save( Archive& ar ) const {
-   std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
-   ar << BOOST_SERIALIZATION_NVP(t);
-}
-
-template<class Archive> void Sprite::load( Archive& ar ) {
-   std::unique_ptr<TextureProxy> t;
-   ar >> BOOST_SERIALIZATION_NVP(t);
-   texture = ITexture::Clone( *t );
-}
-
 namespace boost { namespace serialization {
-   template<class Archive> inline void load(Archive& ar, Sprite& t, unsigned int version) {
-      std::cout<<"Loading Sprite"<<std::endl;
-      ar >> boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(t));
-      t.load( ar );
-   }
-   template<class Archive> inline void save(Archive& ar, const Sprite& t, unsigned int version) {
-      std::cout<<"Saving Sprite"<<std::endl;
-      ar << boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(t));
-      t.save( ar );
-   }
    template<class Archive> inline void serialize(Archive& ar, Sprite& t, unsigned int version) {
+      std::cout<<"Serializing Sprite"<<std::endl;
       boost::serialization::void_cast_register<Sprite,IRenderable>();
-      boost::serialization::split_free(ar, t, version);
+      ar & boost::serialization::base_object<IRenderable>(t);
    }
 }}
 
