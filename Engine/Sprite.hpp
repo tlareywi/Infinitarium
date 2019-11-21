@@ -26,7 +26,7 @@ private:
    static std::shared_ptr<IDataBuffer> quad;
    
    friend class boost::serialization::access;
-//   template<class Archive> friend void boost::serialization::serialize( Archive &, Sprite&, unsigned int );
+   template<class Archive> void serialize( Archive &, unsigned int );
 };
 
 BOOST_CLASS_EXPORT_KEY(Sprite);

@@ -47,6 +47,8 @@ if( MSVC )
   include_directories(${GLM_INCLUDE_DIR})
   find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
   include_directories(${RAPIDJSON_INCLUDE_DIR})
+  find_path(GMP_INCLUDE_DIR gmp.h HINTS "C:\\local\\include")
+  include_directories(${GMP_INCLUDE_DIR})
 endif( MSVC )
 
 install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)

@@ -57,13 +57,11 @@ void Sprite::prepare( IRenderContext& context ) {
    IRenderable::prepare( context );
 }
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, Sprite& t, unsigned int version) {
+template<class Archive> void Sprite::serialize(Archive& ar, unsigned int version) {
       std::cout<<"Serializing Sprite"<<std::endl;
       boost::serialization::void_cast_register<Sprite,IRenderable>();
-      ar & boost::serialization::base_object<IRenderable>(t);
-   }
-}}
+      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+}
 
 
 

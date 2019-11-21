@@ -13,18 +13,16 @@ BOOST_CLASS_EXPORT_IMPLEMENT(BlendState)
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderTargetProxy)
 BOOST_CLASS_EXPORT_IMPLEMENT(TextureProxy)
 
-namespace boost { namespace serialization {
-   template<class Archive> inline void serialize(Archive& ar, BlendState& t, unsigned int version) {
-      std::cout<<"Serializing BlandState"<<std::endl;
-      ar & t.enabled;
-      ar & t.rgbBlendOperation;
-      ar & t.alphaBlendOperation;
-      ar & t.sourceRGB;
-      ar & t.sourceAlpha;
-      ar & t.destinationRGB;
-      ar & t.destinationAlpha;
-   }
-}}
+template<class Archive> void BlendState::serialize(Archive& ar, unsigned int version) {
+	std::cout<<"Serializing BlandState"<<std::endl;
+    ar & BOOST_SERIALIZATION_NVP(enabled);
+    ar & BOOST_SERIALIZATION_NVP(rgbBlendOperation);
+    ar & BOOST_SERIALIZATION_NVP(alphaBlendOperation);
+    ar & BOOST_SERIALIZATION_NVP(sourceRGB);
+    ar & BOOST_SERIALIZATION_NVP(sourceAlpha);
+    ar & BOOST_SERIALIZATION_NVP(destinationRGB);
+    ar & BOOST_SERIALIZATION_NVP(destinationAlpha);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // ITexture

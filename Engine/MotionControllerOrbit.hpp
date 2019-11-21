@@ -47,11 +47,7 @@ private:
    float sensitivity;
    
    friend class boost::serialization::access;
-   template<class Archive> void serialize(Archive & ar, const unsigned int version) {
-      std::cout<<"Serializing Orbit MotionController"<<std::endl;
-      boost::serialization::void_cast_register<Orbit,IMotionController>();
-      ar & boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
-   }
+   template<class Archive> void serialize(Archive& ar, const unsigned int version);
 };
 
 #include <boost/serialization/export.hpp>

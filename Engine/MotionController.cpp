@@ -8,7 +8,7 @@
 #include "MotionController.hpp"
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(IMotionController)
+BOOST_CLASS_EXPORT_IMPLEMENT(IMotionController)
 
 IMotionController::IMotionController() {
    view = glm::lookAt( glm::vec3(0,0,0), glm::vec3(0,0,1), glm::vec3(0,1,0) );
@@ -77,5 +77,5 @@ void IMotionController::select( const std::shared_ptr<SceneObject>& obj ) {
 
 template<class Archive> void IMotionController::serialize(Archive & ar, const unsigned int version) {
    std::cout<<"Serializing IMotionController"<<std::endl;
-   ar & homeStack;
+   ar & BOOST_SERIALIZATION_NVP(homeStack);
 }

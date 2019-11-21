@@ -9,7 +9,7 @@
 #include "RenderProgram.hpp"
 #include "RenderPass.hpp"
 
-VulkanRenderState::VulkanRenderState() {
+VulkanRenderState::VulkanRenderState() : newPipeline(true) {
 	memset(&pipelineInfo, 0, sizeof(pipelineInfo));
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 }
@@ -21,7 +21,7 @@ VulkanRenderState::~VulkanRenderState() {
 	}
 }
 
-void VulkanRenderState::commit(IRenderContext& context) {
+void VulkanRenderState::prepareImpl(IRenderContext& context) {
 	viewport.x = (float)context.x();
 	viewport.y = (float)context.y();
 	viewport.width = (float)context.width();
@@ -112,23 +112,25 @@ void VulkanRenderState::commit(IRenderContext& context) {
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
-	dirty = true;
-}
-
-void VulkanRenderState::apply(IRenderPass& renderPass) {
-	IRenderState::apply(renderPass);
-
-	if (!dirty) return;
-
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 0;
 	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
 	vertexInputInfo.vertexAttributeDescriptionCount = 0;
 	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
+
+	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+	inputAssembly.primitiveRestartEnable = VK_FALSE;
+	pipelineInfo.pInputAssemblyState = &inputAssembly;
+
+	newPipeline = true;
+}
+
+void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
+	if (!newPipeline) return; // Nothing changed? NO need to re-create pipeline
 
 	VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(&renderPass);
-	pipelineInfo.pVertexInputState = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState = &inputAssembly;
 	pipelineInfo.renderPass = vkRenderPass->getVulkanRenderPass();
 	pipelineInfo.subpass = 0;
 
@@ -136,7 +138,7 @@ void VulkanRenderState::apply(IRenderPass& renderPass) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
 
-	dirty = false;
+	newPipeline = false;
 }
 
 /*MTLRenderPipelineDescriptor* MetalRenderState::getPipelineDescriptor() {

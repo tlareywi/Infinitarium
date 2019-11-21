@@ -178,46 +178,56 @@ void IRenderable::listUniforms() {
 }
 
 template<class Archive> void IRenderable::save( Archive& ar ) const {
-   ar << uniforms;
-   ar << programName;
-   
+   ar << boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+
+   ar << BOOST_SERIALIZATION_NVP(uniforms);
+   ar << BOOST_SERIALIZATION_NVP(programName);
+
+   bool hasTexture{ false };
+  
    if( texture == nullptr )
-      ar << false;
+	   ar << BOOST_SERIALIZATION_NVP( hasTexture );
    else {
-      ar << true;
+	  hasTexture = true;
+      ar << BOOST_SERIALIZATION_NVP( hasTexture );
       std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
-      ar << t;
+      ar << BOOST_SERIALIZATION_NVP(t);
    }
 }
 
 template<class Archive> void IRenderable::load( Archive& ar ) {
-   ar >> uniforms;
-   ar >> programName;
+   ar >> boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+   ar >> BOOST_SERIALIZATION_NVP(uniforms);
+   ar >> BOOST_SERIALIZATION_NVP(programName); 
    
    bool hasTextureResource{ false };
-   ar >> hasTextureResource;
+   ar >> BOOST_SERIALIZATION_NVP(hasTextureResource);
    if( hasTextureResource ) {
       std::unique_ptr<TextureProxy> t;
-      ar >> t;
-      texture = ITexture::Clone( *t );
+      ar >> BOOST_SERIALIZATION_NVP(t);
+      texture = ITexture::Clone( *t ); 
    }
 }
 
 namespace boost { namespace serialization {
    template<class Archive> inline void load(Archive& ar, IRenderable& t, unsigned int version) {
       std::cout<<"Loading IRenderable"<<std::endl;
-      ar >> boost::serialization::base_object<SceneObject>(t);
       t.load( ar );
    }
    template<class Archive> inline void save(Archive& ar, const IRenderable& t, unsigned int version) {
       std::cout<<"Saving IRenderable"<<std::endl;
-      ar << boost::serialization::base_object<SceneObject>(t);
       t.save( ar );
    }
-   template<class Archive> inline void serialize(Archive& ar, IRenderable& t, unsigned int version) {
-      boost::serialization::void_cast_register<IRenderable,SceneObject>();
-      boost::serialization::split_free(ar, t, version);
-   }
 }}
+
+template<class Archive> void IRenderable::serialize(Archive& ar, unsigned int version) {
+	boost::serialization::void_cast_register<IRenderable, SceneObject>();
+	boost::serialization::split_free(ar, *this, version);
+}
+
+template<class Archive> void ClearScreen::serialize(Archive& ar, unsigned int version) {
+	boost::serialization::void_cast_register<ClearScreen, IRenderable>();
+	ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+}
 
 

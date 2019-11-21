@@ -58,7 +58,7 @@ struct BlendState {
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, BlendState&, unsigned int );
+   template<class Archive> void serialize( Archive &, unsigned int );
 #endif
 };
 
@@ -151,7 +151,7 @@ public:
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, RenderTargetProxy&, unsigned int );
+   template<class Archive> void serialize( Archive &,  unsigned int );
 #endif
 };
 
@@ -168,7 +168,7 @@ public:
 private:
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, TextureProxy&, unsigned int );
+   template<class Archive> void serialize( Archive &, unsigned int );
 #endif
 };
 
@@ -176,6 +176,7 @@ private:
 	#include <boost/serialization/export.hpp>
    BOOST_SERIALIZATION_ASSUME_ABSTRACT(ITexture)
    BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderTarget)
+   BOOST_CLASS_EXPORT_KEY(BlendState)
    BOOST_CLASS_EXPORT_KEY(RenderTargetProxy)
    BOOST_CLASS_EXPORT_KEY(TextureProxy)
 #endif

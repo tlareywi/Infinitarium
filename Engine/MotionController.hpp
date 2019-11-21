@@ -18,8 +18,8 @@
 #include "CoordinateSystem.hpp"
 #include "SceneObject.hpp"
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_woarchive.hpp>
+#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 class KeyFrame {

@@ -11,7 +11,6 @@
 
 #include <glm/gtx/matrix_decompose.hpp>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(IMotionController)
 BOOST_CLASS_EXPORT_IMPLEMENT(Orbit)
 
 static std::mutex viewMutex{ std::mutex() };
@@ -118,7 +117,7 @@ void Orbit::calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&
    axis = glm::normalize(axis);
    
    // Angle between p1 and p2 at distance/sensitivity.
-   float t = (pp2 - pp1).length() / (2.0 * sensitivity);
+   float t = static_cast<float>((pp2 - pp1).length() / (2.0 * sensitivity));
    t = std::clamp(t, -1.0f, 1.0f);
    angle = glm::radians(asin(t));
 }
@@ -172,9 +171,9 @@ void Orbit::getViewMatrix( glm::mat4& out ) {
 }
 
 template<class Archive> void Orbit::serialize(Archive & ar, const unsigned int version) {
-   std::cout<<"Serializing Orbit MotionController"<<std::endl;
-   boost::serialization::void_cast_register<Orbit,IMotionController>();
-   ar & boost::serialization::base_object<IMotionController>(*this);
+	std::cout << "Serializing Orbit MotionController" << std::endl;
+	boost::serialization::void_cast_register<Orbit, IMotionController>();
+	ar& boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
 }
 
 

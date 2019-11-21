@@ -7,7 +7,7 @@ public:
 	VulkanTexture(glm::uvec2, ITexture::Format) {};
 	VulkanTexture(const ITexture& obj) : ITexture(obj) {};
 
-	void prepare(std::shared_ptr<IRenderContext>&) override {};
+	void prepare(IRenderContext&) override {};
 
 private:
 	//id<MTLTexture> texture;
@@ -24,7 +24,9 @@ public:
 //		return renderTarget;
 //	}
 
-	void prepare(std::shared_ptr<IRenderContext>&) override {};
+	void prepare(IRenderContext&) override {};
+
+	void getData(const glm::uvec4&, void*) override {};
 
 private:
 	//id<MTLTexture> renderTarget = nullptr;

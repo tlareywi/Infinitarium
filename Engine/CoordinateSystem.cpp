@@ -12,8 +12,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(UniversalPoint)
-BOOST_CLASS_EXPORT(CoordinateSystem)
+BOOST_CLASS_EXPORT_IMPLEMENT(UniversalPoint)
+BOOST_CLASS_EXPORT_IMPLEMENT(CoordinateSystem)
 
 using namespace boost::multiprecision;
 
@@ -84,8 +84,8 @@ mpf_float_100 UniversalPoint::getMultiplier( Unit source, Unit dest ) const {
 template<class Archive> void UniversalPoint::serialize( Archive& ar, const unsigned int version ) {
    std::cout<<"Serializing UniversalPoint"<<std::endl;
    
-   ar & unit;
-   ar & point;
+   ar & BOOST_SERIALIZATION_NVP(unit);
+   ar & BOOST_SERIALIZATION_NVP(point);
 }
 
 
@@ -145,11 +145,11 @@ glm::vec3 CoordinateSystem::getCenter() {
 template<class Archive> void CoordinateSystem::serialize( Archive& ar, const unsigned int version ) {
    std::cout<<"Serializing CoordinateSystem"<<std::endl;
    
-   ar & proxy;
-   ar & center;
-   ar & radius;
+   ar & BOOST_SERIALIZATION_NVP(proxy);
+   ar & BOOST_SERIALIZATION_NVP(center);
+   ar & BOOST_SERIALIZATION_NVP(radius);
    
    boost::serialization::void_cast_register<CoordinateSystem,SceneObject>();
-   ar & boost::serialization::base_object<SceneObject>(*this);
+   ar & boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
 }
 

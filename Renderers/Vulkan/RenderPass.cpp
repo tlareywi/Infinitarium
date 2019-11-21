@@ -10,8 +10,8 @@ VulkanRenderPass::~VulkanRenderPass() {
 	}
 }
 
-void VulkanRenderPass::prepare(std::shared_ptr<IRenderContext>& context) {
-	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&(*context));
+void VulkanRenderPass::prepare(IRenderContext& context) {
+	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&context);
 	device = vkContext->getVulkanDevice();
 	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	vkContext->getVulkanSwapchainInfo(swapchainCreateInfo);

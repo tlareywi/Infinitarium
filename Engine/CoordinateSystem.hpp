@@ -12,7 +12,13 @@
 
 #include "SceneObject.hpp"
 
+#pragma warning( push )
+#pragma warning( disable : 4244 ) // The underlying gmp header generates lots of spurious type conversion warnings.
+#pragma warning( push )
+#pragma warning( disable : 4146 )
 #include <boost/multiprecision/mpfr.hpp>
+#pragma warning( pop )
+#pragma warning( pop )
 
 class UniversalPoint {
 public:

@@ -13,7 +13,7 @@ public:
 	VulkanRenderPass(const IRenderPass& obj) : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE) , IRenderPass(obj) {}
 	virtual ~VulkanRenderPass();
 
-	void prepare(std::shared_ptr<IRenderContext>&) override;
+	void prepare(IRenderContext&) override;
 	void begin(std::shared_ptr<IRenderContext>&) override;
 	void end() override;
 

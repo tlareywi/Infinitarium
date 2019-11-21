@@ -11,6 +11,8 @@
 #include "RenderContext.hpp"
 #include "Texture.hpp"
 
+class IRenderTarget;
+
 #include <memory>
 
 class IDataBuffer {

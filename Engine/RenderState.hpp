@@ -28,8 +28,7 @@ public:
    void apply( IRenderPass& );
    virtual void prepareImpl( IRenderContext& context ) = 0;
    virtual void applyImpl( IRenderPass& ) = 0;
-   
-   void apply( IRenderPass& );
+
 private:
    std::shared_ptr<IRenderProgram> renderProgram;
    bool dirty;

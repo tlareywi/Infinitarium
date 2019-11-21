@@ -16,7 +16,7 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(PointCloud)
 
-PointCloud::PointCloud() : pickCoords(glm::uvec2(0.0)) {
+PointCloud::PointCloud() : pickCoords(glm::uvec2(0)) {
    // Subscribe to picking events.
    auto fun = [this]( const glm::uvec2& screenCoords ) {
       pickCoords = screenCoords;
@@ -55,16 +55,19 @@ void PointCloud::update( UpdateParams& params ) {
    IRenderable::update( params );
 }
 
+#pragma warning( push )
+#pragma warning( disable : 4244 ) // Disable type conversion warnings for assignment from variant type
+
 void PointCloud::render( IRenderPass& renderPass ) {
    IRenderable::render(renderPass);
    
-   if( pickCoords != glm::uvec2(0.0) ) {
-      const unsigned short PickBuffer {1};
+   if( pickCoords != glm::uvec2(0) ) {
       // Hmm, whether or not to have this as a post render op has interesting implications. As a non-post
       // render op, it effectively forces pick buffer evaluation before other things have drawn. As a post
       // op, everything on this camera will have drawn when this is called.
       std::function<void(IRenderPass&)> postRenderOp = [this](IRenderPass& renderPass) {
-         unsigned int szx{10}, szy{10};
+		 const unsigned short PickBuffer{ 1 };
+		 const unsigned int szx{10}, szy{10};
          float buf[szx*szy];
          memset( buf, 0, sizeof(buf) );
          std::cout<<"Pick coord "<<pickCoords.x<<", "<<pickCoords.y<<std::endl;
@@ -80,8 +83,9 @@ void PointCloud::render( IRenderPass& renderPass ) {
                float mag;
                
                { auto p = vertexBuffers.find(std::string("magnitude"));
-               std::visit( [val, &mag](auto& e) {
-                  mag = e[val];
+				 auto& v = val;
+                 std::visit( [v, &mag](auto& e) {
+                  mag = e[v];
                }, p->second ); }
                
                if( mag < maxMag ) {
@@ -115,4 +119,6 @@ void PointCloud::render( IRenderPass& renderPass ) {
       renderPass.postRenderOperation( postRenderOp );
    }
 }
+
+#pragma warning( pop )
 

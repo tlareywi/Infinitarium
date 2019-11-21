@@ -23,7 +23,7 @@ public:
       glm::fvec3 normal;
       glm::fvec2 textCoord;
       friend class boost::serialization::access;
-      template<class Archive> friend void boost::serialization::serialize( Archive &, SpheroidVertex&, unsigned int );
+      template<class Archive> void serialize( Archive &, unsigned int );
    };
    
 private:
@@ -34,5 +34,5 @@ private:
    std::shared_ptr<IDataBuffer> spheroid;
    
    friend class boost::serialization::access;
-   template<class Archive> friend void boost::serialization::serialize( Archive &, Spheroid&, unsigned int );
+   template<class Archive> void serialize( Archive &, unsigned int );
 };

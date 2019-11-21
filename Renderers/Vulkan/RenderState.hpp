@@ -10,8 +10,8 @@ public:
 	VulkanRenderState();
 	virtual ~VulkanRenderState();
 
-	void commit(IRenderContext& context) override;
-	void apply(IRenderPass&) override;
+	virtual void prepareImpl(IRenderContext& context);
+	virtual void applyImpl(IRenderPass&);
 
 private:
 	VkGraphicsPipelineCreateInfo pipelineInfo;
@@ -27,5 +27,9 @@ private:
 	VkPipelineColorBlendAttachmentState colorBlendAttachment;
 	VkPipelineColorBlendStateCreateInfo colorBlending;
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+
+	bool newPipeline;
 };
 
