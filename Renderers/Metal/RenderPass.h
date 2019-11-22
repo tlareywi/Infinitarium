@@ -22,6 +22,8 @@ public:
    
    void prepare( IRenderContext& ) override;
    
+   static MTLPixelFormat getPixelFormat( Format );
+   
    id<MTLTexture> getMTLTexture() {
       return texture;
    }
@@ -53,10 +55,12 @@ public:
       return bytesPerRow;
    }
    
-   MTLPixelFormat getPixelFormat() const;
-   
    unsigned short getBytesPerPixel() {
       return bpp;
+   }
+   
+   MTLPixelFormat getPixelFormat() const {
+      return MetalTexture::getPixelFormat( format );
    }
    
 private:

@@ -45,7 +45,15 @@ struct BlendState {
       OneMinusSource1Alpha
    };
    
-   BlendState() : enabled(false) {}
+   BlendState() :
+      enabled(false),
+      rgbBlendOperation( Op::Add ),
+      alphaBlendOperation( Op::Add ),
+      sourceRGB( Factor::Zero ),
+      sourceAlpha( Factor::Zero ),
+      destinationRGB( Factor::Zero ),
+      destinationAlpha( Factor::Zero ) {
+   }
    
    bool enabled;
    Op rgbBlendOperation;
@@ -118,7 +126,9 @@ public:
    void setClear( bool c ) { clear = c; }
    glm::vec4 getClearColor() { return clearColor; }
    void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
-   
+   const BlendState& getBlendState() const {
+      return blending;
+   }
    virtual void getData( const glm::uvec4&, void* ) = 0;
    
 protected:

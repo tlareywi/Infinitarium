@@ -183,13 +183,13 @@ template<class Archive> void IRenderable::save( Archive& ar ) const {
    ar << BOOST_SERIALIZATION_NVP(uniforms);
    ar << BOOST_SERIALIZATION_NVP(programName);
 
-   bool hasTexture{ false };
+   bool hasTextureResource{ false };
   
    if( texture == nullptr )
-	   ar << BOOST_SERIALIZATION_NVP( hasTexture );
+	   ar << BOOST_SERIALIZATION_NVP( hasTextureResource );
    else {
-	  hasTexture = true;
-      ar << BOOST_SERIALIZATION_NVP( hasTexture );
+      hasTextureResource = true;
+      ar << BOOST_SERIALIZATION_NVP( hasTextureResource );
       std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
       ar << BOOST_SERIALIZATION_NVP(t);
    }

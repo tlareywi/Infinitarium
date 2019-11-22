@@ -15,11 +15,18 @@
 							<item class_id="7" tracking_level="0" version="1">
 								<px class_id="8" class_name="ClearScreen" tracking_level="1" version="0" object_id="_4">
 									<IRenderable class_id="9" tracking_level="1" version="0" object_id="_5">
+										<SceneObject object_id="_6">
+											<children>
+												<count>0</count>
+												<item_version>1</item_version>
+											</children>
+										</SceneObject>
 										<uniforms class_id="10" tracking_level="0" version="0">
 											<count>0</count>
 											<item_version>0</item_version>
 										</uniforms>
 										<programName></programName>
+										<hasTextureResource>0</hasTextureResource>
 									</IRenderable>
 								</px>
 							</item>
@@ -36,19 +43,19 @@ AAAAAACAPw==
 					<px class_id="-1"></px>
 				</motionController>
 				<rp class_id="14" tracking_level="0" version="0">
-					<tx class_id="15" tracking_level="1" version="0" object_id="_6">
+					<tx class_id="15" tracking_level="1" version="0" object_id="_7">
 						<sz>1</sz>
 						<baseTargets class_id="16" tracking_level="0" version="0">
 							<count>1</count>
 							<item_version>1</item_version>
 							<item class_id="17" tracking_level="0" version="1">
-								<px class_id="18" tracking_level="1" version="0" object_id="_7">
+								<px class_id="18" tracking_level="1" version="0" object_id="_8">
 									<dim class_id="19" tracking_level="0" version="0">
 										<Uniform>
 gAcAADgEAAA=
 										</Uniform>
 									</dim>
-									<format>1</format>
+									<format>0</format>
 									<type>0</type>
 									<resource>0</resource>
 									<clear>1</clear>
@@ -57,13 +64,22 @@ gAcAADgEAAA=
 zczMPQAAAAAAAIA+AACAPw==
 										</Uniform>
 									</clearColor>
+									<blending class_id="21" tracking_level="1" version="0" object_id="_9">
+										<enabled>0</enabled>
+										<rgbBlendOperation>0</rgbBlendOperation>
+										<alphaBlendOperation>0</alphaBlendOperation>
+										<sourceRGB>0</sourceRGB>
+										<sourceAlpha>0</sourceAlpha>
+										<destinationRGB>0</destinationRGB>
+										<destinationAlpha>0</destinationAlpha>
+									</blending>
 								</px>
 							</item>
 						</baseTargets>
 					</tx>
 				</rp>
-				<rc class_id="21" tracking_level="0" version="0">
-					<tx class_id="22" tracking_level="1" version="0" object_id="_8">
+				<rc class_id="22" tracking_level="0" version="0">
+					<tx class_id="23" tracking_level="1" version="0" object_id="_10">
 						<_x>0</_x>
 						<_y>0</_y>
 						<_width>1920</_width>

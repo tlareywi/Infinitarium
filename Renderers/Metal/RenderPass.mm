@@ -72,7 +72,26 @@ std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
    return std::make_shared<MetalRenderPass>( rp );
 }
 
+
 MetalTexture::MetalTexture( const glm::uvec2& d, ITexture::Format f ) : ITexture(d, f) {}
+
+MTLPixelFormat MetalTexture::getPixelFormat( ITexture::Format format ) {
+   switch( format ) {
+       case BRGA8:
+          return MTLPixelFormatBGRA8Unorm;
+       case RGBA8:
+          return MTLPixelFormatRGBA8Unorm;
+       case RU32:
+          return MTLPixelFormatR32Uint;
+       case RF32:
+          return MTLPixelFormatR32Float;
+       case RGBA8_sRGB:
+          return MTLPixelFormatRGBA8Unorm_sRGB;
+       case BRGA8_sRGB:
+       default:
+          return MTLPixelFormatBGRA8Unorm_sRGB;
+    }
+}
 
 void MetalTexture::prepare( IRenderContext& renderContext ) {
    MetalRenderContext* context = dynamic_cast<MetalRenderContext*>( &renderContext );
@@ -82,28 +101,7 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
    MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
    
    unsigned short bypp{4};
-   switch( format ) {
-      case BRGA8:
-         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
-         break;
-      case RU32:
-         textureDescriptor.pixelFormat = MTLPixelFormatR32Uint;
-         break;
-      case RF32:
-         textureDescriptor.pixelFormat = MTLPixelFormatR32Float;
-         break;
-      case RGBA8:
-         textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
-         break;
-      case RGBA8_sRGB:
-         textureDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm_sRGB;
-         break;
-      case BRGA8_sRGB:
-      default:
-         textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
-         break;
-   }
-   
+   textureDescriptor.pixelFormat = getPixelFormat( format );
    textureDescriptor.width = dim.x;
    textureDescriptor.height = dim.y;
    textureDescriptor.depth = 1;
@@ -144,23 +142,10 @@ void MetalTexture::prepare( IRenderContext& renderContext ) {
    [tmpTexture release];
 }
 
+
 MetalRenderTarget::MetalRenderTarget( const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r ) :
    IRenderTarget( d, f, t, r ) {
       bytesPerRow = 0;
-}
-
-MTLPixelFormat MetalRenderTarget::getPixelFormat const {
-   switch( format ) {
-       case BRGA8:
-          return MTLPixelFormatBGRA8Unorm;
-       case RU32:
-          return MTLPixelFormatR32Uint;
-       case RF32:
-          return MTLPixelFormatR32Float;
-       case BRGA8_sRGB:
-       default:
-          return MTLPixelFormatBGRA8Unorm_sRGB;
-    }
 }
 
 void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
@@ -170,7 +155,7 @@ void MetalRenderTarget::prepare( IRenderContext& renderContext ) {
    
    MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
    
-   textureDescriptor.pixelFormat = getPixelFormat( format );
+   textureDescriptor.pixelFormat = MetalTexture::getPixelFormat( format );
    textureDescriptor.width = dim.x;
    textureDescriptor.height = dim.y;
    textureDescriptor.depth = 1;
