@@ -31,6 +31,7 @@ renderTarget.setClear( True )
 renderPass.addRenderTarget( renderTarget )
 
 clearScreen = engine.ClearScreen()
+clearScreen.setProgram( 'clear' )
 camera.addChild( clearScreen )
 
 print( 'Export ...' )
