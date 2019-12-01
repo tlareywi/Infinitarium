@@ -84,8 +84,8 @@ private:
    std::vector<std::pair<std::string, UniformType>> allUniforms; // built-ins, not serialized
    std::vector<std::pair<std::string, UniformType>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
+   std::shared_ptr<ITexture> texture;  
    std::string programName;
-   std::shared_ptr<ITexture> texture;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);

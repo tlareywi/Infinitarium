@@ -15,7 +15,7 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(IRenderable)
 BOOST_CLASS_EXPORT_IMPLEMENT(ClearScreen)
 
-IRenderable::IRenderable() : dirty(true) {
+IRenderable::IRenderable() : dirty(true), programName{"default"} {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
@@ -86,12 +86,10 @@ void IRenderable::prepare( IRenderContext& context ) {
    uniformData->reserve( sizeBytes + 12 );
    uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   
-   if( !programName.empty() ) {
-      std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
-      shader->injectUniformStruct( allUniforms );
-      shader->compile( programName, context );
-      pipelineState->setProgram( shader );
-   }
+   std::shared_ptr<IRenderProgram> shader = IRenderProgram::Create();
+   shader->injectUniformStruct( allUniforms );
+   shader->compile( programName, context );
+   pipelineState->setProgram( shader );
    
    pipelineState->prepare( context );
    
