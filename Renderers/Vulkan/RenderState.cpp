@@ -10,7 +10,6 @@
 #include "RenderPass.hpp"
 
 VulkanRenderState::VulkanRenderState() : newPipeline(true) {
-	memset(&pipelineInfo, 0, sizeof(pipelineInfo));
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.pNext = nullptr;
 }
@@ -144,13 +143,9 @@ void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
 	newPipeline = false;
 }
 
-/*MTLRenderPipelineDescriptor* MetalRenderState::getPipelineDescriptor() {
-	return renderDescriptor;
+VkGraphicsPipelineCreateInfo& VulkanRenderState::getPipelineState() {
+	return pipelineInfo;
 }
-
-id<MTLRenderPipelineState> MetalRenderState::getPipelineState() const {
-	return renderState;
-} */
 
 __declspec(dllexport)
 	std::shared_ptr<IRenderState> CreateRenderState() {

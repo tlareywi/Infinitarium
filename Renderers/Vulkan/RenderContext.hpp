@@ -7,9 +7,9 @@
 #include <vector>
 
 struct SwapChainSupportDetails {
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> presentModes;
+	VkSurfaceCapabilitiesKHR capabilities{};
+	std::vector<VkSurfaceFormatKHR> formats{};
+	std::vector<VkPresentModeKHR> presentModes{};
 };
 
 ///
@@ -47,8 +47,8 @@ private:
 	VkPhysicalDevice physicalDevice;
 	VkDevice logicalDevice;
 	VkQueue graphicsQueue;
-	SwapChainSupportDetails swapChainCaps;
-	VkSwapchainCreateInfoKHR swapchainCreateInfo;
+	SwapChainSupportDetails swapChainCaps{};
+	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
 	std::vector<VkImageView> swapChainImageViews;

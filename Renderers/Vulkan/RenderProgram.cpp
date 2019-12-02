@@ -18,10 +18,8 @@ VulkanRenderProgram::~VulkanRenderProgram() {
 void VulkanRenderProgram::prepare(IRenderState& state) {
 	VulkanRenderState* vkPipelineState = dynamic_cast<VulkanRenderState*>(&state);
 
-	VkGraphicsPipelineCreateInfo pipelineInfo = {};
-	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount = 2;
-	pipelineInfo.pStages = shaderStages;
+	vkPipelineState->getPipelineState().stageCount = 2;
+	vkPipelineState->getPipelineState().pStages = shaderStages;
 }
 
 void VulkanRenderProgram::apply(IRenderState& state) {
@@ -38,7 +36,8 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 	std::ifstream vertFile(vertPath, std::ifstream::in);
 	std::ifstream fragFile(fragPath, std::ifstream::in);
 	if (vertFile.fail() || fragFile.fail()) {
-		std::cerr << "Error locating " << name << std::endl;
+		std::cerr << vertPath << std::endl;
+		std::cerr << fragPath << std::endl;
 		return;
 	}
 
@@ -48,8 +47,9 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 		std::vector<uint32_t> code{ compileToByteCode(name, shaderc_glsl_default_vertex_shader, buffer.str(), true) };
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
+		createInfo.codeSize = code.size() * sizeof(uint32_t);
 		createInfo.pCode = code.data();
+		createInfo.pNext = nullptr;
 		if (vkCreateShaderModule(device, &createInfo, nullptr, &vertShaderModule) != VK_SUCCESS) {
 			std::cerr << "Error compiling " << name << std::endl;
 			return;
@@ -61,8 +61,9 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 		std::vector<uint32_t> code{ compileToByteCode(name, shaderc_glsl_default_fragment_shader, buffer.str(), true) };
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
+		createInfo.codeSize = code.size() * sizeof(uint32_t);
 		createInfo.pCode = code.data();
+		createInfo.pNext = nullptr;
 		if (vkCreateShaderModule(device, &createInfo, nullptr, &fragShaderModule) != VK_SUCCESS) {
 			std::cerr << "Error compiling " << name << std::endl;
 			return;
@@ -76,12 +77,14 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pNext = nullptr;
 	vertShaderStageInfo.pName = "main";
 
 	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
 	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	fragShaderStageInfo.module = fragShaderModule;
+	vertShaderStageInfo.pNext = nullptr;
 	fragShaderStageInfo.pName = "main";
 
 	shaderStages[0] = vertShaderStageInfo;
@@ -90,7 +93,7 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 
 void VulkanRenderProgram::injectUniformStruct(const std::vector<std::pair<std::string, UniformType>>& uniforms) {
 	std::stringstream ss;
-	ss << "\n\nuniform ConstUniforms { \n";
+	ss << "\n\nlayout(binding = 0) uniform ConstUniforms { \n";
 
 	for (auto& i : uniforms)
 		ss << i.second << " " << i.first << ";\n";
@@ -114,7 +117,7 @@ std::vector<uint32_t> VulkanRenderProgram::compileToByteCode(const std::string& 
 	shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, kind, source_name.c_str(), options);
 
 	if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
-		std::cerr << module.GetErrorMessage();
+		std::cerr << std::string("In shader ") << source_name << std::string("In shader ") << module.GetErrorMessage();
 		return std::vector<uint32_t>();
 	}
 

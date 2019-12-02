@@ -13,7 +13,7 @@ public:
 	void setPrimitiveType(PrimitiveType) override;
 
 private:
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 };
 
