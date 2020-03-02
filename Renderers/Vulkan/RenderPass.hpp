@@ -21,11 +21,21 @@ public:
 		return renderPass;
 	}
 
+	VkCommandBuffer commandBuffer() {
+		assert( swapChainIndx > 0 );
+		return commandBuffers[swapChainIndx];
+	}
+
 private:
 	VkRenderPass renderPass;
 	VkDevice device;
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
+	std::vector<VkCommandBuffer> commandBuffers; 
+
+	uint32_t swapChainIndx;
+
+	VulkanRenderContext* activeContext;
 };
 
 

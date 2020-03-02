@@ -36,6 +36,8 @@ void VulkanRenderCommand::setPrimitiveType(PrimitiveType t) {
 }
 
 void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
+	VulkanRenderState* vkRenderState{ dynamic_cast<VulkanRenderState*>(&state) };
+	VulkanRenderPass* vkRenderPass{ dynamic_cast<VulkanRenderPass*>(&renderPass) };
 
 /*	MetalRenderPass* metalRenderPass = dynamic_cast<MetalRenderPass*>(&renderPass);
 		const MetalRenderState& metalRenderState = dynamic_cast<const MetalRenderState&>(state);
@@ -78,6 +80,10 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 		[commandEncoder drawPrimitives : primitiveType vertexStart : 0 vertexCount : vertexCount instanceCount : instanceCount baseInstance : 0];
 
 		[commandEncoder endEncoding] ; */
+
+	vkCmdBindPipeline( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipeline() );
+
+	//vkCmdDraw( vkRenderPass->commandBuffer(), 3, 1, 0, 0 );
 }
 
 __declspec(dllexport)

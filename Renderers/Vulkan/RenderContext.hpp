@@ -28,13 +28,21 @@ public:
 		return logicalDevice;
 	}
 
+	VkCommandPool getCommandPool() {
+		return commandPool;
+	}
+
 	void getVulkanSwapchainInfo( VkSwapchainCreateInfoKHR& info ) {
 		memcpy(&info, &swapchainCreateInfo, sizeof(info));
 	}
 
+	uint32_t nextSwapChainTarget();
+
 	const std::vector<VkImageView>& getImageViews() {
 		return swapChainImageViews;
 	}
+
+	void submit( VkCommandBuffer );
 
 private:
 	void initializeGraphicsDevice( const VkSurfaceKHR&, const VkInstance& );
@@ -47,6 +55,7 @@ private:
 	VkPhysicalDevice physicalDevice;
 	VkDevice logicalDevice;
 	VkQueue graphicsQueue;
+	VkCommandPool commandPool;
 	SwapChainSupportDetails swapChainCaps{};
 	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkSwapchainKHR swapChain;
@@ -57,5 +66,9 @@ private:
 	const std::vector<const char*> deviceExtensions = { 
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME 
 	};
+
+	VkCommandPool commandPool;
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
 };
 

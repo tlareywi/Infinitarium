@@ -29,6 +29,7 @@ VulkanRenderContext::~VulkanRenderContext() {
 		vkDestroyImageView(logicalDevice, imageView, nullptr);
 	}
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 	vkDestroyDevice(logicalDevice, nullptr);
 }
 
@@ -77,23 +78,23 @@ void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& devi
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-	unsigned int i{ 0 };
+	unsigned int graphicsQueueIndx{ 0 };
 	bool hasGfxQ{ false };
 	for (const auto& queueFamily : queueFamilies) {
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			// TODO: this needs cleanup. Technically, you may never have a single queue that will do both graphics and
 			// presentation. May always work in practice but should handle the possibility of separate queues. 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, graphicsQueueIndx, surface, &presentSupport);
 			if( presentSupport )
 				break;
 		}
-		++i;
+		++graphicsQueueIndx;
 	}
 
 	VkDeviceQueueCreateInfo queueCreateInfo = {};
 	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex = i;
+	queueCreateInfo.queueFamilyIndex = graphicsQueueIndx;
 	queueCreateInfo.queueCount = 1;
 	float queuePriority = 1.0f;
 	queueCreateInfo.pQueuePriorities = &queuePriority;
@@ -112,7 +113,16 @@ void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& devi
 		throw std::runtime_error("Failed to create logical device!");
 	}
 
-	vkGetDeviceQueue(logicalDevice, i, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice, graphicsQueueIndx, 0, &graphicsQueue);
+
+	// Command Pool creation /////////////////////////////////////////////////////////////////////////
+	VkCommandPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = graphicsQueueIndx;
+	poolInfo.flags = 0; // Optional
+	if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create command pool!");
+	}
 }
 
 unsigned int VulkanRenderContext::rateDeviceCompatiblities( const VkPhysicalDevice& device, const VkSurfaceKHR& surface, SwapChainSupportDetails& details ) {
@@ -255,6 +265,38 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 		if (vkCreateImageView(logicalDevice, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create image views!");
 		}
+	}
+
+	VkSemaphoreCreateInfo semaphoreInfo = {};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	if( vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS )
+		throw std::runtime_error("failed to create semaphores!");
+	if( vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore ) != VK_SUCCESS)
+		throw std::runtime_error("failed to create semaphores!");
+}
+
+uint32_t VulkanRenderContext::nextSwapChainTarget() {
+	uint32_t swapChainIndx{ 0 };
+	vkAcquireNextImageKHR( logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &swapChainIndx );
+	return swapChainIndx;
+}
+
+void VulkanRenderContext::submit( VkCommandBuffer bufffer ) {
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &bufffer;
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 }
 

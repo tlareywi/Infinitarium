@@ -14,6 +14,7 @@ public:
 	virtual void applyImpl(IRenderPass&);
 
 	VkGraphicsPipelineCreateInfo& getPipelineState();
+	VkPipeline getPipeline();
 
 private:
 	VkGraphicsPipelineCreateInfo pipelineInfo{};

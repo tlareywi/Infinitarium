@@ -147,6 +147,10 @@ VkGraphicsPipelineCreateInfo& VulkanRenderState::getPipelineState() {
 	return pipelineInfo;
 }
 
+VkPipeline VulkanRenderState::getPipeline() {
+	return graphicsPipeline;
+}
+
 __declspec(dllexport)
 	std::shared_ptr<IRenderState> CreateRenderState() {
 		return std::make_shared<VulkanRenderState>();

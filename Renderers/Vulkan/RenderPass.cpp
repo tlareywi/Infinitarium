@@ -52,7 +52,7 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 		throw std::runtime_error("Failed to create render pass!");
 	}
 
-	// Framebuffers
+	// Swapchain framebuffers
 	const std::vector<VkImageView>& swapChainImageViews{ vkContext->getImageViews() };
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -73,14 +73,66 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 			throw std::runtime_error("failed to create framebuffer!");
 		}
 	}
+
+	commandBuffers.resize(swapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = vkContext->getCommandPool();
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
 }
 
 void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
+	activeContext = dynamic_cast<VulkanRenderContext*>(context.get());
 
+	for (auto& target : targets) {
+		if (target->getResource() == IRenderTarget::FrameBuffer) {
+			swapChainIndx = activeContext->nextSwapChainTarget();
+		}
+		else {
+			assert( false ); // Implement off screen render targets
+		}
+	}
+
+	VkSwapchainCreateInfoKHR swapchainCreateInfo;
+	activeContext->getVulkanSwapchainInfo(swapchainCreateInfo);
+
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = swapChainFramebuffers[swapChainIndx];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = swapchainCreateInfo.imageExtent;
+	VkClearValue clearColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = 0; // Optional
+	beginInfo.pInheritanceInfo = nullptr; // Optional
+
+	if (vkBeginCommandBuffer(commandBuffers[swapChainIndx], &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("failed to begin recording command buffer!");
+	}
+
+	vkCmdBeginRenderPass(commandBuffers[swapChainIndx], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void VulkanRenderPass::end() {
+	vkCmdEndRenderPass(commandBuffers[swapChainIndx]);
+	if( vkEndCommandBuffer(commandBuffers[swapChainIndx]) != VK_SUCCESS ) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
+	 
+	activeContext->submit( commandBuffers[swapChainIndx] );
 
+	swapChainIndx = 0;
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {
