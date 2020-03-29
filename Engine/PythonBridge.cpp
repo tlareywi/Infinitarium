@@ -57,14 +57,14 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addVec3", addVec3u8)
       .def("addVec4", addVec4u8)
    ;
-
-   def("wrap", wrapDataPack<float>);
-   def("wrap", wrapDataPack<uint32_t>);
-   def("wrap", wrapDataPack<uint16_t>);
-   def("wrap", wrapDataPack<uint8_t>);
-
+   
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)
    ;
+
+   def("wrap", wrapDataPack<float>, return_internal_reference<>() );
+   def("wrap", wrapDataPack<uint32_t>, return_internal_reference<>() );
+   def("wrap", wrapDataPack<uint16_t>, return_internal_reference<>() );
+   def("wrap", wrapDataPack<uint8_t>, return_internal_reference<>() );
    
    // UniformType //////////////////////////////////////////////////////////////////////////////////////////////
    class_<UniformType>("UniformType", init<float>())
@@ -82,6 +82,39 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .value("KiloParsec", UniversalPoint::Unit::KiloParsec)
       .value("MegaParsec", UniversalPoint::Unit::MegaParsec)
       .export_values()
+   ;
+   
+   class_<BlendState>("BlendState", init<BlendState::Op, BlendState::Op, BlendState::Factor, BlendState::Factor, BlendState::Factor, BlendState::Factor>())
+   ;
+   enum_<BlendState::Op>("Op")
+      .value("Add", BlendState::Op::Add)
+      .value("Subtract", BlendState::Op::Subtract)
+      .value("ReverseSubtract", BlendState::Op::ReverseSubtract)
+      .value("Min", BlendState::Op::Min)
+      .value("Max", BlendState::Op::Max)
+   .export_values()
+   ;
+   enum_<BlendState::Factor>("Factor")
+      .value("Zero", BlendState::Factor::Zero)
+      .value("One", BlendState::Factor::One)
+      .value("SourceColor", BlendState::Factor::SourceColor)
+      .value("OneMinusSourceColor", BlendState::Factor::OneMinusSourceColor)
+      .value("SourceAlpha", BlendState::Factor::SourceAlpha)
+      .value("OneMinusSourceAlpha", BlendState::Factor::OneMinusSourceAlpha)
+      .value("DestinationColor", BlendState::Factor::DestinationColor)
+      .value("OneMinusDestinationColor", BlendState::Factor::OneMinusDestinationColor)
+      .value("DestinationAlpha", BlendState::Factor::DestinationAlpha)
+      .value("OneMinusDestinationAlpha", BlendState::Factor::OneMinusDestinationAlpha)
+      .value("SourceAlphaSaturated", BlendState::Factor::SourceAlphaSaturated)
+      .value("BlendColor", BlendState::Factor::BlendColor)
+      .value("OneMinusBlendColor", BlendState::Factor::OneMinusBlendColor)
+      .value("BlendAlpha", BlendState::Factor::BlendAlpha)
+      .value("OneMinusBlendAlpha", BlendState::Factor::OneMinusBlendAlpha)
+      .value("Source1Color", BlendState::Factor::Source1Color)
+      .value("OneMinusSource1Color", BlendState::Factor::OneMinusSource1Color)
+      .value("Source1Alpha", BlendState::Factor::Source1Alpha)
+      .value("OneMinusSource1Alpha", BlendState::Factor::OneMinusSource1Alpha)
+   .export_values()
    ;
    
    class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
@@ -119,6 +152,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("create", &IRenderTarget::Create)
       .def("setClear", &IRenderTarget::setClear)
       .def("setClearColor", &IRenderTarget::setClearColor)
+      .def("setBlendState", &IRenderTarget::setBlendState)
    ;
    enum_<ITexture::Format>("Format")
       .value("BRGA8", ITexture::Format::BRGA8)

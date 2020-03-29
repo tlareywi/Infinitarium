@@ -1,10 +1,8 @@
 # To run this file in command line interpreter ...
 # exec(open("./unit_test.py").read())
 
-# You'll need the tycho2 catalog as one dat file along with the readme.
-# These can be obtained from http://cdsarc.u-strasbg.fr/viz-bin/cat/I/259
-# Individual catalog parts can be joined into one dat file via the command
-# `zcat tyc2.dat.??.gz >tyc2.dat`.
+# You'll need the Hipparcos (new reduction) catalog as one dat file along with the readme.
+# These can be obtained from http://cdsarc.u-strasbg.fr/viz-bin/cat/I/311
 
 # Note, astropy has an issue interpreting the hip2 readme. It's fixed
 # by replacing the last line of the hip2.readme file description with the
@@ -28,9 +26,9 @@
 exec(open('./import_common.py').read())
 
 print('\nReading Hipparcos2 Catalog ...')
-t = Table.read("/Volumes/MediaDrive/hip2/hip2.dat",
-readme="/Volumes/MediaDrive/hip2/readme.hip2",
-format="ascii.cds")
+t = Table.read("/Users/trystan/Downloads/hip2.dat",
+        readme="/Users/trystan/Downloads/readme.hip2",
+        format="ascii.cds")
 
 t['Plx'].fill_value = 0
 
@@ -57,6 +55,7 @@ renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Resource.FrameBuffer)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
+renderTarget.setBlendState( engine.BlendState(engine.Op.Add, engine.Op.Add, engine.Factor.One, engine.Factor.One, engine.Factor.SourceAlpha, engine.Factor.OneMinusSourceAlpha) )
 renderPass.addRenderTarget( renderTarget )
 
 # Pick buffer
@@ -106,9 +105,9 @@ hip2Cloud.setNumPoints( numRecrods )
 
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete or non-sensical data.')
 
-hip2Cloud.addVertexBuffer( position.container(), 'position' )
-hip2Cloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
-hip2Cloud.addVertexBuffer( color.container(), 'color' )
+hip2Cloud.addVertexBuffer( engine.wrap(position), 'position' )
+hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
+hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( hip2Cloud )
 
 exportPath = '../data/hip2.ieb'

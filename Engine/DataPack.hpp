@@ -123,8 +123,9 @@ typedef std::variant< DataPack_FLOAT32,
 	DataPack_UINT8
 > DataPackContainer;
 
-template<typename T> DataPackContainer wrapDataPack( DataPack<T>& dataPack ) {
-	return { std::move(dataPack) };
+template<typename T> DataPackContainer& wrapDataPack( DataPack<T>& dataPack ) {
+   std::unique_ptr<DataPackContainer> container{ std::make_unique<DataPackContainer>(std::move(dataPack)) };
+   return *(container.release());
 }
 
 namespace boost {
@@ -159,41 +160,41 @@ namespace boost {
          if( type == "float" ) {
             std::cout<<"Serializing DataPackContainer as float"<<std::endl;
             try {
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_FLOAT32>(t));
+               ar & boost::serialization::make_nvp("DataPack_FLOAT32", std::get<DataPack_FLOAT32>(t));
             }
             catch(...) {
                t = DataPack_FLOAT32();
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_FLOAT32>(t));
+               ar & boost::serialization::make_nvp("DataPack_FLOAT32", std::get<DataPack_FLOAT32>(t));
             }
          }
          else if( type == "uint32" ) {
             std::cout<<"Serializing DataPackContainer as uint32"<<std::endl;
             try {
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT32>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT32", std::get<DataPack_UINT32>(t));
             }
             catch(...) {
                t = DataPack_UINT32();
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT32>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT32", std::get<DataPack_UINT32>(t));
             }
          }
          else if( type == "uint16" ) {
             std::cout<<"Serializing DataPackContainer as uint16"<<std::endl;
             try {
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT16>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT16", std::get<DataPack_UINT16>(t));
             }
             catch(...) {
                t = DataPack_UINT16();
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT16>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT16", std::get<DataPack_UINT16>(t));
             }
          }
          else if( type == "uint8" ) {
             std::cout<<"Serializing DataPackContainer as uint8"<<std::endl;
             try {
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT8>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT8", std::get<DataPack_UINT8>(t));
             }
             catch(...) {
                t = DataPack_UINT8();
-               ar & BOOST_SERIALIZATION_NVP(std::get<DataPack_UINT8>(t));
+               ar & boost::serialization::make_nvp("DataPack_UINT8", std::get<DataPack_UINT8>(t));
             }
          }
       }

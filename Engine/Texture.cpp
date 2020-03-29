@@ -14,7 +14,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(RenderTargetProxy)
 BOOST_CLASS_EXPORT_IMPLEMENT(TextureProxy)
 
 template<class Archive> void BlendState::serialize(Archive& ar, unsigned int version) {
-	std::cout<<"Serializing BlandState"<<std::endl;
+	std::cout<<"Serializing BlendState"<<std::endl;
     ar & BOOST_SERIALIZATION_NVP(enabled);
     ar & BOOST_SERIALIZATION_NVP(rgbBlendOperation);
     ar & BOOST_SERIALIZATION_NVP(alphaBlendOperation);

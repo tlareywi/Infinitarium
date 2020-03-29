@@ -55,6 +55,28 @@ struct BlendState {
       destinationAlpha( Factor::Zero ) {
    }
    
+   BlendState( Op rgb, Op alpha, Factor srcrgb, Factor dstrgb, Factor srcalpha, Factor dstalpha ) :
+      enabled(true),
+      rgbBlendOperation(rgb),
+      alphaBlendOperation(alpha),
+      sourceRGB(srcrgb),
+      sourceAlpha(srcalpha),
+      destinationRGB(dstrgb),
+      destinationAlpha(dstalpha) {
+   }
+   
+   BlendState& operator =( const BlendState& s ) {
+      enabled = s.enabled;
+      rgbBlendOperation = s.rgbBlendOperation;
+      alphaBlendOperation = s.alphaBlendOperation;
+      sourceRGB = s.sourceRGB;
+      sourceAlpha = s.sourceAlpha;
+      destinationRGB = s.destinationRGB;
+      destinationAlpha = s.destinationAlpha;
+      
+      return *this;
+   }
+   
    bool enabled;
    Op rgbBlendOperation;
    Op alphaBlendOperation;
@@ -103,7 +125,7 @@ protected:
 
 class IRenderTarget : public ITexture {
 public:
-   IRenderTarget( const IRenderTarget& obj ) :  ITexture(obj), type(obj.type), resource(obj.resource), clear(obj.clear), clearColor(obj.clearColor) {}
+   IRenderTarget( const IRenderTarget& obj ) :  ITexture(obj), type(obj.type), resource(obj.resource), clear(obj.clear), clearColor(obj.clearColor), blending(obj.blending) {}
    
    enum Type {
       Color,
@@ -128,6 +150,9 @@ public:
    void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
    const BlendState& getBlendState() const {
       return blending;
+   }
+   void setBlendState( const BlendState& blendState ) {
+      blending = blendState;
    }
    virtual void getData( const glm::uvec4&, void* ) = 0;
    
