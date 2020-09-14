@@ -8,6 +8,7 @@
 #include "RenderState.hpp"
 #include "RenderProgram.hpp"
 #include "RenderPass.hpp"
+#include "RenderCommand.hpp"
 
 VulkanRenderState::VulkanRenderState() : newPipeline(true) {
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -21,7 +22,7 @@ VulkanRenderState::~VulkanRenderState() {
 	}
 }
 
-void VulkanRenderState::prepareImpl(IRenderContext& context) {
+void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& commmand) {
 	viewport.x = (float)context.x();
 	viewport.y = (float)context.y();
 	viewport.width = (float)context.width();
@@ -92,16 +93,11 @@ void VulkanRenderState::prepareImpl(IRenderContext& context) {
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.pNext = nullptr;
 	pipelineLayoutInfo.flags = 0;
-	pipelineLayoutInfo.setLayoutCount = 0; // Optional
-	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&context);
-	device = vkContext->getVulkanDevice();
-	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("Failed to create pipeline layout!");
-	}
+	VulkanRenderContext& vkContext = dynamic_cast<VulkanRenderContext&>( context );
+	device = vkContext.getVulkanDevice();
 
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizer;
@@ -109,22 +105,14 @@ void VulkanRenderState::prepareImpl(IRenderContext& context) {
 	pipelineInfo.pDepthStencilState = nullptr; // Optional
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDynamicState = nullptr; // Optional
-	pipelineInfo.layout = pipelineLayout;
+
 	// Future use; create new pipeline derived on current (faster)
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
-	pipelineInfo.pVertexInputState = &vertexInputInfo;
-
-	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-	inputAssembly.primitiveRestartEnable = VK_FALSE;
-	pipelineInfo.pInputAssemblyState = &inputAssembly;
+	VulkanRenderCommand& vkRenderCommand = dynamic_cast<VulkanRenderCommand&>( commmand );
+	pipelineInfo.pVertexInputState = vkRenderCommand.getVertexState();
+	pipelineInfo.pInputAssemblyState = vkRenderCommand.getPrimitiveState();
 
 	newPipeline = true;
 }
@@ -132,9 +120,17 @@ void VulkanRenderState::prepareImpl(IRenderContext& context) {
 void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
 	if (!newPipeline) return; // Nothing changed? NO need to re-create pipeline
 
+	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create pipeline layout!");
+	}
+
+	pipelineInfo.layout = pipelineLayout;
+
 	VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(&renderPass);
 	pipelineInfo.renderPass = vkRenderPass->getVulkanRenderPass();
 	pipelineInfo.subpass = 0;
+
+	vkRenderPass->refreshDescriptors( *this );
 
 	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
@@ -145,6 +141,10 @@ void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
 
 VkGraphicsPipelineCreateInfo& VulkanRenderState::getPipelineState() {
 	return pipelineInfo;
+}
+
+VkPipelineLayoutCreateInfo& VulkanRenderState::getPipelineLayoutState() {
+	return pipelineLayoutInfo;
 }
 
 VkPipeline VulkanRenderState::getPipeline() {

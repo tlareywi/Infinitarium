@@ -12,14 +12,35 @@ VulkanRenderProgram::~VulkanRenderProgram() {
 	if (device) {
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
+		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 	}
 }
 
 void VulkanRenderProgram::prepare(IRenderState& state) {
-	VulkanRenderState* vkPipelineState = dynamic_cast<VulkanRenderState*>(&state);
+	VulkanRenderState& vkPipelineState{ dynamic_cast<VulkanRenderState&>(state) };
 
-	vkPipelineState->getPipelineState().stageCount = 2;
-	vkPipelineState->getPipelineState().pStages = shaderStages;
+	vkPipelineState.getPipelineState().stageCount = 2;
+	vkPipelineState.getPipelineState().pStages = shaderStages;
+
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.pImmutableSamplers = nullptr;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
+
+	VkPipelineLayoutCreateInfo& layoutCreateInfo{ vkPipelineState.getPipelineLayoutState() };
+	layoutCreateInfo.setLayoutCount = 1;
+	layoutCreateInfo.pSetLayouts = &descriptorSetLayout;
 }
 
 void VulkanRenderProgram::apply(IRenderState& state) {
@@ -28,7 +49,7 @@ void VulkanRenderProgram::apply(IRenderState& state) {
 
 void VulkanRenderProgram::compile(const std::string& name, IRenderContext& context) {
 	VulkanRenderContext* c = dynamic_cast<VulkanRenderContext*>(&context);
-	device = c->getVulkanDevice();
+	device = c->getVulkanDevice(); // HACK
 
 	std::string vertPath{ std::string(INSTALL_ROOT) + std::string("/share/Infinitarium/shaders/glsl/") + name + ".glsl.vert" };
 	std::string fragPath{ std::string(INSTALL_ROOT) + std::string("/share/Infinitarium/shaders/glsl/") + name + ".glsl.frag" };
@@ -43,7 +64,7 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 
 	{
 		std::stringstream buffer;
-		buffer << "#version 450\n" << uniformBlock << vertFile.rdbuf();
+		buffer << "#version 460\n" << uniformBlock << vertFile.rdbuf();
 		std::vector<uint32_t> code{ compileToByteCode(name, shaderc_glsl_default_vertex_shader, buffer.str(), true) };
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -57,7 +78,7 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 	}
 	{
 		std::stringstream buffer;
-		buffer << "#version 450\n#extension GL_ARB_separate_shader_objects : enable\n" << uniformBlock << fragFile.rdbuf();
+		buffer << "#version 460\n#extension GL_ARB_separate_shader_objects : enable\n" << uniformBlock << fragFile.rdbuf();
 		std::vector<uint32_t> code{ compileToByteCode(name, shaderc_glsl_default_fragment_shader, buffer.str(), true) };
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -98,7 +119,7 @@ void VulkanRenderProgram::injectUniformStruct(const std::vector<std::pair<std::s
 	for (auto& i : uniforms)
 		ss << i.second << " " << i.first << ";\n";
 
-	ss << "};\n\n";
+	ss << "} uniforms;\n\n";
 
 	uniformBlock = ss.str();
 }

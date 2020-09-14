@@ -49,7 +49,7 @@ MetalRenderState::~MetalRenderState() {
    [renderDescriptor release];
 }
 
-void MetalRenderState::prepareImpl( IRenderContext& context ) {
+void MetalRenderState::prepareImpl( IRenderContext& context, IRenderCommand& commmand ) {
    MetalRenderContext* c = dynamic_cast<MetalRenderContext*>( &context );
    currentDevice = c->getMTLDevice();
    

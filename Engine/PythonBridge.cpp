@@ -38,24 +38,28 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("getBuffer", &DataPack_FLOAT32::getBuffer)
       .def("addVec3", addVec3f)
       .def("addVec4", addVec4f)
+      .def("setChannelsPerVertex", &DataPack_FLOAT32::setChannelsPerVertex)
    ;
    class_<DataPack_UINT16>("DataPack_UINT16", init<unsigned int>())
       .def("add", &DataPack_UINT16::add)
       .def("getBuffer", &DataPack_UINT16::getBuffer)
       .def("addVec3", addVec3u16)
       .def("addVec4", addVec4u16)
+      .def("setChannelsPerVertex", &DataPack_UINT16::setChannelsPerVertex)
    ;
    class_<DataPack_UINT32>("DataPack_UINT32", init<unsigned int>())
       .def("add", &DataPack_UINT32::add)
       .def("getBuffer", &DataPack_UINT32::getBuffer)
       .def("addVec3", addVec3u32)
       .def("addVec4", addVec4u32)
+      .def("setChannelsPerVertex", &DataPack_UINT32::setChannelsPerVertex)
    ;
    class_<DataPack_UINT8>("DataPack_UINT8", init<unsigned int>())
       .def("add", &DataPack_UINT8::add)
       .def("getBuffer", &DataPack_UINT8::getBuffer)
       .def("addVec3", addVec3u8)
       .def("addVec4", addVec4u8)
+      .def("setChannelsPerVertex", &DataPack_UINT8::setChannelsPerVertex)
    ;
    
    class_<DataPackContainer, boost::noncopyable>("DataPackContainer", no_init)

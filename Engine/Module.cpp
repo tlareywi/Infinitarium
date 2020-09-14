@@ -29,7 +29,7 @@ static std::map<std::string, std::string> symbolMap {
    {"CreateRenderPass", "?CreateRenderPass@@YA?AV?$shared_ptr@VIRenderPass@@@std@@XZ"},
    {"CreateRenderPassCopy", "?CreateRenderPassCopy@@YA?AV?$shared_ptr@VIRenderPass@@@std@@AEBVIRenderPass@@@Z"},
    {"CreateRenderProgram", "?CreateRenderProgram@@YA?AV?$shared_ptr@VIRenderProgram@@@std@@XZ"},
-   {"CreateDataBuffer", "?CreateDataBuffer@@YA?AV?$shared_ptr@VIDataBuffer@@@std@@XZ"},
+   {"CreateDataBuffer", "?CreateDataBuffer@@YA?AV?$shared_ptr@VIDataBuffer@@@std@@AEAVIRenderContext@@@Z"},
    {"CreateRenderContext", "?CreateRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@IIII_N@Z"},
    {"CloneRenderContext", "?CloneRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@AEBVIRenderContext@@@Z"},
    {"CreateTexture", "?CreateTexture@@YA?AV?$shared_ptr@VITexture@@@std@@AEBU?$vec@$01I$0A@@glm@@W4Format@ITexture@@@Z"},

@@ -28,8 +28,16 @@ public:
 		return logicalDevice;
 	}
 
+	VkPhysicalDevice getPhysicalDevice() {
+		return physicalDevice;
+	}
+
 	VkCommandPool getCommandPool() {
 		return commandPool;
+	}
+
+	VkDescriptorPool getDescriptorPool() {
+		return descriptorPool;
 	}
 
 	void getVulkanSwapchainInfo( VkSwapchainCreateInfoKHR& info ) {
@@ -42,7 +50,9 @@ public:
 		return swapChainImageViews;
 	}
 
-	void submit( VkCommandBuffer );
+	void submit( VkSubmitInfo& );
+	void submit( VkCommandBuffer&, uint32_t );
+	void present( uint32_t );
 
 private:
 	void initializeGraphicsDevice( const VkSurfaceKHR&, const VkInstance& );
@@ -51,11 +61,16 @@ private:
 	bool checkDeviceExtensionSupport(const VkPhysicalDevice&);
 	bool querySwapChain(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails& details);
 	void createSwapChain( const VkSurfaceKHR& surface );
+	void createDescriptorPool();
 	
+	// Device resources
 	VkPhysicalDevice physicalDevice;
 	VkDevice logicalDevice;
 	VkQueue graphicsQueue;
 	VkCommandPool commandPool;
+	VkDescriptorPool descriptorPool;
+
+	// Swapchain
 	SwapChainSupportDetails swapChainCaps{};
 	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkSwapchainKHR swapChain;
@@ -67,8 +82,11 @@ private:
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME 
 	};
 
-	VkCommandPool commandPool;
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
+	std::vector<VkSemaphore> imageAvailableSemaphore;
+	std::vector<VkSemaphore> renderFinishedSemaphore;
+	std::vector<VkFence> swapChainFences;
+	std::vector<VkFence> inFlightFences;
+
+	unsigned short currentSwapFrame;
 };
 

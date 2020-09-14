@@ -15,6 +15,7 @@ VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigne
 	logicalDevice = VK_NULL_HANDLE;
 	graphicsQueue = VK_NULL_HANDLE;
 	graphicsQIndx = 0;
+	currentSwapFrame = 0;
 }
 
 VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderContext(obj) {
@@ -22,14 +23,24 @@ VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderCon
 	logicalDevice = VK_NULL_HANDLE;
 	graphicsQueue = VK_NULL_HANDLE;
 	graphicsQIndx = 0;
+	currentSwapFrame = 0;
 }
 
 VulkanRenderContext::~VulkanRenderContext() {
-	for (auto imageView : swapChainImageViews) {
-		vkDestroyImageView(logicalDevice, imageView, nullptr);
+	vkDeviceWaitIdle(logicalDevice);
+	 
+	for( size_t i = 0; i < swapChainImages.size(); i++ ) {
+		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore[i], nullptr);
+		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
+		vkDestroyFence(logicalDevice, swapChainFences[i], nullptr);
 	}
+
+	for (auto imageView : swapChainImageViews)
+		vkDestroyImageView(logicalDevice, imageView, nullptr);
+
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+	vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 	vkDestroyDevice(logicalDevice, nullptr);
 }
 
@@ -70,6 +81,7 @@ void VulkanRenderContext::initializeGraphicsDevice( const VkSurfaceKHR& surface,
 
 	createDeviceGraphicsQueue(physicalDevice, surface);
 	createSwapChain( surface );
+	createDescriptorPool();
 }
 
 void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& device, const VkSurfaceKHR& surface) {
@@ -119,9 +131,26 @@ void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& devi
 	VkCommandPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.queueFamilyIndex = graphicsQueueIndx;
-	poolInfo.flags = 0; // Optional
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 	if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create command pool!");
+	}
+}
+
+void VulkanRenderContext::createDescriptorPool() {
+	VkDescriptorPoolSize poolSize{};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+
+	poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+
+	if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool!");
 	}
 }
 
@@ -240,9 +269,9 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 		throw std::runtime_error("Failed to create swap chain!");
 	}
 
-	vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr);
+	assert( vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr) == VK_SUCCESS );
 	swapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data());
+	assert( vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data()) == VK_SUCCESS );
 
 	// Image views
 	swapChainImageViews.resize(swapChainImages.size());
@@ -267,37 +296,91 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 		}
 	}
 
+	size_t swapChainSize{ swapChainImages.size() };
+	imageAvailableSemaphore.resize( swapChainSize );
+	renderFinishedSemaphore.resize( swapChainSize );
+	swapChainFences.resize( swapChainSize, VK_NULL_HANDLE );
+	inFlightFences.resize( swapChainSize, VK_NULL_HANDLE);
 	VkSemaphoreCreateInfo semaphoreInfo = {};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	if( vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS )
-		throw std::runtime_error("failed to create semaphores!");
-	if( vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore ) != VK_SUCCESS)
-		throw std::runtime_error("failed to create semaphores!");
+	VkFenceCreateInfo fenceInfo = {};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < swapChainImages.size(); i++) {
+		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore[i]) != VK_SUCCESS)
+			throw std::runtime_error("failed to create semaphores!");
+		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore[i]) != VK_SUCCESS)
+			throw std::runtime_error("failed to create semaphores!");
+		if( vkCreateFence(logicalDevice, &fenceInfo, nullptr, &swapChainFences[i]) != VK_SUCCESS )
+			throw std::runtime_error("failed to create synchronization objects for a frame!");
+	}
 }
 
 uint32_t VulkanRenderContext::nextSwapChainTarget() {
-	uint32_t swapChainIndx{ 0 };
-	vkAcquireNextImageKHR( logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &swapChainIndx );
+	uint32_t swapChainIndx;
+	currentSwapFrame = currentSwapFrame % swapChainImages.size();
+
+	if( vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[currentSwapFrame++], VK_NULL_HANDLE, &swapChainIndx) != VK_SUCCESS )
+		throw std::runtime_error("vkAcquireNextImageKHR returned error code!");
+
+	if (inFlightFences[swapChainIndx] != VK_NULL_HANDLE)
+		assert( vkWaitForFences(logicalDevice, 1, &inFlightFences[swapChainIndx], VK_TRUE, UINT64_MAX) == VK_SUCCESS );
+
+	inFlightFences[swapChainIndx] = swapChainFences[swapChainIndx];
+	
+	// This appears to always be true for now. If it's ever hit then I need to rethink the fence design a bit. 
+	assert( swapChainIndx == (currentSwapFrame - 1) );
+
 	return swapChainIndx;
 }
 
-void VulkanRenderContext::submit( VkCommandBuffer bufffer ) {
+void VulkanRenderContext::submit(VkSubmitInfo& submitInfo) {
+	if( vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS )
+		throw std::runtime_error("failed to submit command buffer!");
+
+	// TODO: A fence would allow you to schedule multiple transfers simultaneouslyand wait for all of them complete, instead of executing one at a time.That may give the driver more opportunities to optimize.
+	vkQueueWaitIdle(graphicsQueue);
+}
+
+void VulkanRenderContext::submit( VkCommandBuffer& bufffer, uint32_t frameIndx ) {
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore[frameIndx] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &bufffer;
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore[frameIndx] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
-	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+
+	vkResetFences(logicalDevice, 1, &swapChainFences[frameIndx]);
+
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, swapChainFences[frameIndx]) != VK_SUCCESS)
 		throw std::runtime_error("failed to submit draw command buffer!");
-	}
+}
+
+void VulkanRenderContext::present( uint32_t frameIndx ) {
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore[frameIndx] };
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { swapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &frameIndx;
+
+	presentInfo.pResults = nullptr; // Optional
+
+	if( vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS )
+		throw std::runtime_error("failed to present!");
 }
 
 __declspec(dllexport)

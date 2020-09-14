@@ -21,12 +21,21 @@ public:
       TriangleStrip
    };
    
+   IRenderCommand() : instanceCount(0), vertexCount(0) {
+
+   }
+
    virtual ~IRenderCommand() {}
    
    static std::shared_ptr<IRenderCommand> Create();
-   
-   void add( std::shared_ptr<IDataBuffer>& );
-   void add( std::shared_ptr<ITexture>& );
+
+   virtual void add(std::shared_ptr<IDataBuffer>& buf) {
+       dataBuffers.push_back(buf);
+   }
+
+   virtual void add(std::shared_ptr<ITexture>& t) {
+       textures.push_back(t);
+   }
    
    void setInstanceCount( unsigned int c ) {
       instanceCount = c;

@@ -41,18 +41,28 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
 
+	VkSubpassDependency dependency = {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.attachmentCount = 1;
 	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 
 	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create render pass!");
 	}
 
-	// Swapchain framebuffers
+	// Swapchain framebuffers.
 	const std::vector<VkImageView>& swapChainImageViews{ vkContext->getImageViews() };
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -74,17 +84,35 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 		}
 	}
 
-	commandBuffers.resize(swapChainFramebuffers.size());
+	// Command buffers
+	{
+		commandBuffers.resize(swapChainFramebuffers.size());
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = vkContext->getCommandPool();
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = vkContext->getCommandPool();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-	if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
+		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate command buffers!");
+		}
 	}
+
+	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descriptorAllocInfo.descriptorPool = vkContext->getDescriptorPool();
+	descriptorAllocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainFramebuffers.size());
+}
+
+void VulkanRenderPass::refreshDescriptors(VulkanRenderState& renderState) {
+	std::vector<VkDescriptorSetLayout> layouts((size_t)descriptorAllocInfo.descriptorSetCount, *renderState.getPipelineLayoutState().pSetLayouts);
+	descriptorAllocInfo.pSetLayouts = layouts.data();
+
+	descriptorSets.resize(swapChainFramebuffers.size());
+	if (vkAllocateDescriptorSets(device, &descriptorAllocInfo, descriptorSets.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+	needDescriptorUpdate = true;
 }
 
 void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
@@ -117,7 +145,7 @@ void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
 	beginInfo.flags = 0; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-	if (vkBeginCommandBuffer(commandBuffers[swapChainIndx], &beginInfo) != VK_SUCCESS) {
+	if( vkBeginCommandBuffer(commandBuffers[swapChainIndx], &beginInfo) != VK_SUCCESS ) {
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
@@ -130,9 +158,12 @@ void VulkanRenderPass::end() {
 		throw std::runtime_error("failed to record command buffer!");
 	}
 	 
-	activeContext->submit( commandBuffers[swapChainIndx] );
+	activeContext->submit( commandBuffers[swapChainIndx], swapChainIndx );
+
+	activeContext->present( swapChainIndx );
 
 	swapChainIndx = 0;
+	needDescriptorUpdate = false;
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {

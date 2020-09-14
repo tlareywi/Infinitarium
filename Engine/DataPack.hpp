@@ -26,6 +26,13 @@
 
 #include "../config.h"
 
+enum class DataType {
+    FLOAT,
+    UINT8,
+    UINT16,
+    UINT32
+};
+
 ///
 /// \brief Type independent large dataset abstraction with move semantics.
 ///
@@ -76,6 +83,10 @@ public:
       else
          return &(data[0]);
    }
+
+   uint32_t getStride() {
+       return channelsPerVertex * sizeof(T);
+   }
    
    // Convinience data methods
    void addVec( T x, T y, T z ) {
@@ -94,6 +105,25 @@ public:
       data.push_back(b);
       data.push_back(a);
    }
+
+   void setChannelsPerVertex( uint8_t channels ) {
+       channelsPerVertex = channels;
+   }
+
+   uint8_t getChannelsPerVertex() {
+       return channelsPerVertex;
+   }
+
+   DataType getType() {
+      if(std::is_same<T, uint8_t>::value)
+         return DataType::UINT8;
+      else if (std::is_same<T, uint16_t>::value)
+         return DataType::UINT16;
+      else if (std::is_same<T, uint32_t>::value)
+         return DataType::UINT32;
+
+      return DataType::FLOAT;
+   }
    
 #if defined ENGINE_BUILD
    boost::python::handle<> getBuffer() {
@@ -106,10 +136,12 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       ar & BOOST_SERIALIZATION_NVP(data);
+      ar & BOOST_SERIALIZATION_NVP(channelsPerVertex);
       std::cout<<"Serializing Databuffer, size "<<data.size()<<std::endl;
    }
    
    std::vector<T> data;
+   uint8_t channelsPerVertex;
 };
 
 typedef DataPack<float> DataPack_FLOAT32;

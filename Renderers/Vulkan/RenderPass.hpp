@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Engine/RenderPass.hpp"
+#include "RenderState.hpp"
+#include "RenderContext.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -9,8 +11,8 @@
 ///
 class VulkanRenderPass : public IRenderPass {
 public:
-	VulkanRenderPass() : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE) {}
-	VulkanRenderPass(const IRenderPass& obj) : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE) , IRenderPass(obj) {}
+	VulkanRenderPass() : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE), activeContext(nullptr), needDescriptorUpdate(false) {}
+	VulkanRenderPass(const IRenderPass& obj) : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE), activeContext(nullptr), needDescriptorUpdate(false), IRenderPass(obj) {}
 	virtual ~VulkanRenderPass();
 
 	void prepare(IRenderContext&) override;
@@ -22,9 +24,24 @@ public:
 	}
 
 	VkCommandBuffer commandBuffer() {
-		assert( swapChainIndx > 0 );
+		// TEMP: won't always be tied to a swapchain buffer
 		return commandBuffers[swapChainIndx];
 	}
+
+	const VkDescriptorSet* descriptor() {
+		// TEMP: won't always be tied to a swapchain buffer
+		return &descriptorSets[swapChainIndx];
+	}
+
+	std::vector<VkDescriptorSet>& descriptorSet() {
+		return descriptorSets;
+	}
+
+	bool updateDescriptorSets() {
+		return needDescriptorUpdate;
+	}
+
+	void refreshDescriptors( VulkanRenderState& );
 
 private:
 	VkRenderPass renderPass;
@@ -32,10 +49,14 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	std::vector<VkCommandBuffer> commandBuffers; 
+	std::vector<VkDescriptorSet> descriptorSets;
+	bool needDescriptorUpdate;
 
 	uint32_t swapChainIndx;
 
 	VulkanRenderContext* activeContext;
+
+	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
 };
 
 

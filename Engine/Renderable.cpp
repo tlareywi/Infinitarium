@@ -28,36 +28,11 @@ IRenderable::IRenderable() : dirty(true), programName{"default"} {
    allUniforms.push_back( std::make_pair("viewport", glm::uvec2()) );
 }
 
-void IRenderable::update( UpdateParams& params ) {
-   if( !uniformData ) return;
-
-   uint32_t offset {0};
-   
-   // Built-ins
-   glm::fmat4x4 mvp = params.getMVP();
-   uniformData->set( &mvp, offset, sizeof(mvp) );
-   offset += sizeof(mvp);
-   glm::fmat4x4 mv = params.getView() * params.getModel();
-   uniformData->set( &mv, offset, sizeof(mv) );
-   offset += sizeof(mv);
-   offset += sizeof(glm::uvec2); // viewport
-   
-   // Update values for all uniforms
-   for( auto& i : uniforms ) {
-      std::visit( [&offset, this](auto& e) {
-         uint32_t sz {sizeof(e)};
-         uniformData->set( &e, offset, sz );
-         offset += sz;
-      }, i.second );
-   }
-   
-   uniformData->commit(); // Copy to GPU
-}
-
 void IRenderable::prepare( IRenderContext& context ) {
    if( !dirty ) return;
    
    uniformData = IDataBuffer::Create( context );
+   uniformData->setUsage( IDataBuffer::Usage::UniformBuffer );
    renderCommand->add( uniformData );
    if( texture != nullptr ) {
       renderCommand->add( texture );
@@ -81,8 +56,7 @@ void IRenderable::prepare( IRenderContext& context ) {
    }
    
    // Reserve enough GPU memory for all uniforms.
-   // TODO: +12 Seems to be a Metal bug. Double check alignment and padding. No explaination why we need the extra bytes to avoid
-   // validation failure. Plus, nothing actually breaks, the values pass through fine. Just trips API validation flag.
+   // TODO: +12 is hack; Double check alignment and padding (+1, see https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets). This trips a validation flag on Metal.
    uniformData->reserve( sizeBytes + 12 );
    uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   
@@ -91,9 +65,35 @@ void IRenderable::prepare( IRenderContext& context ) {
    shader->compile( programName, context );
    pipelineState->setProgram( shader );
    
-   pipelineState->prepare( context );
+   pipelineState->prepare( context, *renderCommand );
    
    dirty = false;
+}
+
+void IRenderable::update(UpdateParams& params) {
+    if (!uniformData) return;
+
+    uint32_t offset{ 0 };
+
+    // Built-ins
+    glm::fmat4x4 mvp = params.getMVP();
+    uniformData->set(&mvp, offset, sizeof(mvp));
+    offset += sizeof(mvp);
+    glm::fmat4x4 mv = params.getView() * params.getModel();
+    uniformData->set(&mv, offset, sizeof(mv));
+    offset += sizeof(mv);
+    offset += sizeof(glm::uvec2); // viewport
+
+    // Update values for all uniforms
+    for (auto& i : uniforms) {
+        std::visit([&offset, this](auto& e) {
+            uint32_t sz{ sizeof(e) };
+            uniformData->set(&e, offset, sz);
+            offset += sz;
+        }, i.second);
+    }
+
+    uniformData->commit(); // Copy to GPU
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {

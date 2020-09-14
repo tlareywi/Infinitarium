@@ -10,11 +10,15 @@ public:
 	VulkanRenderState();
 	virtual ~VulkanRenderState();
 
-	virtual void prepareImpl(IRenderContext& context);
+	virtual void prepareImpl(IRenderContext& context, IRenderCommand& commmand);
 	virtual void applyImpl(IRenderPass&);
 
 	VkGraphicsPipelineCreateInfo& getPipelineState();
+	VkPipelineLayoutCreateInfo& getPipelineLayoutState();
 	VkPipeline getPipeline();
+	VkDevice getDevice() {
+		return device;
+	}
 
 private:
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -30,8 +34,6 @@ private:
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 	VkPipelineColorBlendStateCreateInfo colorBlending{};
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 
 	bool newPipeline;
 };

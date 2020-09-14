@@ -17,13 +17,13 @@ void IRenderState::setProgram( std::shared_ptr<IRenderProgram>& p ) {
    dirty = true;
 }
 
-void IRenderState::prepare( IRenderContext& context ) {
+void IRenderState::prepare( IRenderContext& context, IRenderCommand& command ) {
    if( !dirty ) return;
    
    if( renderProgram )
       renderProgram->prepare( *this );
    
-   prepareImpl( context );
+   prepareImpl( context, command );
    
    dirty = false;
 }

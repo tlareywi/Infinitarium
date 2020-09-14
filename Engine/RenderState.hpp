@@ -12,6 +12,8 @@
 #include "RenderProgram.hpp"
 #include "RenderPass.hpp"
 
+class IRenderCommand;
+
 class IRenderState {
 public:
    IRenderState() : dirty(true) {}
@@ -24,9 +26,9 @@ public:
       return *renderProgram;
    }
    
-   void prepare( IRenderContext& context );
+   void prepare( IRenderContext& context, IRenderCommand& commmand );
    void apply( IRenderPass& );
-   virtual void prepareImpl( IRenderContext& context ) = 0;
+   virtual void prepareImpl( IRenderContext& context, IRenderCommand& commmand ) = 0;
    virtual void applyImpl( IRenderPass& ) = 0;
 
 private:

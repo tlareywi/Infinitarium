@@ -11,7 +11,7 @@ public:
    MetalRenderState();
    virtual ~MetalRenderState();
    
-   void prepareImpl( IRenderContext& context ) override;
+   void prepareImpl( IRenderContext& context, IRenderCommand& commmand ) override;
    void applyImpl( IRenderPass& ) override;
    
    void sanityCheck( id<MTLDevice> device, IRenderContext& context );

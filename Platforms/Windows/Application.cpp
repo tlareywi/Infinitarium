@@ -2,6 +2,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <thread>
 
 std::shared_ptr<IApplication> WinApplication::instance{ nullptr };
 
@@ -73,6 +74,7 @@ WinApplication::WinApplication() {
 void WinApplication::run() {
 	while( 1 ) {
 		glfwPollEvents();
+		std::this_thread::yield();
 	}
 }
 

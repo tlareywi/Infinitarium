@@ -3,7 +3,7 @@ project( IERenderer )
 
 add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand.cpp RenderCommand.hpp RenderState.cpp RenderState.hpp
   RenderProgram.cpp RenderProgram.hpp DataBuffer.cpp DataBuffer.hpp RenderPass.cpp RenderPass.hpp Texture.cpp Texture.hpp UniformMap.h
-  default.glsl.vert default.glsl.frag
+  default.glsl.vert default.glsl.frag starsDefault.glsl.vert starsDefault.glsl.frag
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
@@ -25,4 +25,5 @@ target_link_libraries(IERenderer ${GLSL_LIB})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 
-install(FILES default.glsl DESTINATION share/Infinitarium/shaders/vulkan)
+install(FILES default.glsl.vert default.glsl.frag starsDefault.glsl.vert starsDefault.glsl.frag
+  DESTINATION share/Infinitarium/shaders/vulkan)
