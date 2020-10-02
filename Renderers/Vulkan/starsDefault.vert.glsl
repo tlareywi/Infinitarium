@@ -1,22 +1,38 @@
 //
 //  Copyright © 2018 Blue Canvas Studios LLC. All rights reserved.
 //
+//  glslangValidator.exe  .\starsDefault.vert.glsl -o .\starsDefault.vert.spirv -V
+//  #version 450
 
-struct CartesianPosition {
-   vec3 xyz;
+struct ColorData
+{
+    vec3 rgb;
 };
 
-struct ColorRGB {
-   vec3 rgb;
+struct MagnitudeData
+{
+    float m;
 };
 
-struct Magnitude {
-   float m;
+struct PositionData
+{
+    vec3 xyz;
 };
 
-layout(location = 0) in ColorRGB color;
-layout(location = 1) in Magnitude V;
-layout(location = 2) in CartesianPosition pos;
+layout(std430, binding = 0) buffer ColorRGB
+{
+   ColorData color[];
+};
+
+layout(std430, binding = 1) buffer Magnitude
+{
+   MagnitudeData V[];
+};
+
+layout(std430, binding = 2) buffer CartesianPosition
+{
+   PositionData pos[];
+};
 
 struct VertexOut {
    vec4 position;
@@ -33,23 +49,20 @@ struct VertexOut {
 
 layout(location = 0) flat out VertexOut vertOut;
 
-in int gl_InstanceID;
-
-const vec3 eye(0, 0, 0);
-
 ///
 /// All shaders have ConstUniforms injected at compile time based on uniforms defined in scene file.
 ///
 
 void main() {
-   float3 position( pos[gl_InstanceID].xyz );
-   vertOut.position = uniforms.modelViewProjectionMatrix * float4( position, 1.0 );
+   const vec3 eye = vec3(0, 0, 0);
+   vec3 position = vec3( pos[gl_InstanceIndex].xyz );
+   vertOut.position = uniforms.modelViewProjectionMatrix * vec4( position, 1.0 );
    
-   float3 rgb = color[gl_InstanceID].rgb;
-   vertOut.color = float4( rgb, 1.0 );
+   vec3 rgb = color[gl_InstanceIndex].rgb;
+   vertOut.color = vec4( rgb, 1.0 );
    
    float distParsecs = distance( position, eye );
-   float appMag = 5.0 * log10(distParsecs/10.0) + V[gl_InstanceID].m;
+   float appMag = 5.0 * (log(distParsecs/10.0) / log(10.0)) + V[gl_InstanceIndex].m;
 
    vertOut.brightness = pow(2.512, (appMag - uniforms.saturationMagnitude) / (uniforms.saturationMagnitude+0.00001) );
    //out.brightness = pow(2.512, (uniforms.limitingMagnitude - uniforms.saturationMagnitude) * (uniforms.saturationMagnitude - V[instance].m));
@@ -64,13 +77,10 @@ void main() {
    vertOut.diskBrightness = uniforms.diskBrightness;
    vertOut.haloBrightness = uniforms.haloBrightness;
    
-   float2 ndcPosition = vertOut.position.xy / vertOut.position.w;
-   vertOut.pointCenter = (ndcPosition * 0.5 + float2(0.5, 0.5)) * float2(uniforms.viewport);
-   vertOut.pointCenter.y = uniforms.viewport.y - out.pointCenter.y; // Metal's window coords have flipped y-axis compared to OpenGL
+   vec2 ndcPosition = vertOut.position.xy / vertOut.position.w;
+   vertOut.pointCenter = (ndcPosition * 0.5 + vec2(0.5, 0.5)) * vec2(uniforms.viewport);
    
-   vertOut.id = gl_InstanceID;
-   
-   return vertOut;
+   vertOut.id = gl_InstanceIndex;
 }
 
 

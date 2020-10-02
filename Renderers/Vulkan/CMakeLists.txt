@@ -3,7 +3,7 @@ project( IERenderer )
 
 add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand.cpp RenderCommand.hpp RenderState.cpp RenderState.hpp
   RenderProgram.cpp RenderProgram.hpp DataBuffer.cpp DataBuffer.hpp RenderPass.cpp RenderPass.hpp Texture.cpp Texture.hpp UniformMap.h
-  default.glsl.vert default.glsl.frag starsDefault.glsl.vert starsDefault.glsl.frag
+  default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)

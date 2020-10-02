@@ -273,7 +273,7 @@ VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
         return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     case IDataBuffer::Usage::VertexBuffer:
     default:
-        return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT); // TODO: any benefit to separating thses out and making the difference explicit? 
     }
 }
 
