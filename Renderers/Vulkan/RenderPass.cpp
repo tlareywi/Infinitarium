@@ -97,22 +97,6 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 	}
-
-	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	descriptorAllocInfo.descriptorPool = vkContext->getDescriptorPool();
-	descriptorAllocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainFramebuffers.size());
-}
-
-void VulkanRenderPass::refreshDescriptors(VulkanRenderState& renderState) {
-	std::vector<VkDescriptorSetLayout> layouts((size_t)descriptorAllocInfo.descriptorSetCount, *renderState.getPipelineLayoutState().pSetLayouts);
-	descriptorAllocInfo.pSetLayouts = layouts.data();
-
-	descriptorSets.resize(swapChainFramebuffers.size());
-	if (vkAllocateDescriptorSets(device, &descriptorAllocInfo, descriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	needDescriptorUpdate = true;
 }
 
 void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
@@ -163,7 +147,6 @@ void VulkanRenderPass::end() {
 	activeContext->present( swapChainIndx );
 
 	swapChainIndx = 0;
-	needDescriptorUpdate = false;
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {

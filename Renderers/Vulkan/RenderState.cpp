@@ -114,6 +114,8 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 	pipelineInfo.pVertexInputState = vkRenderCommand.getVertexState();
 	pipelineInfo.pInputAssemblyState = vkRenderCommand.getPrimitiveState();
 
+	vkRenderCommand.updateDescriptors(context, *this);
+
 	newPipeline = true;
 }
 
@@ -129,8 +131,6 @@ void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
 	VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(&renderPass);
 	pipelineInfo.renderPass = vkRenderPass->getVulkanRenderPass();
 	pipelineInfo.subpass = 0;
-
-	vkRenderPass->refreshDescriptors( *this );
 
 	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");

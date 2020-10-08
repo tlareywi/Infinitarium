@@ -42,6 +42,7 @@ void PointCloud::prepare( IRenderContext& context ) {
    
    for( auto& dataBuf : vertexBuffers ) {
       std::shared_ptr<IDataBuffer> buf = IDataBuffer::Create( context );
+      buf->setUsage(IDataBuffer::Usage::Storage);
       buf->set( dataBuf.second );
       std::cout<<"Adding data buffer "<<dataBuf.first<<std::endl;
       renderCommand->add( buf );

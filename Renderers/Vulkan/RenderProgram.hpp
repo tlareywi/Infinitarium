@@ -31,7 +31,6 @@ private:
 	VkShaderModule fragShaderModule;
 
 	VkPipelineShaderStageCreateInfo shaderStages[2];
-	VkDescriptorSetLayout descriptorSetLayout;
 
 	std::string uniformBlock;
 };

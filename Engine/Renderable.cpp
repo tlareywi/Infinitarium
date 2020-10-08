@@ -32,7 +32,7 @@ void IRenderable::prepare( IRenderContext& context ) {
    if( !dirty ) return;
    
    uniformData = IDataBuffer::Create( context );
-   uniformData->setUsage( IDataBuffer::Usage::UniformBuffer );
+   uniformData->setUsage( IDataBuffer::Usage::Uniform );
    renderCommand->add( uniformData );
    if( texture != nullptr ) {
       renderCommand->add( texture );

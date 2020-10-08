@@ -1,6 +1,6 @@
 #include "RenderCommand.hpp"
+#include "RenderContext.hpp"
 #include "RenderPass.hpp"
-#include "RenderState.hpp"
 #include "DataBuffer.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,13 +15,13 @@ template<typename T, typename U> const U static inline convert(const T& t) {
 void VulkanRenderCommand::add(std::shared_ptr<IDataBuffer>& buffer) {
 	IRenderCommand::add(buffer);
 
-	if (buffer->getUsage() == IDataBuffer::Usage::UniformBuffer) {
-		VulkanBuffer* vulkanBuffer{ dynamic_cast<VulkanBuffer*>(buffer.get()) };
-		uniformBufferInfo.buffer = vulkanBuffer->getVkBuffer();
-		uniformBufferInfo.offset = 0;
-		uniformBufferInfo.range = vulkanBuffer->length();
+	if (buffer->getUsage() == IDataBuffer::Usage::Uniform) {
+
 	}
-	else { //  IDataBuffer::Usage::VertexBuffer
+	else if(buffer->getUsage() == IDataBuffer::Usage::Storage) {
+
+	}
+	else { //  IDataBuffer::Usage::VertexAttribute
 		// First call, build the struct based on the buffers and primitives we have configured. 
 		VkVertexInputBindingDescription bindingDescription{};
 		VkVertexInputAttributeDescription attribDescription{};
@@ -89,29 +89,9 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 		return;
 	}
 
-	if (uniformBufferInfo.buffer && vkRenderPass->updateDescriptorSets()) { // TODO: refector. This should be done in RenderState::PrepareImpl but the descriptor sets are not allocated
-		// until RenderState::ApplyImpl.
-		for (VkDescriptorSet& descriptor : vkRenderPass->descriptorSet()) {
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptor;
-			descriptorWrite.dstBinding = 0;
-			descriptorWrite.dstArrayElement = 0;
-
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-
-			descriptorWrite.pBufferInfo = &uniformBufferInfo;
-			descriptorWrite.pImageInfo = nullptr; // Optional
-			descriptorWrite.pTexelBufferView = nullptr; // Optional
-
-			vkUpdateDescriptorSets(vkRenderState->getDevice(), 1, &descriptorWrite, 0, nullptr);
-		}
-	}
-
 	vkCmdBindPipeline( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipeline() );
 
-	vkCmdBindDescriptorSets( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipelineState().layout, 0, 1, vkRenderPass->descriptor(), 0, nullptr);
+	vkCmdBindDescriptorSets( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipelineState().layout, 0, 1, &descriptors, 0, nullptr);
 
 	uint32_t numBuffers{ static_cast<uint32_t>(dataBuffers.size()) };
 	std::vector<VkBuffer> vertexBuffers;
@@ -119,9 +99,8 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 	vertexBuffers.reserve(numBuffers);
 	offsets.reserve(numBuffers);
 
-	// TODO: Maybe one loop for all buffers and switch on type?
 	for (auto& buffer : dataBuffers) {
-		if (buffer->getUsage() != IDataBuffer::Usage::VertexBuffer)
+		if (buffer->getUsage() == IDataBuffer::Usage::Uniform)
 			continue;
 		VulkanBuffer* vulkanBuffer{ dynamic_cast<VulkanBuffer*>(buffer.get()) };
 		vertexBuffers.push_back(vulkanBuffer->getVkBuffer());
@@ -129,10 +108,105 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 	}
 
 	if( !vertexBuffers.empty() )
-		vkCmdBindVertexBuffers(vkRenderPass->commandBuffer(), 0, numBuffers, vertexBuffers.data(), offsets.data());
+		vkCmdBindVertexBuffers(vkRenderPass->commandBuffer(), 0, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), offsets.data());
 
 	if( instanceCount > 0 )
 		vkCmdDraw( vkRenderPass->commandBuffer(), vertexCount, instanceCount, 0, 0 );
+}
+
+void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderState& state) {
+	VulkanRenderContext& vkContext{ dynamic_cast<VulkanRenderContext&>(context) };
+	VulkanRenderState& vkState{ dynamic_cast<VulkanRenderState&>(state) };
+	device = vkState.getDevice();
+
+	// TODO: Refactor to AllocateDescriptors /////////////////////////////////////////////////////////////////////////
+	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
+	for (auto& buffer : dataBuffers) {
+		VkDescriptorSetLayoutBinding layoutBinding;
+		layoutBinding.binding = (uint32_t)layoutBindings.size() + 1; // Binding 0 reserved for injected uniforms
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.pImmutableSamplers = nullptr;
+		layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		switch (buffer->getUsage()) {
+		case  IDataBuffer::Usage::Uniform:
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			layoutBinding.binding = 0;
+			break;
+		case IDataBuffer::Usage::Storage:
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			break;
+		default:
+			continue;
+		}
+
+		layoutBindings.push_back(layoutBinding);
+	}
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = (uint32_t)layoutBindings.size();
+	layoutInfo.pBindings = layoutBindings.data();
+
+	if (vkCreateDescriptorSetLayout(vkState.getDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
+
+	VkPipelineLayoutCreateInfo& layoutCreateInfo{ vkState.getPipelineLayoutState() };
+	layoutCreateInfo.setLayoutCount = 1;
+	layoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+
+	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descriptorAllocInfo.descriptorPool = vkContext.getDescriptorPool();
+	descriptorAllocInfo.descriptorSetCount = 1; // static_cast<uint32_t>(swapChainFramebuffers.size());
+	descriptorAllocInfo.pSetLayouts = &descriptorSetLayout;
+
+	if (vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptors) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+	// END Refactor to AllocateDescriptors /////////////////////////////////////////////////////////////////////////
+
+	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+	std::vector<VkDescriptorBufferInfo> bufferDescriptors;
+	bufferDescriptors.reserve(dataBuffers.size());
+	writeDescriptorSets.reserve(dataBuffers.size());
+	unsigned int binding{ 1 };  // Binding 0 reserved for injected uniforms
+
+	for (auto& buffer : dataBuffers) {
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptors;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pImageInfo = nullptr; // Optional
+		descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		VkDescriptorBufferInfo bufferInfo{};
+		VulkanBuffer* vulkanBuffer{ dynamic_cast<VulkanBuffer*>(buffer.get()) };
+		bufferInfo.buffer = vulkanBuffer->getVkBuffer();
+		bufferInfo.offset = 0;
+		bufferInfo.range = vulkanBuffer->length();
+		bufferDescriptors.emplace_back(std::move(bufferInfo));
+
+		descriptorWrite.pBufferInfo = &(bufferDescriptors[binding - 1]);
+		descriptorWrite.dstBinding = binding++;
+
+		switch (buffer->getUsage()) {
+		case  IDataBuffer::Usage::Uniform:
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			break;
+		case IDataBuffer::Usage::Storage:
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			break;
+		default:
+			continue;
+		}
+
+		writeDescriptorSets.emplace_back(std::move(descriptorWrite));
+	}
+
+	vkUpdateDescriptorSets(vkState.getDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, NULL);
 }
 
 __declspec(dllexport)

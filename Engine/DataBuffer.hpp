@@ -22,8 +22,9 @@ public:
    static std::shared_ptr<IDataBuffer> Create( IRenderContext& );
 
    enum class Usage {
-	   VertexBuffer,
-	   UniformBuffer
+	   VertexAttribute,
+	   Uniform,
+	   Storage
    };
    
    virtual void commit() = 0;

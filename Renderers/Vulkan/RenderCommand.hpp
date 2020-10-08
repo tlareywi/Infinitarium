@@ -14,6 +14,10 @@ public:
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 	}
+	virtual ~VulkanRenderCommand() {
+		if(descriptorSetLayout)
+			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+	}
 
 	void add(std::shared_ptr<IDataBuffer>&) override;
 
@@ -22,13 +26,17 @@ public:
 
 	const VkPipelineInputAssemblyStateCreateInfo* getPrimitiveState() const;
 	const VkPipelineVertexInputStateCreateInfo* getVertexState();
+	void updateDescriptors( IRenderContext&, IRenderState& );
 
 private:
+	VkDevice device{nullptr};
+	VkDescriptorSet descriptors{nullptr};
+	VkDescriptorSetLayout descriptorSetLayout{nullptr};
+	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
+
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
 	std::vector<VkVertexInputAttributeDescription> attribDescriptions;
-
-	VkDescriptorBufferInfo uniformBufferInfo{};
 };
 

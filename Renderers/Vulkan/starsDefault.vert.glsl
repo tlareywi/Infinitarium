@@ -19,20 +19,33 @@ struct PositionData
     vec3 xyz;
 };
 
-layout(std430, binding = 0) buffer ColorRGB
+layout(std430, binding = 1) buffer ColorRGB
 {
    ColorData color[];
 };
 
-layout(std430, binding = 1) buffer Magnitude
+layout(std430, binding = 2) buffer Magnitude
 {
    MagnitudeData V[];
 };
 
-layout(std430, binding = 2) buffer CartesianPosition
+layout(std430, binding = 3) buffer CartesianPosition
 {
    PositionData pos[];
 };
+
+/*layout(binding = 0) uniform ConstUniforms {
+   mat4 modelViewProjectionMatrix;
+   mat4 modelViewMatrix;
+   uvec2 viewport;
+   float epsilon;
+   float diskDensity;
+   float haloDensity;
+   float limitingMagnitude;
+   float saturationMagnitude;
+   float diskBrightness;
+   float haloBrightness;
+} uniforms; */
 
 struct VertexOut {
    vec4 position;
@@ -73,7 +86,7 @@ void main() {
    float diskRadius = -log(uniforms.epsilon / (uniforms.diskBrightness * vertOut.brightness)) * 2.0 * vertOut.diskDensity;
    float blurRadius = -log(uniforms.epsilon / (uniforms.haloBrightness * vertOut.brightness)) * 2.0 * vertOut.haloDensity;
    
-   vertOut.pointSize = 2.0 * sqrt(max(diskRadius, blurRadius));
+   gl_PointSize = vertOut.pointSize = 2.0 * sqrt(max(diskRadius, blurRadius));
    vertOut.diskBrightness = uniforms.diskBrightness;
    vertOut.haloBrightness = uniforms.haloBrightness;
    

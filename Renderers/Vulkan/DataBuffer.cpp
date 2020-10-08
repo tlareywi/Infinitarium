@@ -26,7 +26,7 @@ void VulkanBuffer::commit() {
 
     copyBuffer(cpu, gpu, bufferSize);
 
-    if (getUsage() == IDataBuffer::Usage::VertexBuffer) { 
+    if (getUsage() != IDataBuffer::Usage::Uniform) { 
         // We assume vertex buffers are not modified 'on the fly'. Once committed, we can free the cpy side memory buffer. 
         // But UBO's remain allocated on both sides of the fence. 
         vkDestroyBuffer(context.getVulkanDevice(), cpu, nullptr);
@@ -269,11 +269,13 @@ void VulkanBuffer::parseFormat(uint8_t channelsPerVertex, DataType type) {
 
 VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
     switch (getUsage()) {
-    case IDataBuffer::Usage::UniformBuffer:
-        return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    case IDataBuffer::Usage::VertexBuffer:
+    case IDataBuffer::Usage::Uniform:
+        return  static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    case IDataBuffer::Usage::Storage:
+        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    case IDataBuffer::Usage::VertexAttribute:
     default:
-        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT); // TODO: any benefit to separating thses out and making the difference explicit? 
+        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     }
 }
 
