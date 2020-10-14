@@ -102,12 +102,15 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
 	activeContext = dynamic_cast<VulkanRenderContext*>(context.get());
 
+	VkClearValue clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
 	for (auto& target : targets) {
 		if (target->getResource() == IRenderTarget::FrameBuffer) {
 			swapChainIndx = activeContext->nextSwapChainTarget();
+			glm::vec4 ccolor{ target->getClearColor()  };
+			clearColor = { ccolor.r, ccolor.g, ccolor.b, ccolor.a };
 		}
-		else {
-			assert( false ); // Implement off screen render targets
+		else if(target->getResource() == IRenderTarget::Memory) {
+			// TODO: Implement off screen render targets
 		}
 	}
 
@@ -120,7 +123,6 @@ void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
 	renderPassInfo.framebuffer = swapChainFramebuffers[swapChainIndx];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapchainCreateInfo.imageExtent;
-	VkClearValue clearColor = { 0.0f, 0.0f, 1.0f, 1.0f };
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
 

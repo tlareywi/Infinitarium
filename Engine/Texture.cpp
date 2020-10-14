@@ -63,6 +63,6 @@ template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(resource);
 	ar & BOOST_SERIALIZATION_NVP(clear);
 	ar & BOOST_SERIALIZATION_NVP(clearColor);
-   ar & BOOST_SERIALIZATION_NVP(blending);
+    ar & BOOST_SERIALIZATION_NVP(blending);
 }
 

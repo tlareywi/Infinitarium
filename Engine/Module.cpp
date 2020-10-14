@@ -35,7 +35,7 @@ static std::map<std::string, std::string> symbolMap {
    {"CreateTexture", "?CreateTexture@@YA?AV?$shared_ptr@VITexture@@@std@@AEBU?$vec@$01I$0A@@glm@@W4Format@ITexture@@@Z"},
    {"CloneTexture", "?CloneTexture@@YA?AV?$shared_ptr@VITexture@@@std@@AEBVITexture@@@Z"},
    {"CreateRenderTarget", "?CreateRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBU?$vec@$01I$0A@@glm@@W4Format@ITexture@@W4Type@IRenderTarget@@W4Resource@8@@Z"},
-   {"CloneRenderTarget", "?CloneRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@AEBVIRenderContext@@@Z"}
+   {"CloneRenderTarget", "?CloneRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBVIRenderTarget@@@Z"}
 };
 #else
 static std::map<std::string, std::string> symbolMap {

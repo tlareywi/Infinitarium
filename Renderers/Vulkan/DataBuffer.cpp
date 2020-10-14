@@ -27,7 +27,7 @@ void VulkanBuffer::commit() {
     copyBuffer(cpu, gpu, bufferSize);
 
     if (getUsage() != IDataBuffer::Usage::Uniform) { 
-        // We assume vertex buffers are not modified 'on the fly'. Once committed, we can free the cpy side memory buffer. 
+        // We assume vertex buffers are not modified 'on the fly'. Once committed, we can free the cpu side memory buffer. 
         // But UBO's remain allocated on both sides of the fence. 
         vkDestroyBuffer(context.getVulkanDevice(), cpu, nullptr);
         cpu = nullptr;

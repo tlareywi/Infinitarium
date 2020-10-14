@@ -2,11 +2,13 @@
 //  Copyright © 2018 Blue Canvas Studios LLC. All rights reserved.
 //
 //  glslangValidator.exe  .\starsDefault.vert.glsl -o .\starsDefault.vert.spirv -V
-//  #version 450
+  #version 450
 
 struct ColorData
 {
-    vec3 rgb;
+    float r;
+    float g;
+    float b;
 };
 
 struct MagnitudeData
@@ -16,7 +18,9 @@ struct MagnitudeData
 
 struct PositionData
 {
-    vec3 xyz;
+    float x;
+    float y;
+    float z;
 };
 
 layout(std430, binding = 1) buffer ColorRGB
@@ -34,7 +38,7 @@ layout(std430, binding = 3) buffer CartesianPosition
    PositionData pos[];
 };
 
-/*layout(binding = 0) uniform ConstUniforms {
+layout(binding = 0) uniform ConstUniforms {
    mat4 modelViewProjectionMatrix;
    mat4 modelViewMatrix;
    uvec2 viewport;
@@ -45,7 +49,7 @@ layout(std430, binding = 3) buffer CartesianPosition
    float saturationMagnitude;
    float diskBrightness;
    float haloBrightness;
-} uniforms; */
+} uniforms;
 
 struct VertexOut {
    vec4 position;
@@ -68,17 +72,16 @@ layout(location = 0) flat out VertexOut vertOut;
 
 void main() {
    const vec3 eye = vec3(0, 0, 0);
-   vec3 position = vec3( pos[gl_InstanceIndex].xyz );
-   vertOut.position = uniforms.modelViewProjectionMatrix * vec4( position, 1.0 );
+   vec3 position = vec3( pos[gl_InstanceIndex].x, pos[gl_InstanceIndex].y, pos[gl_InstanceIndex].z );
+   gl_Position = vertOut.position = uniforms.modelViewProjectionMatrix * vec4( position, 1.0 );
    
-   vec3 rgb = color[gl_InstanceIndex].rgb;
+   vec3 rgb = vec3(color[gl_InstanceIndex].r, color[gl_InstanceIndex].g, color[gl_InstanceIndex].b);
    vertOut.color = vec4( rgb, 1.0 );
    
    float distParsecs = distance( position, eye );
    float appMag = 5.0 * (log(distParsecs/10.0) / log(10.0)) + V[gl_InstanceIndex].m;
 
    vertOut.brightness = pow(2.512, (appMag - uniforms.saturationMagnitude) / (uniforms.saturationMagnitude+0.00001) );
-   //out.brightness = pow(2.512, (uniforms.limitingMagnitude - uniforms.saturationMagnitude) * (uniforms.saturationMagnitude - V[instance].m));
    
    vertOut.diskDensity = uniforms.diskDensity * uniforms.diskDensity;
    vertOut.haloDensity = uniforms.haloDensity * uniforms.haloDensity;
@@ -86,7 +89,8 @@ void main() {
    float diskRadius = -log(uniforms.epsilon / (uniforms.diskBrightness * vertOut.brightness)) * 2.0 * vertOut.diskDensity;
    float blurRadius = -log(uniforms.epsilon / (uniforms.haloBrightness * vertOut.brightness)) * 2.0 * vertOut.haloDensity;
    
-   gl_PointSize = vertOut.pointSize = 2.0 * sqrt(max(diskRadius, blurRadius));
+   //gl_PointSize = vertOut.pointSize = 2.0 * sqrt(max(diskRadius, blurRadius));
+   gl_PointSize = vertOut.pointSize = 20.0;
    vertOut.diskBrightness = uniforms.diskBrightness;
    vertOut.haloBrightness = uniforms.haloBrightness;
    

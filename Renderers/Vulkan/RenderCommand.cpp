@@ -108,7 +108,7 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 	}
 
 	if( !vertexBuffers.empty() )
-		vkCmdBindVertexBuffers(vkRenderPass->commandBuffer(), 0, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), offsets.data());
+		vkCmdBindVertexBuffers(vkRenderPass->commandBuffer(), 1, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), offsets.data());
 
 	if( instanceCount > 0 )
 		vkCmdDraw( vkRenderPass->commandBuffer(), vertexCount, instanceCount, 0, 0 );

@@ -84,7 +84,7 @@ private:
 
 	std::vector<VkSemaphore> imageAvailableSemaphore;
 	std::vector<VkSemaphore> renderFinishedSemaphore;
-	std::vector<VkFence> swapChainFences;
+	std::vector<VkFence> imagesInFlight;
 	std::vector<VkFence> inFlightFences;
 
 	unsigned short currentSwapFrame;

@@ -15,8 +15,8 @@ private:
 
 class VulkanRenderTarget : public IRenderTarget {
 public:
-	VulkanRenderTarget(const IRenderTarget& obj) : IRenderTarget(obj) {}
-	VulkanRenderTarget(const glm::uvec2&, Format, Type, Resource) {};
+	VulkanRenderTarget(const IRenderTarget& obj) : IRenderTarget(obj), bytesPerRow(0) {}
+	VulkanRenderTarget(const glm::uvec2&, Format, Type, Resource);
 	virtual ~VulkanRenderTarget() {
 	}
 
@@ -30,5 +30,8 @@ public:
 
 private:
 	//id<MTLTexture> renderTarget = nullptr;
+
+	unsigned int bytesPerRow;
+	unsigned short bpp;
 };
 
