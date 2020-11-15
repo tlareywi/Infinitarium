@@ -30,6 +30,8 @@ private:
 
 	bool initValidationLayers( VkInstanceCreateInfo& ); 
 	void registerValidationCallBack( VkInstance );
+	VkValidationFeaturesEXT enabledFeatures;
+	std::vector<VkValidationFeatureEnableEXT> enabledValidationExt;
 
 	static std::shared_ptr<IApplication> instance;
 	

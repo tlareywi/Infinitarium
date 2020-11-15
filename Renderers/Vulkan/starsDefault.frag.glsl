@@ -5,7 +5,6 @@
 //  #version 450
 
 struct VertexIn {
-   vec4 position;
    float pointSize;
    vec4 color;
    float brightness;
@@ -23,13 +22,14 @@ layout(location = 0) out vec4 color;
 //layout(location = 1) out float pick;
 
 void main() {
-   vec2 offset = point.position.xy - point.pointCenter;
+   vec2 offset = gl_FragCoord.xy - point.pointCenter;
    float len = dot(offset, offset);
    
    float disk = point.diskBrightness * point.brightness * exp(-len / (2.0 * point.diskDensity));
    float psf = point.haloBrightness * point.brightness * exp(-len / (2.0 * point.haloDensity));
    
    color = vec4( point.color.rgb * (disk+psf), 1.0 );
+   //color = vec4( point.color.rgb, 1.0);
  //  if( len < 6.0f )
   //    pick = float(point.id);
   // else

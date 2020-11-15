@@ -291,7 +291,7 @@ PythonInterpreter::PythonInterpreter() {
    enginePath += "/lib";
    eval("import sys");
    eval(std::string("sys.path.append('") + enginePath + "')");
-   eval("import libInfinitariumEngine");
+   std::cout << eval("import libInfinitariumEngine") << std::endl;
    eval("engine = libInfinitariumEngine");
 }
 
