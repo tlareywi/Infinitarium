@@ -38,6 +38,7 @@ public:
    
    virtual void* getSurface() = 0; 
    virtual void setSurface( void*, void* ) = 0;
+   virtual void pauseRendering(bool) = 0;
    
    unsigned int x() {
       return _x;
@@ -58,6 +59,12 @@ public:
    bool fullScreen() {
       return _fullScreen;
    }
+
+   void setContextExtent( unsigned int w, unsigned int h ) {
+       _width = w;
+       _height = h;
+       std::cout << "Using fullscreen window mode @" << w << "x" << h << std::endl;
+   }
    
 protected:
    IRenderContext() : _x(0), _y(0), _width(0), _height(0), _fullScreen(false) {}
@@ -76,6 +83,7 @@ public:
    
    void* getSurface() override { return nullptr; };
    void setSurface(void*, void*) override {};
+   void pauseRendering(bool) override {};
   
 private:
 #if defined ENGINE_BUILD

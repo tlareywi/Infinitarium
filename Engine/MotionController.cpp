@@ -19,20 +19,20 @@ void IMotionController::processEvents() {
    std::lock_guard<std::mutex> lock(eventSampler->eventMutex);
    
    for( auto& evt : eventSampler->keys ) {
-      if( evt.state == IEventSampler::DOWN )
+      if( evt.state == IEventSampler::State::DOWN )
          onKeyDown( evt );
-      else if( evt.state == IEventSampler::UP )
+      else if( evt.state == IEventSampler::State::UP )
          onKeyUp( evt );
    }
    
    for( auto& evt : eventSampler->mbutton ) {
-      if( evt.state == IEventSampler::DOWN )
+      if( evt.state == IEventSampler::State::DOWN )
          onMouseButtonDown( evt );
-      else if( evt.state == IEventSampler::UP )
+      else if( evt.state == IEventSampler::State::UP )
          onMouseButtonUp( evt );
-      else if( evt.state == IEventSampler::CLICKED )
+      else if( evt.state == IEventSampler::State::CLICKED )
          onMouseButtonClick( evt );
-      else if( evt.state == IEventSampler::DBL_CLICKED )
+      else if( evt.state == IEventSampler::State::DBL_CLICKED )
          onMouseDoubleClick( evt );
    }
    

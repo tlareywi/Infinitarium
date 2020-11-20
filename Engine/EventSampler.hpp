@@ -12,14 +12,14 @@
 
 class IEventSampler {
 public:
-   enum State {
+   enum class State {
       DOWN,
       UP,
       CLICKED,
       DBL_CLICKED
    };
    
-   enum Button {
+   enum class Button {
       LEFT,
       MIDDLE,
       RIGHT,
@@ -44,8 +44,9 @@ public:
    };
    
    struct MouseButton {
-      MouseButton() : button(IEventSampler::NONE), state(IEventSampler::UP), x(0), y(0) {}
-      
+      MouseButton() : button(IEventSampler::Button::NONE), state(IEventSampler::State::UP), x(0), y(0) {}
+      MouseButton( Button b, State s, float _x, float _y ) : button(b), state(s), x(_x), y(_y) {}
+
       Button button;
       State state;
       float x;

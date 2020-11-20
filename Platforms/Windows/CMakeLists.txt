@@ -1,12 +1,11 @@
 cmake_minimum_required( VERSION "3.12" )
 project( IEPlatform )
 
-add_library( IEPlatform SHARED ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp Application.hpp
+add_library( IEPlatform SHARED ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp Application.hpp EventSampler.cpp EventSampler.hpp
 )
 
 set_property(TARGET IEPlatform PROPERTY CXX_STANDARD 17)
 set_property(TARGET IEPlatform PROPERTY CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type-c-linkage")
 
 find_library(GLFW_LIB glfw3 HINTS "C:\\Program Files (x86)\\GLFW\\lib")
 target_link_libraries(IEPlatform ${GLFW_LIB})

@@ -48,10 +48,6 @@ public:
    
    void setTexture( const std::shared_ptr<ITexture>& );
    
-   void setDirty() {
-      dirty = true;
-   }
-   
    void setUniform( const std::string&, UniformType );
    void listUniforms();
    void removeUniform( const std::string& );
@@ -65,7 +61,6 @@ public:
          REFLECT_METHOD(&IRenderable::listUniforms, listUniforms),
          REFLECT_METHOD(&IRenderable::removeUniform, removeUniform),
          REFLECT_METHOD(&IRenderable::manipulateUniform, manipulateUniform),
-         REFLECT_METHOD(&IRenderable::setDirty, setDirty),
          REFLECT_MEMBER(obj, programName)
       );
       
@@ -78,7 +73,6 @@ public:
 protected:
    std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
-   bool dirty;
    
 private:
    std::vector<std::pair<std::string, UniformType>> allUniforms; // built-ins, not serialized

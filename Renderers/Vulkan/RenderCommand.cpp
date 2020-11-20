@@ -114,12 +114,7 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 		vkCmdDraw( vkRenderPass->commandBuffer(), vertexCount, instanceCount, 0, 0 );
 }
 
-void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderState& state) {
-	VulkanRenderContext& vkContext{ dynamic_cast<VulkanRenderContext&>(context) };
-	VulkanRenderState& vkState{ dynamic_cast<VulkanRenderState&>(state) };
-	device = vkState.getDevice();
-
-	// TODO: Refactor to AllocateDescriptors /////////////////////////////////////////////////////////////////////////
+void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState) {
 	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 	for (auto& buffer : dataBuffers) {
 		VkDescriptorSetLayoutBinding layoutBinding;
@@ -164,7 +159,20 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	if (vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptors) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
-	// END Refactor to AllocateDescriptors /////////////////////////////////////////////////////////////////////////
+}
+
+void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderState& state) {
+	static bool init{ false };
+
+	VulkanRenderContext& vkContext{ dynamic_cast<VulkanRenderContext&>(context) };
+	VulkanRenderState& vkState{ dynamic_cast<VulkanRenderState&>(state) };
+
+	if (!init) {
+		allocateDescriptors(vkContext, vkState);
+		init = true;
+	}
+
+	device = vkState.getDevice();
 
 	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 	std::vector<VkDescriptorBufferInfo> bufferDescriptors;

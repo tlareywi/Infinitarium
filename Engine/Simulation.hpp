@@ -29,6 +29,5 @@ protected:
    
 private:
    std::unique_ptr<std::thread> simulation;
-   std::mutex simMutex;
-   bool exiting;
+   std::atomic<bool> exiting;
 };

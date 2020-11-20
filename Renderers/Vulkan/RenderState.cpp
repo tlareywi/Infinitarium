@@ -10,7 +10,7 @@
 #include "RenderPass.hpp"
 #include "RenderCommand.hpp"
 
-VulkanRenderState::VulkanRenderState() : newPipeline(true) {
+VulkanRenderState::VulkanRenderState() : newPipeline(true), graphicsPipeline(nullptr), pipelineLayout(nullptr) {
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipelineInfo.pNext = nullptr;
 }
@@ -120,7 +120,12 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 }
 
 void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
-	if (!newPipeline) return; // Nothing changed? NO need to re-create pipeline
+	if (!newPipeline) return; // Nothing changed? No need to re-create pipeline
+
+	if(graphicsPipeline)
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
+	if(pipelineLayout)
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create pipeline layout!");

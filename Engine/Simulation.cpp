@@ -19,7 +19,6 @@ Simulation::~Simulation() {
 }
 
 void Simulation::terminate() {
-   std::unique_lock<std::mutex> lock(simMutex);
    exiting = true;
 }
 
@@ -53,7 +52,6 @@ void Simulation::simLoop() {
       render();
       
       {
-         std::unique_lock<std::mutex> lock(simMutex);
          if( exiting )
             break;
       }

@@ -2,10 +2,12 @@
 
 #include "Application.hpp"
 #include "ApplicationWindow.hpp"
-#include "../../Engine/EventSampler.hpp"
+#include "EventSampler.hpp"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+
+std::shared_ptr<IEventSampler> CreateEventSampler();
 
 ///////////////////////////////////////////////////////////////////////////////
 // WinApplicationWindow
@@ -13,30 +15,46 @@
 
 WinApplicationWindow::WinApplicationWindow() : window(nullptr), surface(VK_NULL_HANDLE) {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // TODO: make resizeable for desktop mode
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
 
 WinApplicationWindow::~WinApplicationWindow() {
-	WinApplication* instance = dynamic_cast<WinApplication*>(WinApplication::Instance().get());
-	vkDestroySurfaceKHR(instance->getVkInstance(), surface, nullptr);
+	WinApplication& instance{ dynamic_cast<WinApplication&>(*WinApplication::Instance()) };
+	vkDestroySurfaceKHR(instance.getVkInstance(), surface, nullptr);
 	glfwDestroyWindow(window);
 }
 
 void WinApplicationWindow::init( IRenderContext& renderContext ) {
-	window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Vulkan", nullptr, nullptr);
+	if (renderContext.fullScreen()) {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+		glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+		window = glfwCreateWindow(mode->width, mode->height, "Infinitarium", monitor, nullptr);
+
+		renderContext.setContextExtent(mode->width, mode->height);
+	}
+	else
+		window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Infinitarium", nullptr, nullptr);
 
 	VkWin32SurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = glfwGetWin32Window(window);
 	createInfo.hinstance = GetModuleHandle(nullptr);
 
-	WinApplication* instance = dynamic_cast<WinApplication*>(WinApplication::Instance().get());
+	WinApplication& instance = dynamic_cast<WinApplication&>(*WinApplication::Instance());
 
-	if (vkCreateWin32SurfaceKHR(instance->getVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS) {
+	if (vkCreateWin32SurfaceKHR(instance.getVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create Vulkan window surface!");
 	}
 
-	renderContext.setSurface(surface, instance->getVkInstance());
+	renderContext.setSurface(surface, instance.getVkInstance());
+
+	std::shared_ptr<IEventSampler> eventSampler{ CreateEventSampler() };
+	WindowsEventSampler& winEvents{ dynamic_cast<WindowsEventSampler&>(*eventSampler) };
+	winEvents.setTargetWindow(window, renderContext);
 }
 
 __declspec(dllexport) std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
@@ -49,19 +67,3 @@ __declspec(dllexport) std::shared_ptr<IApplicationWindow> CloneApplicationWindow
 	return window;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// WinEventSampler
-///////////////////////////////////////////////////////////////////////////////
-
-class WinEventSampler : public IEventSampler {
-public:
-
-private:
-
-};
-
-static std::shared_ptr<IEventSampler> eventSampler = std::make_shared<WinEventSampler>();
-
-__declspec(dllexport) std::shared_ptr<IEventSampler> CreateEventSampler() {
-	return eventSampler;
-}

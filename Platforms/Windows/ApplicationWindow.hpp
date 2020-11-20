@@ -10,7 +10,7 @@
 class WinApplicationWindow : public IApplicationWindow {
 public:
 	WinApplicationWindow();
-	WinApplicationWindow(const IApplicationWindow& obj) : window(nullptr), IApplicationWindow(obj) {};
+	WinApplicationWindow(const IApplicationWindow& obj) : window(nullptr), IApplicationWindow(obj), surface(nullptr) {};
 	virtual ~WinApplicationWindow();
 
 	void init(IRenderContext&) override;

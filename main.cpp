@@ -27,7 +27,7 @@ int main(int argc, const char * argv[]) {
    PythonInterpreter* pyInterp = dynamic_cast<PythonInterpreter*>(pyInterpInterface.get());
    pyInterp->setScene( s );
    
-   Simulation simulation;
-   simulation.setScene( s );
+   std::shared_ptr<Simulation> simulation = std::make_shared<Simulation>();
+   simulation->setScene( s );
    app->run();
 }

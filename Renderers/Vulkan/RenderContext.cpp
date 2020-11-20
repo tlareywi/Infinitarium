@@ -9,6 +9,7 @@
 #include <Windows.h>
 
 #include <set>
+#include <thread>
 
 VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs) : IRenderContext(x, y, w, h, fs) {
 	physicalDevice = VK_NULL_HANDLE;
@@ -16,6 +17,7 @@ VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigne
 	graphicsQueue = VK_NULL_HANDLE;
 	graphicsQIndx = 0;
 	currentSwapFrame = 0;
+	renderingPaused = false;
 }
 
 VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderContext(obj) {
@@ -24,6 +26,7 @@ VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderCon
 	graphicsQueue = VK_NULL_HANDLE;
 	graphicsQIndx = 0;
 	currentSwapFrame = 0;
+	renderingPaused = false;
 }
 
 VulkanRenderContext::~VulkanRenderContext() {
@@ -80,6 +83,11 @@ void VulkanRenderContext::initializeGraphicsDevice( const VkSurfaceKHR& surface,
 		throw std::runtime_error("No Vulkan compatible GPUs meeting minimum rendering requirements found.");
 
 	createDeviceGraphicsQueue(physicalDevice, surface);
+
+	recreateSwapchain = [this, surface]() {
+		createSwapChain(surface);
+	};
+
 	createSwapChain( surface );
 	createDescriptorPool();
 }
@@ -360,6 +368,10 @@ void VulkanRenderContext::submit( VkCommandBuffer& bufffer, uint32_t frameIndx )
 		throw std::runtime_error("failed to submit draw command buffer!");
 }
 
+void VulkanRenderContext::pauseRendering(bool pause) {
+	renderingPaused = pause;
+}
+
 void VulkanRenderContext::present( uint32_t frameIndx ) {
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -375,10 +387,26 @@ void VulkanRenderContext::present( uint32_t frameIndx ) {
 
 	presentInfo.pResults = nullptr; // Optional
 
-	if( vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS )
-		throw std::runtime_error("failed to present!");
+	if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS) {
+		while (renderingPaused) // Generally indecates app is minimized
+			std::this_thread::yield();
+
+		reAllocSwapchain();
+	}
 
 	currentSwapFrame = (currentSwapFrame + 1) % (swapChainImages.size() - 1); // 1 image is basically 'reserved' for the driver ... does this change for different presentation modes?
+}
+
+void VulkanRenderContext::reAllocSwapchain() {
+	vkDeviceWaitIdle(logicalDevice);
+
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+		vkDestroyImageView(logicalDevice, swapChainImageViews[i], nullptr);
+	}
+
+	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+
+	recreateSwapchain();
 }
 
 __declspec(dllexport)

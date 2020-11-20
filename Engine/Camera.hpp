@@ -53,8 +53,6 @@ public:
 private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);
-
-   bool dirty;
    
    std::shared_ptr<IRenderContext> renderContext;
    // We chould have a pipline class containing multiple renderpasses here but may make more sense to have a Pipline class contain multiple Cameras instead depending on

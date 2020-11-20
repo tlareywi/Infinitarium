@@ -13,6 +13,15 @@ VulkanRenderPass::~VulkanRenderPass() {
 void VulkanRenderPass::prepare(IRenderContext& context) {
 	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&context);
 	device = vkContext->getVulkanDevice();
+
+	if(renderPass)
+		vkDestroyRenderPass(device, renderPass, nullptr);
+	for (auto framebuffer : swapChainFramebuffers) {
+		vkDestroyFramebuffer(device, framebuffer, nullptr);
+	}
+	if( commandBuffers.size() > 0 )
+		vkFreeCommandBuffers(device, vkContext->getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+
 	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	vkContext->getVulkanSwapchainInfo(swapchainCreateInfo);
 

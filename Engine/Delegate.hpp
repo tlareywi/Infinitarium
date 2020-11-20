@@ -121,9 +121,11 @@ template<typename T, typename... Args> class EventDelegate : public IDelegate {
 public:
    EventDelegate( T f ) : fun(f) {}
    void operator()( IEvent& event ) override {
-      Event<Args...>* evt = dynamic_cast<Event<Args...>*>( &event );
-      if( evt )
-         call_fun( evt->args, std::index_sequence_for<Args...>() );
+      Event<Args...>* evt = reinterpret_cast<Event<Args...>*>( &event ); // Hmm, dynamic_cast works here on Xcode11 but not VS2019.
+      if (evt)
+          call_fun(evt->args, std::index_sequence_for<Args...>());
+      else
+          assert(false);
    }
    
 private:

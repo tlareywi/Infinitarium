@@ -35,6 +35,9 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(_width);
 	ar & BOOST_SERIALIZATION_NVP(_height);
 	ar & BOOST_SERIALIZATION_NVP(_fullScreen);
+	
+	// TODO: Temporary override for dev/testing. For now, we'll just use the current video mode of the primary monitor always.
+	//_fullScreen = true;
 }
 
 

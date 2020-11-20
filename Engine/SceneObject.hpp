@@ -20,6 +20,9 @@
 
 class Camera;
 
+/// <summary>
+/// State accumulator for update traversal.
+/// </summary>
 class UpdateParams {
 public:
    UpdateParams( Camera& c ) : camera( c ) {}
@@ -62,13 +65,19 @@ private:
    glm::mat4 model;
 };
 
+/// <summary>
+/// Base class for all scenegraph nodes. Implements common traversal logic.
+/// </summary>
 class SceneObject {
 public:
-   SceneObject() {}
+   SceneObject() : dirty(true) {}
    virtual ~SceneObject() {}
+
    virtual void prepare( IRenderContext& );
    virtual void update( UpdateParams& );
    virtual void render( IRenderPass& );
+   
+   void visit(const class Visitor& v);
    
    virtual glm::vec3 getCenter() { return {0,0,0}; }
    
@@ -80,13 +89,35 @@ public:
    void setName( const std::string& n ) {
       name = n;
    }
+
+   void setDirty() {
+       dirty = true;
+   }
+
+protected:
+   bool dirty;
    
 private:
    std::string name;
    std::vector<std::shared_ptr<SceneObject>> children;
-   
+
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);
 };
+
+/// <summary>
+/// Visitor pattern to apply a function to all scene nodes or sub-graph.
+/// </summary>
+class Visitor {
+public:
+    Visitor(std::function<void(SceneObject&)>& f) : fun{ f } {}
+    void apply(SceneObject& s) const {
+        fun(s);
+    }
+
+private:
+    std::function<void(SceneObject&)> fun;
+};
+
 
 BOOST_CLASS_EXPORT_KEY(SceneObject)

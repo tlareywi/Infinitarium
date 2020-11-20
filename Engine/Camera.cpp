@@ -11,7 +11,7 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Camera)
 
-Camera::Camera() : dirty(true), motionController(nullptr) {
+Camera::Camera() : motionController(nullptr) {
    projection = glm::infinitePerspective( glm::radians(60.0), 16.0 / 9.0, 0.0001 );
    renderPass = nullptr;
    renderContext = nullptr;
@@ -91,6 +91,17 @@ template<class Archive> void Camera::load( Archive& ar ) {
    std::unique_ptr<RenderContextProxy> rc;
    ar >> BOOST_SERIALIZATION_NVP(rc);
    renderContext = IRenderContext::Clone( *rc );
+
+   // Subscribe to events from the platform layer that notify of the need to dirty and re-init camera's subgraph (e.g window size or restore).
+   auto fun = [this](const IRenderContext& renderContext) {
+       if (this->renderContext.get() != &renderContext)
+           return;
+
+       std::function<void(SceneObject&)> f{ [](SceneObject& obj) { obj.setDirty(); } };
+       visit( Visitor(f) );
+   };
+   std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const IRenderContext&>>(fun);
+   IApplication::Create()->subscribe("resetScene", delegate);
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {

@@ -5,6 +5,7 @@
 #include "vulkan/vulkan.h"
 
 #include <vector>
+#include <functional>
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities{};
@@ -23,6 +24,7 @@ public:
 
 	void* getSurface() override;
 	void setSurface(void*, void*) override;
+	void pauseRendering(bool) override;
 
 	VkDevice getVulkanDevice() {
 		return logicalDevice;
@@ -62,6 +64,7 @@ private:
 	bool querySwapChain(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails& details);
 	void createSwapChain( const VkSurfaceKHR& surface );
 	void createDescriptorPool();
+	void reAllocSwapchain();
 	
 	// Device resources
 	VkPhysicalDevice physicalDevice;
@@ -89,5 +92,8 @@ private:
 	std::vector<VkFence> inFlightFences;
 
 	unsigned short currentSwapFrame;
+
+	std::atomic<bool> renderingPaused;
+	std::function<void()> recreateSwapchain;
 };
 

@@ -40,6 +40,13 @@ void SceneObject::render( IRenderPass& r ) {
       child->render( r );
 }
 
+void SceneObject::visit(const Visitor& v) {
+   v.apply(*this);
+
+   for (auto& child : children)
+      child->visit(v);
+}
+
 template<class Archive> void SceneObject::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing SceneObject" << std::endl;
 	ar & BOOST_SERIALIZATION_NVP(children);

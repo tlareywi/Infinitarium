@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Engine/RenderCommand.hpp"
+#include "RenderContext.hpp"
+#include "RenderState.hpp"
 
 #include "vulkan/vulkan.h"
 
@@ -29,6 +31,8 @@ public:
 	void updateDescriptors( IRenderContext&, IRenderState& );
 
 private:
+	void allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState);
+
 	VkDevice device{nullptr};
 	VkDescriptorSet descriptors{nullptr};
 	VkDescriptorSetLayout descriptorSetLayout{nullptr};

@@ -15,7 +15,7 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(IRenderable)
 BOOST_CLASS_EXPORT_IMPLEMENT(ClearScreen)
 
-IRenderable::IRenderable() : dirty(true), programName{"default"} {
+IRenderable::IRenderable() : programName{"default"} {
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
