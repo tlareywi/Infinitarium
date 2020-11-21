@@ -4,7 +4,7 @@
 # You'll need the tycho2 catalog as one dat file along with the readme.
 # These can be obtained from http://cdsarc.u-strasbg.fr/viz-bin/cat/I/259
 # Individual catalog parts can be joined into one dat file via the command
-# `zcat tyc2.dat.??.gz >tyc2.dat`.
+# `zcat tyc2.dat.??.gz >tyc2.dat` (or gzcat for OSX)
 
 exec(open('./import_common.py').read())
 
@@ -73,9 +73,9 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inom
 # TODO: can probably leverage more performance by making hard
 # definitions on what position, mangitude, etc. need to be in terms
 # of formatting.
-tychoCloud.addVertexBuffer( position.container(), 'position' )
-tychoCloud.addVertexBuffer( apparentMagV.container(), 'magnitude' )
-tychoCloud.addVertexBuffer( color.container(), 'color' )
+tychoCloud.addVertexBuffer( engine.wrap(position), 'position' )
+tychoCloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
+tychoCloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( tychoCloud )
 
 exportPath = '../data/tyco2.ieb'
