@@ -77,7 +77,7 @@ std::shared_ptr<IEventSampler> CreateEventSampler() {
       
       IEventSampler::Key k;
       k.key = c;
-      k.state = IEventSampler::DOWN;
+      k.state = IEventSampler::State::DOWN;
       eventSampler->push( k );
    }
 }
@@ -90,22 +90,22 @@ std::shared_ptr<IEventSampler> CreateEventSampler() {
    IEventSampler::MouseButton button;
    
    if( [theEvent type] == NSEventTypeLeftMouseUp )
-      button.button = IEventSampler::LEFT;
+      button.button = IEventSampler::Button::LEFT;
    else if( [theEvent type] == NSEventTypeRightMouseUp )
-      button.button = IEventSampler::RIGHT;
+      button.button = IEventSampler::Button::RIGHT;
    
    NSPoint pos = [theEvent locationInWindow];
    button.x = pos.x;
    button.y = pos.y;
    
-   button.state = IEventSampler::CLICKED;
+   button.state = IEventSampler::State::CLICKED;
    
    if( theEvent.clickCount > 1 ) {
       if( doubleClickTimer ) {
          [doubleClickTimer invalidate];
          doubleClickTimer = nullptr;
       }
-      button.state = IEventSampler::DBL_CLICKED;
+      button.state = IEventSampler::State::DBL_CLICKED;
       eventSampler->push( button );
       std::cout<<"Pushed double click"<<std::endl;
    }

@@ -24,6 +24,7 @@ public:
    
    void* getSurface() override;
    void setSurface( void*, void* ) override {}
+   void pauseRendering( bool ) override {}
    
 private:
    id<MTLDevice> device;
