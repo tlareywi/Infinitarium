@@ -1,3 +1,7 @@
 cmake_minimum_required( VERSION "3.12" )
 
-install(FILES tyco2.ieb hip2.ieb empty.ieb sprite.ieb sphere.ieb DESTINATION share/Infinitarium)
+if( MSVC )
+    install(FILES Windows/tyco2.ieb Windows/hip2.ieb Windows/empty.ieb DESTINATION share/Infinitarium)
+else( MSVC )
+    install(FILES OSX/tyco2.ieb OSX/hip2.ieb OSX/empty.ieb OSX/sprite.ieb OSX/sphere.ieb DESTINATION share/Infinitarium)
+endif( MSVC )

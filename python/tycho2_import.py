@@ -9,8 +9,8 @@
 exec(open('./import_common.py').read())
 
 print('\nReading Tycho 2 Catalog ...')
-t = Table.read("tyc2.dat",
-readme="readme.tyc2",
+t = Table.read("E:/HipTyc/tyc2.dat",
+readme="E:/HipTyc/readme.tyc2",
 format="ascii.cds")
 
 t['BTmag'].fill_value = 0
@@ -25,10 +25,15 @@ scene.add( camera )
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
 camera.setRenderContext( context )
 
+origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
+
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
-camera.setMotionController( engine.Orbit() )
+motionController = engine.Orbit() 
+motionController.setHomeSystem( origin )
+camera.setMotionController( motionController )
 
+# Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.FrameBuffer)
@@ -41,7 +46,7 @@ position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
 apparentMagV = engine.DataPack_FLOAT32(len(t))
 
-tychoCloud.setProgram( 'stars_no_plx' )
+tychoCloud.setProgram( 'starsUnitSphere' )
 tychoCloud.setUniform( 'epsilon', engine.UniformType(0.0001) )
 tychoCloud.setUniform( 'diskDensity', engine.UniformType(0.88) )
 tychoCloud.setUniform( 'haloDensity', engine.UniformType(6.2) )
@@ -78,6 +83,6 @@ tychoCloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 tychoCloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( tychoCloud )
 
-exportPath = '../data/tyco2.ieb'
+exportPath = exportPath + 'tyco2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

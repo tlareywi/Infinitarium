@@ -4,8 +4,16 @@ import math
 import importlib
 import sys
 import ctypes
+import platform
+import os
 
-sys.path.append('/usr/local/lib')
+if platform.system() == 'Windows':
+    exportPath = '../data/Windows/'
+    sys.path.append('''C:\\Program Files (x86)\\Infinitarium\\bin''')
+    os.add_dll_directory('C:\\Program Files (x86)\\Infinitarium\\bin')
+else:
+    sys.path.append('/usr/local/lib')
+    exportPath = '../data/OSX/'
 
 def degreesToRadians(x):
     return x * math.pi / 180.0

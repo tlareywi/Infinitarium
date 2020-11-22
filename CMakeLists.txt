@@ -44,3 +44,5 @@ add_subdirectory( data )
 add_subdirectory( UI )
 
 configure_file( config.in ${CMAKE_SOURCE_DIR}/config.h )
+
+install(TARGETS Infinitarium RUNTIME DESTINATION bin)

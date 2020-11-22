@@ -26,8 +26,8 @@
 exec(open('./import_common.py').read())
 
 print('\nReading Hipparcos2 Catalog ...')
-t = Table.read("/Users/trystan/Downloads/hip2.dat",
-        readme="/Users/trystan/Downloads/readme.hip2",
+t = Table.read("E:/HipTyc/hip2.dat",
+        readme="E:/HipTyc/readme.hip2",
         format="ascii.cds")
 
 t['Plx'].fill_value = 0
@@ -110,6 +110,6 @@ hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( hip2Cloud )
 
-exportPath = '../data/hip2.ieb'
+exportPath = exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

@@ -80,6 +80,7 @@ void main() {
    vec3 rgb = vec3(color[gl_InstanceIndex].r, color[gl_InstanceIndex].g, color[gl_InstanceIndex].b);
    vertOut.color = vec4( rgb, 1.0 );
    
+   // This default star shader expects V[gl_InstanceIndex].m to contain 'absolute magnitude' for relative brightness calculation based on distance from eye.
    float distParsecs = distance( position, eye );
    float appMag = 5.0 * (log(distParsecs/10.0) / log(10.0)) + V[gl_InstanceIndex].m;
 

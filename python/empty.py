@@ -1,16 +1,6 @@
 # Creates a minimal scene for application startup state.
 
-import importlib
-import sys
-
-sys.path.append('/usr/local/lib')
-
-import libInfinitariumEngine
-importlib.reload(libInfinitariumEngine)
-
-exportPath = '../data/empty.ieb'
-
-engine = libInfinitariumEngine
+exec(open('./import_common.py').read())
 
 scene = engine.Scene()
 
@@ -34,6 +24,6 @@ clearScreen = engine.ClearScreen()
 camera.addChild( clearScreen )
 
 print( 'Export ...' )
-scene.save(exportPath)
+scene.save(exportPath + 'empty.ieb')
 
 print( 'Success!' )

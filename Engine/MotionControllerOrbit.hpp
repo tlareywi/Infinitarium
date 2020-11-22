@@ -21,7 +21,7 @@
 
 class Orbit : public IMotionController {
 public:
-   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{1.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0), sensitivity(1.0f) {}
+   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{0.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0), sensitivity(1.0f) {}
    virtual ~Orbit() {}
    
    void getViewMatrix( glm::mat4& ) override;

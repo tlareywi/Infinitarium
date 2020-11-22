@@ -5,6 +5,7 @@
 
 #if defined(WIN32)
 	#include <windows.h>
+    #include <libloaderapi.h>
 #else
 	#include <dlfcn.h>
 #endif
@@ -18,7 +19,6 @@
 #include "Application.hpp"
 #include "ApplicationWindow.hpp"
 #include "Texture.hpp"
-
 
 ///
 /// \brief Encapsulate some boiler-plate aspects of runtime module loading. Enforces
@@ -50,6 +50,12 @@ protected:
 	  std::string err;
 #if defined(WIN32)
 	  handle = (void*)LoadLibraryA( module.c_str() );
+      if(!handle) {
+          SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+          LPCWSTR result = toWideStr(std::string(INSTALL_ROOT) + "/bin").c_str();
+          AddDllDirectory(result);
+          handle = (void*)LoadLibraryEx(module.c_str(), NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS );
+      }
 #else
       handle = dlopen( module.c_str(), RTLD_LOCAL|RTLD_LAZY );
 #endif
@@ -61,9 +67,23 @@ protected:
    void* handle;
    
 private:
-   ModuleFactory();
+#if defined(WIN32)
+    std::wstring toWideStr(const std::string& s)
+    {
+        int len;
+        int slength = (int)s.length() + 1;
+        len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+        wchar_t* buf = new wchar_t[len];
+        MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+        std::wstring r(buf);
+        delete[] buf;
+        return r;
+    }
+#endif
+
+    ModuleFactory();
    
-   static std::shared_ptr<T> instance;
+    static std::shared_ptr<T> instance;
 };
 
 template<typename T> std::shared_ptr<T> ModuleFactory<T>::instance = nullptr;

@@ -27,8 +27,8 @@ set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # boost
-find_package(Boost COMPONENTS serialization wserialization python37 REQUIRED)
-target_link_libraries(InfinitariumEngine ${Boost_WSERIALIZATION_LIBRARY} ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON37_LIBRARY})
+find_package(Boost COMPONENTS serialization wserialization python38 REQUIRED)
+target_link_libraries(InfinitariumEngine ${Boost_WSERIALIZATION_LIBRARY} ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON38_LIBRARY})
 include_directories(${Boost_INCLUDE_DIR})
 
 # python3
