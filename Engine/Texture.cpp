@@ -28,12 +28,19 @@ template<class Archive> void BlendState::serialize(Archive& ar, unsigned int ver
 // ITexture
 ////////////////////////////////////////////////////////////////////////////////////////
 
+static std::map<unsigned long long, std::shared_ptr<ITexture>> registeredObjs = std::map<unsigned long long, std::shared_ptr<ITexture>>();
+
 std::shared_ptr<ITexture> ITexture::Create( unsigned int x, unsigned int y, Format format ) {
    return ModuleFactory<RendererFactory>::Instance()->createTexture( glm::uvec2(x,y), format );
 }
 
 std::shared_ptr<ITexture> ITexture::Clone( const ITexture& obj ) {
-   return ModuleFactory<RendererFactory>::Instance()->cloneTexture( obj );
+	std::map<unsigned long long, std::shared_ptr<ITexture>>::iterator it{ registeredObjs.find(obj._objId) };
+
+	if (it == registeredObjs.end())
+		registeredObjs[obj._objId] = ModuleFactory<RendererFactory>::Instance()->cloneTexture(obj);
+
+	return registeredObjs[obj._objId];
 }
 
 template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigned int version ) {
@@ -41,18 +48,26 @@ template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigne
 	ar & BOOST_SERIALIZATION_NVP(dim);
 	ar & BOOST_SERIALIZATION_NVP(format);
 	ar & BOOST_SERIALIZATION_NVP(image);
+	ar & BOOST_SERIALIZATION_NVP(_objId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // IRenderTarget
 ////////////////////////////////////////////////////////////////////////////////////////
 
+static std::map<unsigned long long, std::shared_ptr<IRenderTarget>> registeredObjsRT = std::map<unsigned long long, std::shared_ptr<IRenderTarget>>();
+
 std::shared_ptr<IRenderTarget> IRenderTarget::Create( unsigned int x, unsigned int y, Format format, Type type, Resource resource ) {
    return ModuleFactory<RendererFactory>::Instance()->createRenderTarget( glm::uvec2(x,y), format, type, resource );
 }
 
 std::shared_ptr<IRenderTarget> IRenderTarget::Clone( const IRenderTarget& obj ) {
-   return ModuleFactory<RendererFactory>::Instance()->createRenderTargetCopy( obj );
+	std::map<unsigned long long, std::shared_ptr<IRenderTarget>>::iterator it{ registeredObjsRT.find(obj._objId) };
+
+	if (it == registeredObjsRT.end())
+		registeredObjsRT[obj._objId] = ModuleFactory<RendererFactory>::Instance()->createRenderTargetCopy(obj);
+
+	return registeredObjsRT[obj._objId];
 }
 
 template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const unsigned int version ) {
@@ -64,5 +79,6 @@ template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(clear);
 	ar & BOOST_SERIALIZATION_NVP(clearColor);
     ar & BOOST_SERIALIZATION_NVP(blending);
+	ar & BOOST_SERIALIZATION_NVP(_objId);
 }
 

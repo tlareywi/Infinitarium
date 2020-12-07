@@ -1,11 +1,20 @@
 #pragma once
 
 #include "../../Engine/RenderContext.hpp"
+#include "RenderTarget.hpp"
 
 #include "vulkan/vulkan.h"
 
 #include <vector>
 #include <functional>
+
+#include <windows.h>
+
+#define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_VULKAN
+
+#include <openxr.h>
+#include <openxr_platform.h>
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities{};
@@ -18,43 +27,70 @@ struct SwapChainSupportDetails {
 ///
 class VulkanRenderContext : public IRenderContext {
 public:
+	struct ContextParams {
+		VkSurfaceKHR surface;
+		VkInstance vkInstance;
+		XrInstance xrInstance;
+		XrSystemId xrSystemId;
+	};
+
 	VulkanRenderContext(const IRenderContext& obj);
-	VulkanRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs);
+	VulkanRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs, bool headset);
 	virtual ~VulkanRenderContext();
 
 	void* getSurface() override;
-	void setSurface(void*, void*) override;
+	void setSurface(void*) override;
 	void pauseRendering(bool) override;
+	void beginFrame() override;
+	void endFrame() override;
 
-	VkDevice getVulkanDevice() {
+	virtual VkImageLayout swapchainLayout() {
+		return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	}
+	virtual VkImageLayout attachmentLayout() {
+		return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+	virtual VulkanRenderTarget& getSwapchainTarget();
+	virtual void attachTargets(IRenderPass& renderPass);
+	virtual void submit(VkCommandBuffer);
+
+	void submit(VkSubmitInfo&);
+
+	VkDevice const getVulkanDevice() {
 		return logicalDevice;
 	}
-
-	VkPhysicalDevice getPhysicalDevice() {
+	VkPhysicalDevice const getPhysicalDevice() {
 		return physicalDevice;
 	}
-
-	VkCommandPool getCommandPool() {
+	VkCommandPool const getCommandPool() {
 		return commandPool;
 	}
-
-	VkDescriptorPool getDescriptorPool() {
+	VkDescriptorPool const getDescriptorPool() {
 		return descriptorPool;
 	}
-
-	void getVulkanSwapchainInfo( VkSwapchainCreateInfoKHR& info ) {
+	void getVulkanSwapchainInfo(VkSwapchainCreateInfoKHR& info) {
 		memcpy(&info, &swapchainCreateInfo, sizeof(info));
 	}
-
-	uint32_t nextSwapChainTarget();
-
-	const std::vector<VkImageView>& getImageViews() {
-		return swapChainImageViews;
+	virtual size_t numImages() {
+		return swapchainTargets.size();
+	}
+	VkQueue const getGraphicsQueue() {
+		return graphicsQueue;
+	}
+	VkInstance const getVkInstance() {
+		return vkInstance;
 	}
 
-	void submit( VkSubmitInfo& );
-	void submit( VkCommandBuffer&, uint32_t );
-	void present( uint32_t );
+protected:
+	VkPhysicalDevice physicalDevice;
+	VkDevice logicalDevice;
+	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
+	VkDeviceCreateInfo& createDeviceQueueInfo(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+	void createDeviceQueue();
+	void createDescriptorPool( uint32_t );
+	unsigned int graphicsQueueIndx{ 0 };
+	VkQueue graphicsQueue;
+	VkInstance vkInstance;
 
 private:
 	void initializeGraphicsDevice( const VkSurfaceKHR&, const VkInstance& );
@@ -63,23 +99,20 @@ private:
 	bool checkDeviceExtensionSupport(const VkPhysicalDevice&);
 	bool querySwapChain(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails& details);
 	void createSwapChain( const VkSurfaceKHR& surface );
-	void createDescriptorPool();
 	void reAllocSwapchain();
 	
 	// Device resources
-	VkPhysicalDevice physicalDevice;
-	VkDevice logicalDevice;
-	VkQueue graphicsQueue;
 	VkCommandPool commandPool;
 	VkDescriptorPool descriptorPool;
+	VkDeviceQueueCreateInfo queueCreateInfo = {};
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+	VkDeviceCreateInfo deviceCreateInfo = {};
 
 	// Swapchain
 	SwapChainSupportDetails swapChainCaps{};
-	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkSwapchainKHR swapChain;
-	std::vector<VkImage> swapChainImages;
-	std::vector<VkImageView> swapChainImageViews;
-	unsigned int graphicsQIndx;
+	std::vector<VulkanRenderTarget> swapchainTargets;
+	std::vector<VkCommandBuffer> commandQ;
 
 	const std::vector<const char*> deviceExtensions = { 
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -91,6 +124,7 @@ private:
 	std::vector<VkFence> imagesInFlight;
 	std::vector<VkFence> inFlightFences;
 
+	uint32_t targetInFlight{ 0 };
 	unsigned short currentSwapFrame;
 
 	std::atomic<bool> renderingPaused;

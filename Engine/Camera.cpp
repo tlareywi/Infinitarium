@@ -34,22 +34,15 @@ void Camera::setRenderPass( const std::shared_ptr<IRenderPass>& rp ) {
    renderPass = rp;
 }
 
-void Camera::init() {
-   renderContext->init();
+std::shared_ptr<IRenderContext> Camera::getContext() {
+   return renderContext;
 }
 
 void Camera::update( UpdateParams& /* identity */ ) {
-   glm::mat4 view;
-
-   if( motionController ) {
+   if( motionController )
       motionController->processEvents();
-      motionController->getViewMatrix( view );
-   }
-   
-   UpdateParams params( projection, view, *this );
    
    Transform::prepare( *renderContext );
-   Transform::update( params );
 }
 
 void Camera::render( IRenderPass& ) {
@@ -57,10 +50,25 @@ void Camera::render( IRenderPass& ) {
       dirty = false;
       renderPass->prepare( *renderContext );
    }
-   
-   renderPass->begin( renderContext );
-   Transform::render( *renderPass );
-   renderPass->end();
+ 
+   for (unsigned int i = 0; i < renderContext->getPerspectiveCount(); ++i ) {
+       glm::mat4 eye{ 1.0 };
+       if (motionController)
+           motionController->getViewMatrix(eye);
+
+       glm::mat4x4 proj, view;
+       renderContext->getPerspective(i, proj, view);
+       if (proj == glm::mat4(1.0))
+           proj = projection;
+
+       UpdateParams params(proj, eye * view, *this);
+       Transform::update(params);
+
+       renderPass->begin( *renderContext );
+       Transform::render( *renderPass );
+       renderPass->end( *renderContext );
+   }
+
    renderPass->runPostRenderOperations();
 }
 

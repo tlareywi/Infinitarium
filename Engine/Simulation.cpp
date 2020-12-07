@@ -7,8 +7,6 @@
 
 #include "Simulation.hpp"
 
-
-
 Simulation::Simulation() : exiting(false) {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
 }
@@ -37,17 +35,18 @@ void Simulation::render() {
 }
 
 void Simulation::simLoop() {
-   clock_t time{ 0 };
-   const double clocks_per_ms { CLOCKS_PER_SEC / 1000.0 };
+  // clock_t time{ 0 };
+ //  const double clocks_per_ms { CLOCKS_PER_SEC / 1000.0 };
    
    while( 1 ) {
-      time += clock();
-      if( time / clocks_per_ms < 16.6666666667 ) {
-		 std::this_thread::yield();
-         continue;
-      }
+       // Hmm, I think we don't want to artificially force any clock here. We'll wait on swapchain image fences as necessary already. 
+  //    time += clock();
+  //    if( time / clocks_per_ms < 16.6666666667 ) {
+	//	 std::this_thread::yield();
+   //      continue;
+    //  }
       
-      time = 0;
+   //   time = 0;
       update();
       render();
       
@@ -55,5 +54,7 @@ void Simulation::simLoop() {
          if( exiting )
             break;
       }
+
+      std::this_thread::yield();
    }
 }

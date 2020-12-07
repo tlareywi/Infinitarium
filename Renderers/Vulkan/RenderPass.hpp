@@ -11,33 +11,25 @@
 ///
 class VulkanRenderPass : public IRenderPass {
 public:
-	VulkanRenderPass() : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE), activeContext(nullptr) {}
-	VulkanRenderPass(const IRenderPass& obj) : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE), activeContext(nullptr), IRenderPass(obj) {}
+	VulkanRenderPass() : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE) {}
+	VulkanRenderPass(const IRenderPass& obj) : renderPass(VK_NULL_HANDLE), device(VK_NULL_HANDLE), IRenderPass(obj) {}
 	virtual ~VulkanRenderPass();
 
 	void prepare(IRenderContext&) override;
-	void begin(std::shared_ptr<IRenderContext>&) override;
-	void end() override;
+	void begin(IRenderContext&) override;
+	void end(IRenderContext&) override;
 
 	VkRenderPass getVulkanRenderPass() {
 		return renderPass;
 	}
 
-	VkCommandBuffer commandBuffer() {
-		// TEMP: won't always be tied to a swapchain buffer
-		return commandBuffers[swapChainIndx];
-	}
+	VkCommandBuffer commandBuffer();
 
 private:
 	VkRenderPass renderPass;
 	VkDevice device;
 
-	std::vector<VkFramebuffer> swapChainFramebuffers;
-	std::vector<VkCommandBuffer> commandBuffers; 
-
-	uint32_t swapChainIndx;
-
-	VulkanRenderContext* activeContext;
+	VulkanRenderTarget* currentTarget{ nullptr };
 };
 
 

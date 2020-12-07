@@ -22,7 +22,7 @@ camera = engine.Camera()
 camera.setName('tyc2Stars')
 scene.add( camera )
 
-context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
+context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
@@ -36,7 +36,7 @@ camera.setMotionController( motionController )
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
-    engine.Resource.FrameBuffer)
+    engine.Resource.Swapchain)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
 renderPass.addRenderTarget( renderTarget )

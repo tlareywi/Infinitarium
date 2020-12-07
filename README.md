@@ -1,20 +1,32 @@
 # Introduction
-So far, this is basically a star catalog viewer very much in an alpha/experimental state. It features an integrated python3 console facilitating the use of popular astonomy packages like AstroPy. It's possible to download star catalogs directly from a remote source such as the VizieR archives and process them into a renderable scene all within the application.  
+This 'star catalog viewer' is more or less a sandbox for me to fuss with modern graphics APIs such as Metal and Vulkan. It's not yet particularly usable, but it does some cool stuff such as ...
+* OpenXR integration for stereoscopic headset rendering
+    * Tested on Valve Index. Theoretically works on other stero headsets (not phone adaptors)
+* Vulkan and Metal backends for cross-platform rendering (Windows, Linux, OSX)
+* Astropy and Python integration
+    * See the python folder for scripts that pull data from VizieR
+* Highly customizable and distributable scene files
+    * Catalog data and the graphics pipeline configuration itself can be modified and serialized out to a scene
 
-It is also possible, and often more convinient, to process catalogs via a standalone python script that writes out a scene file consumable by the Infinitarium viewer.        
+#### Tycho2 Catalog Render
+![Tycho2 Catalog](screen_captures/tycho2.png)
+
+# Current Efforts
+* ImGUI integration to build out features needed to make this a tool some folks may actually want to use 
+* General stabilization of existing feautres and cross-platform builds     
 
 ### Supported Platforms
-Only OSX Mojave with XCode 10 has been tested and is currently supported. This project started as a way to learn the Metal graphics API (Apple specific). However, the code is well designed to decouple the graphics API and future plans include Windows and Linux support with a Vulkan graphics backend.
-
-### Prerequsites
-Install homebrew; /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+Windows (Vulkan) and OSX (Metal). Vulkan work is currently, as of Dec. 2020, running ahead of Metal so only Windows/Vulkan will currently build on the mainline. OSX/Metal works on older tags. 
 
 ### Build Dependencies
-brew install glm  
-brew install boost  
-brew install boost-python3  
-brew install rapidjson
-brew install mpfr
+I'll get around to documenting this once things stabilize a bit. It's a Cmake build system, so it will let you know what's missing ;) But you at least need the following.
+* Boost 1.74 (or other boost versions that are on boost_python 3.8)
+* Python 3.8
+* GLFW (Windows)
+* GLM
+* OpenXR (Windows)
+* VulkanSDK (Windows)
+* RapidJSON
 
 ### Required Runtime Dependencies
 brew install python
@@ -23,13 +35,11 @@ brew install python
 pip3 install astropy  
 pip3 install Pillow  
 
-### Screen Captures
-
-#### Tycho2 Catalog
-![Tycho2 Catalog](screen_captures/tycho2.png)
-
 ### Usage
-Running the execuable will load the default empty scene with a python console. From here you can do anything you could in Python and Astropy including loading star catalogs from VizieR. It's often more convinient though to process star catalogs via a standalone python script. See examples in the python folder. The included pre-built scenes (see below) are built using the scripts python/hipparcos2_import.py and python/tycho2_import.py.
+A start-up scene file is hardcoded in main.cpp. Scenes are built using python on the command line using the scene files in the python folder. Some prebuilt scenes including Hipparcos and Tycho2 are included in the source tree under the data folder. More interactive ways to load and build scenes are forthcoming. 
+
+## Tagged OSX releases only
+Feaures below this line are on prior tagged OSX builds only. Soon on Windows. 
 
 #### Loading pre-built scenes
 In the application's python console run activeScene.loadLocal('[scenefile]'). There are currently two scenes distrubuted, hip2.ieb and tyco2.ieb. 

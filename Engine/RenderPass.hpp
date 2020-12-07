@@ -20,7 +20,7 @@ class IRenderPass {
 public:
    virtual ~IRenderPass() {
    }
-   IRenderPass( const IRenderPass& rp ) {
+   IRenderPass( const IRenderPass& rp ) : _objId(rp._objId) {
       std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));
    }
    
@@ -32,8 +32,8 @@ public:
    }
    
    virtual void prepare( IRenderContext& ) = 0;
-   virtual void begin( std::shared_ptr<IRenderContext>& ) = 0;
-   virtual void end() = 0;
+   virtual void begin( IRenderContext& ) = 0;
+   virtual void end( IRenderContext& ) = 0;
    
    void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
       targets[indx]->getData( rect, data );
@@ -55,9 +55,9 @@ public:
    }
 
 protected:
-   IRenderPass() {};
-   
+   IRenderPass() : _objId(reinterpret_cast<unsigned long long>(this)) {};
    std::vector<std::shared_ptr<IRenderTarget>> targets;
+   unsigned long long _objId;
    
 private:
    std::vector<std::function<void(IRenderPass&)>> postRenderOps;
@@ -72,8 +72,8 @@ public:
    RenderPassProxy( const IRenderPass& obj ) : IRenderPass(obj) {}
    
    void prepare( IRenderContext& ) override {};
-   void begin( std::shared_ptr<IRenderContext>& ) override {};
-   void end() override {};
+   void begin( IRenderContext& ) override {};
+   void end( IRenderContext& ) override {};
    
 #if defined ENGINE_BUILD
    friend class boost::serialization::access;

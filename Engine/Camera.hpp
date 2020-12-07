@@ -27,7 +27,7 @@ public:
    Camera();
    virtual ~Camera() {}
    
-   void init();
+   std::shared_ptr<IRenderContext> getContext();
    
    void update( UpdateParams& ) override;
    void render( IRenderPass& ) override;

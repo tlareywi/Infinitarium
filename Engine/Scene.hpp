@@ -51,6 +51,7 @@ public:
    
 private:
    std::vector<std::shared_ptr<Camera>> cameras;
+   std::vector<std::shared_ptr<IRenderContext>> renderContexts; // Owned by cameras but we need runtime references to notify begin/end frame
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version);

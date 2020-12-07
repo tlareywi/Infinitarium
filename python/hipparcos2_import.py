@@ -38,7 +38,7 @@ camera = engine.Camera()
 camera.setName('hipStars')
 scene.add( camera )
 
-context = engine.IRenderContext.create(0, 0, 1920, 1080, False)
+context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
@@ -52,7 +52,7 @@ camera.setMotionController( motionController )
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
-    engine.Resource.FrameBuffer)
+    engine.Resource.Swapchain)
 renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
 renderTarget.setBlendState( engine.BlendState(engine.Op.Add, engine.Op.Add, engine.Factor.One, engine.Factor.One, engine.Factor.SourceAlpha, engine.Factor.OneMinusSourceAlpha) )
@@ -61,7 +61,7 @@ renderPass.addRenderTarget( renderTarget )
 # Pick buffer
 pickTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.RF32, engine.Type.Color,
-    engine.Resource.Memory)
+    engine.Resource.Offscreen)
 pickTarget.setClear( True )
 pickTarget.setClearColor(0,0,0,0)
 renderPass.addRenderTarget( pickTarget )

@@ -103,8 +103,8 @@ public:
       RF32
    };
 
-   ITexture( const glm::uvec2& d, Format f) : dim(d), format(f) {}
-   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image) {}
+   ITexture( const glm::uvec2& d, Format f) : dim(d), format(f), _objId(reinterpret_cast<unsigned long long>(this)) {}
+   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image), _objId(obj._objId) {}
    virtual ~ITexture() {}
    
    virtual void prepare( IRenderContext& ) = 0;
@@ -115,12 +115,19 @@ public:
    void set( DataPackContainer& i ) {
          image = std::move(i);
    }
+
+   void setExtent(unsigned int width, unsigned int height) {
+       dim.x = width;
+       dim.y = height;
+   }
    
 protected:
-   ITexture() {};
+   ITexture() : _objId(reinterpret_cast<unsigned long long>(this)) {};
    glm::uvec2 dim;
    Format format;
    DataPackContainer image;
+
+   unsigned long long _objId;
 };
 
 class IRenderTarget : public ITexture {
@@ -134,8 +141,8 @@ public:
    };
    
    enum Resource {
-      FrameBuffer,
-      Memory
+      Swapchain,
+      Offscreen
    };
    
    virtual ~IRenderTarget() {}
@@ -157,7 +164,7 @@ public:
    virtual void getData( const glm::uvec4&, void* ) = 0;
    
 protected:
-   IRenderTarget() : clear(false), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
+   IRenderTarget() : ITexture(), clear(false), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
    IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clear(false), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
    Type type;
    Resource resource;

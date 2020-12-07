@@ -42,14 +42,20 @@ void Scene::load( const std::string& filename ) {
    
    {
       std::lock_guard<std::mutex> lock( loadLock );
-      
-      // According to boost docs we want the wide version for portable UTF-8
-  //    boost::archive::xml_wiarchive ia( ifs );
+
       boost::archive::binary_iarchive ia( ifs );
       ia >> boost::serialization::make_nvp( "Scene", *this );
       
-      for( auto& camera : cameras )
-         camera->init();
+      renderContexts.reserve(cameras.size());
+      for( auto& camera : cameras ) {
+          std::shared_ptr<IRenderContext> c{ camera->getContext() };
+
+          if( std::any_of(renderContexts.begin(), renderContexts.end(), [&c](std::shared_ptr<IRenderContext>& ctx) {return ctx == c;}) )
+              continue;
+          
+          c->init();
+          renderContexts.push_back(c);
+      }
    }
    
    ifs.close();
@@ -69,8 +75,7 @@ void Scene::save( const std::string& filename ) const {
       std::cout<<"Unable to open "<<filename<<". Do you have write permissions?"<<std::endl;
    }
    
-   {  // According to boost docs we want the wide version for portable UTF-8
-   //   boost::archive::xml_woarchive oa( ofs );
+   {
       boost::archive::binary_oarchive oa( ofs );
       oa << boost::serialization::make_nvp( "Scene", *this );
    }
@@ -79,8 +84,11 @@ void Scene::save( const std::string& filename ) const {
 }
 
 void Scene::update() {
+   for (auto& context : renderContexts)
+       context->beginFrame();
+
    std::lock_guard<std::mutex> lock( loadLock );
-   
+
    for( auto& camera : cameras ) {
       UpdateParams ident( *camera );
       camera->update( ident );
@@ -88,11 +96,16 @@ void Scene::update() {
 }
 
 void Scene::render() {
-   std::lock_guard<std::mutex> lock( loadLock );
-   RenderPassProxy stub;
-   
-   for( auto& camera : cameras )
-      camera->render( stub );
+    {
+        std::lock_guard<std::mutex> lock(loadLock);
+        RenderPassProxy stub;
+
+        for (auto& camera : cameras)
+            camera->render(stub);
+    }
+
+    for (auto& context : renderContexts)
+        context->endFrame();
 }
 
 template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {

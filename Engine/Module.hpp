@@ -19,6 +19,7 @@
 #include "Application.hpp"
 #include "ApplicationWindow.hpp"
 #include "Texture.hpp"
+#include "IImGUI.hpp"
 
 ///
 /// \brief Encapsulate some boiler-plate aspects of runtime module loading. Enforces
@@ -101,12 +102,13 @@ public:
    typedef std::shared_ptr<IRenderPass> (*RenderPassImplCopy)( const IRenderPass& );
    typedef std::shared_ptr<IRenderProgram> (*RenderProgramImpl)();
    typedef std::shared_ptr<IDataBuffer> (*DataBufferImpl)( IRenderContext& );
-   typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool );
+   typedef std::shared_ptr<IRenderContext> (*RenderContextImpl)( unsigned int, unsigned int, unsigned int, unsigned int, bool, bool );
    typedef std::shared_ptr<IRenderContext> (*RenderContextClone)( const IRenderContext& );
    typedef std::shared_ptr<ITexture> (*TextureImpl)( const glm::uvec2&, ITexture::Format );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImpl)( const glm::uvec2&, ITexture::Format, IRenderTarget::Type, IRenderTarget::Resource );
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImplCopy)( const IRenderTarget& );
    typedef std::shared_ptr<ITexture> (*textureCloneImpl)( const ITexture& );
+   typedef std::shared_ptr<IImGUI>(*ImGUIImpl)();
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -121,6 +123,7 @@ public:
       createRenderTargetCopy = nullptr;
       cloneRenderContext = nullptr;
       cloneTexture = nullptr;
+      createImGUI = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -135,6 +138,7 @@ public:
    RenderPassImplCopy createRenderPassCopy;
    RenderContextClone cloneRenderContext;
    textureCloneImpl cloneTexture;
+   ImGUIImpl createImGUI;
 };
 
 ///

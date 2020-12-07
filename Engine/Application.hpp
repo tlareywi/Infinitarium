@@ -20,11 +20,11 @@
 
 #include <iostream>
 
-class IE_EXPORT IApplication {
+class IApplication {
 public:
    virtual ~IApplication() {}
    
-   static std::shared_ptr<IApplication> Create();
+   IE_EXPORT static std::shared_ptr<IApplication> Create();
    
    std::string getInstallationRoot() {
       return(INSTALL_ROOT);
@@ -34,7 +34,7 @@ public:
       return pyInterp;
    }
    
-   void setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp );
+   IE_EXPORT void setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp );
    
    void subscribe( const std::string& msg, std::shared_ptr<IDelegate>& delegate );
    void unsubscribe( const std::string& msg );

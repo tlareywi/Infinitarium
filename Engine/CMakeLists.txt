@@ -20,7 +20,8 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   PythonBridge.hpp EngineInterface.hpp ConsoleInterface.cpp ConsoleInterface.hpp
   PyUtil.hpp UniformType.hpp Delegate.hpp Camera.hpp Texture.hpp Pipeline.hpp
   Sprite.hpp SceneObject.hpp Transform.hpp Spheroid.hpp CoordinateSystem.hpp
-  MotionController.cpp MotionController.hpp
+  MotionController.cpp MotionController.hpp ImGUI.hpp ImGUI.cpp IImGUI.hpp IImGUI.cpp
+  ImGUI/imgui.cpp ImGUI/imgui_widgets.cpp ImGUI/imgui_draw.cpp ImGUI/imgui.h 
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)

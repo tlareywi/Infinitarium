@@ -16,6 +16,7 @@
 #include "Sprite.hpp"
 #include "Spheroid.hpp"
 #include "CoordinateSystem.hpp"
+#include "ImGui.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -174,8 +175,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .export_values()
    ;
    enum_<IRenderTarget::Resource>("Resource")
-      .value("FrameBuffer", IRenderTarget::Resource::FrameBuffer)
-      .value("Memory", IRenderTarget::Resource::Memory)
+      .value("Swapchain", IRenderTarget::Resource::Swapchain)
+      .value("Offscreen", IRenderTarget::Resource::Offscreen)
       .export_values()
    ;
    
@@ -201,6 +202,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setTexture", &IRenderable::setTexture)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
+   ;
+   class_<ImGUI, bases<IRenderable>>("ImGUI", init<>())
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)

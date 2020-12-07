@@ -4,9 +4,6 @@
 VulkanRenderPass::~VulkanRenderPass() {
 	if (device) {
 		vkDestroyRenderPass(device, renderPass, nullptr);
-		for (auto framebuffer : swapChainFramebuffers) {
-			vkDestroyFramebuffer(device, framebuffer, nullptr);
-		}
 	}
 }
 
@@ -16,39 +13,58 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 
 	if(renderPass)
 		vkDestroyRenderPass(device, renderPass, nullptr);
-	for (auto framebuffer : swapChainFramebuffers) {
-		vkDestroyFramebuffer(device, framebuffer, nullptr);
-	}
-	if( commandBuffers.size() > 0 )
-		vkFreeCommandBuffers(device, vkContext->getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
 	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	vkContext->getVulkanSwapchainInfo(swapchainCreateInfo);
 
-	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format = swapchainCreateInfo.imageFormat;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	std::vector<VkAttachmentDescription> attachments;
+	std::vector<VkAttachmentReference> attachmentRefs;
+	attachments.reserve(targets.size());
+	attachmentRefs.reserve(targets.size());
 
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-	// VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: Images used as color attachment
-	// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR : Images to be presented in the swap chain
-	// VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL : Images to be used as destination for a memory copy operation
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	bool attachSwapchain{ false };
 
 	VkAttachmentReference colorAttachmentRef = {};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	for (auto& target : targets) {
+		VulkanRenderTarget* vkTarget = dynamic_cast<VulkanRenderTarget*>(target.get());
+
+		VkAttachmentDescription colorAttachment = {};
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		if( target->getClear() )
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		else
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+		if (target->getResource() == IRenderTarget::Resource::Swapchain) {
+			target->setExtent(swapchainCreateInfo.imageExtent.width, swapchainCreateInfo.imageExtent.height);
+			colorAttachment.format = swapchainCreateInfo.imageFormat;
+			colorAttachment.finalLayout = vkContext->swapchainLayout();
+			colorAttachmentRef.layout = vkContext->attachmentLayout();
+			attachSwapchain = true;
+		}
+		else if (target->getResource() == IRenderTarget::Resource::Offscreen) {
+			continue; // TODO
+			//dynamic_cast<VulkanRenderTarget*>(target.get())->getPixelFormat();
+			//colorAttachment.format = dynamic_cast<VulkanRenderTarget*>(target.get())->getPixelFormat();
+			//colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			//colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		}
+
+		attachments.emplace_back(std::move(colorAttachment));
+
+		colorAttachmentRef.attachment = attachmentRefs.size();
+		attachmentRefs.emplace_back(std::move(colorAttachmentRef));
+	}
 
 	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.colorAttachmentCount = attachmentRefs.size();
+	subpass.pColorAttachments = attachmentRefs.data();
 
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -60,8 +76,8 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = attachments.size();
+	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
@@ -70,66 +86,39 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 	if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create render pass!");
 	}
-
-	// Swapchain framebuffers.
-	const std::vector<VkImageView>& swapChainImageViews{ vkContext->getImageViews() };
-	swapChainFramebuffers.resize(swapChainImageViews.size());
-	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-		VkImageView attachments[] = {
-			swapChainImageViews[i]
-		};
-
-		VkFramebufferCreateInfo framebufferInfo = {};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = renderPass;
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = swapchainCreateInfo.imageExtent.width;
-		framebufferInfo.height = swapchainCreateInfo.imageExtent.height;
-		framebufferInfo.layers = 1;
-
-		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create framebuffer!");
-		}
+	
+	for (auto& target : targets) { // Attach must be called after the vkRenderPass is initialized
+		dynamic_cast<VulkanRenderTarget*>(target.get())->attach(context, *this); // TODO: Should this be moved up to the interface level?
 	}
 
-	// Command buffers
-	{
-		commandBuffers.resize(swapChainFramebuffers.size());
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = vkContext->getCommandPool();
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate command buffers!");
-		}
+	if (attachSwapchain) { // This render pass declares a swapchain attachment. Associate this renderpass with the swapchain framebuffers.
+		vkContext->attachTargets( *this );
 	}
 }
 
-void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
-	activeContext = dynamic_cast<VulkanRenderContext*>(context.get());
+VkCommandBuffer VulkanRenderPass::commandBuffer() {
+	if (currentTarget)
+		return currentTarget->getCmdBuffer();
+	else
+		return nullptr;
+}
 
-	VkClearValue clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
-	for (auto& target : targets) {
-		if (target->getResource() == IRenderTarget::FrameBuffer) {
-			swapChainIndx = activeContext->nextSwapChainTarget();
-			glm::vec4 ccolor{ target->getClearColor()  };
-			clearColor = { ccolor.r, ccolor.g, ccolor.b, ccolor.a };
-		}
-		else if(target->getResource() == IRenderTarget::Memory) {
-			// TODO: Implement off screen render targets
-		}
-	}
+void VulkanRenderPass::begin(IRenderContext& context) {
+	VulkanRenderContext& vkContext = dynamic_cast<VulkanRenderContext&>(context);
+
+	currentTarget = &vkContext.getSwapchainTarget();
+	if (!currentTarget->getFramebuffer() || !currentTarget->getCmdBuffer()) return;
+
+	glm::vec4 cc = currentTarget->getClearColor();
+	const VkClearValue clearColor{ cc.r, cc.g, cc.b, cc.a };
 
 	VkSwapchainCreateInfoKHR swapchainCreateInfo;
-	activeContext->getVulkanSwapchainInfo(swapchainCreateInfo);
+	vkContext.getVulkanSwapchainInfo(swapchainCreateInfo);
 
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[swapChainIndx];
+	renderPassInfo.framebuffer = currentTarget->getFramebuffer();
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapchainCreateInfo.imageExtent;
 	renderPassInfo.clearValueCount = 1;
@@ -140,24 +129,23 @@ void VulkanRenderPass::begin(std::shared_ptr<IRenderContext>& context) {
 	beginInfo.flags = 0; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-	if( vkBeginCommandBuffer(commandBuffers[swapChainIndx], &beginInfo) != VK_SUCCESS ) {
+	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS ) {
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	vkCmdBeginRenderPass(commandBuffers[swapChainIndx], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(currentTarget->getCmdBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void VulkanRenderPass::end() {
-	vkCmdEndRenderPass(commandBuffers[swapChainIndx]);
-	if( vkEndCommandBuffer(commandBuffers[swapChainIndx]) != VK_SUCCESS ) {
+void VulkanRenderPass::end(IRenderContext& context) {
+	if (!currentTarget->getCmdBuffer()) return;
+	VulkanRenderContext& vkContext = dynamic_cast<VulkanRenderContext&>(context);
+
+	vkCmdEndRenderPass(currentTarget->getCmdBuffer());
+	if( vkEndCommandBuffer(currentTarget->getCmdBuffer()) != VK_SUCCESS ) {
 		throw std::runtime_error("failed to record command buffer!");
 	}
 	 
-	activeContext->submit( commandBuffers[swapChainIndx], swapChainIndx );
-
-	activeContext->present( swapChainIndx );
-
-	swapChainIndx = 0;
+	vkContext.submit( currentTarget->getCmdBuffer() );
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {

@@ -30,12 +30,13 @@ static std::map<std::string, std::string> symbolMap {
    {"CreateRenderPassCopy", "?CreateRenderPassCopy@@YA?AV?$shared_ptr@VIRenderPass@@@std@@AEBVIRenderPass@@@Z"},
    {"CreateRenderProgram", "?CreateRenderProgram@@YA?AV?$shared_ptr@VIRenderProgram@@@std@@XZ"},
    {"CreateDataBuffer", "?CreateDataBuffer@@YA?AV?$shared_ptr@VIDataBuffer@@@std@@AEAVIRenderContext@@@Z"},
-   {"CreateRenderContext", "?CreateRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@IIII_N@Z"},
+   {"CreateRenderContext", "?CreateRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@IIII_N0@Z"},
    {"CloneRenderContext", "?CloneRenderContext@@YA?AV?$shared_ptr@VIRenderContext@@@std@@AEBVIRenderContext@@@Z"},
    {"CreateTexture", "?CreateTexture@@YA?AV?$shared_ptr@VITexture@@@std@@AEBU?$vec@$01I$0A@@glm@@W4Format@ITexture@@@Z"},
    {"CloneTexture", "?CloneTexture@@YA?AV?$shared_ptr@VITexture@@@std@@AEBVITexture@@@Z"},
    {"CreateRenderTarget", "?CreateRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBU?$vec@$01I$0A@@glm@@W4Format@ITexture@@W4Type@IRenderTarget@@W4Resource@8@@Z"},
-   {"CloneRenderTarget", "?CloneRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBVIRenderTarget@@@Z"}
+   {"CloneRenderTarget", "?CloneRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBVIRenderTarget@@@Z"},
+   {"CreateImGUI", "?CreateImGUI@@YA?AV?$shared_ptr@VIImGUI@@@std@@XZ"}
 };
 #else
 static std::map<std::string, std::string> symbolMap {
@@ -118,6 +119,11 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>(libRenderer)
    createRenderTargetCopy = (RenderTargetImplCopy)getSym( handle, symbolMap["CloneRenderTarget"].c_str() );
    if( !createRenderTargetCopy ) {
       throw std::runtime_error("CRITICAL: No implementation for CreateRenderTargetCopy!");
+   }
+
+   createImGUI = (ImGUIImpl)getSym(handle, symbolMap["CreateImGUI"].c_str());
+   if (!createImGUI) {
+       throw std::runtime_error("CRITICAL: No implementation for CreateImGUI!");
    }
 }
 

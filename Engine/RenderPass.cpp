@@ -8,8 +8,6 @@
 #include "RenderPass.hpp"
 #include "Module.hpp"
 
-//#include <boost/archive/polymorphic_xml_woarchive.hpp>
-//#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -18,16 +16,26 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderPassProxy)
 
+static std::map<unsigned long long, std::shared_ptr<IRenderPass>> registeredObjs = std::map<unsigned long long, std::shared_ptr<IRenderPass>>();
+
 std::shared_ptr<IRenderPass> IRenderPass::Create() {
    return ModuleFactory<RendererFactory>::Instance()->createRenderPass();
 }
 
-std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& rp ) {
-   return ModuleFactory<RendererFactory>::Instance()->createRenderPassCopy( rp );
+std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& obj ) {
+    std::map<unsigned long long, std::shared_ptr<IRenderPass>>::iterator it{ registeredObjs.find(obj._objId) };
+
+    if (it == registeredObjs.end())
+        registeredObjs[obj._objId] = ModuleFactory<RendererFactory>::Instance()->createRenderPassCopy(obj);
+
+    return registeredObjs[obj._objId];
 }
 
 template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
    std::cout << "Serializing RenderPassProxy" << std::endl;
+
+   ar >> _objId;
+
    size_t sz;
    ar >> BOOST_SERIALIZATION_NVP(sz);
    if( sz > 0 ) {
@@ -45,6 +53,8 @@ template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned 
    // We need to serialize a 'proxy' class in order to maintain platform independent
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
+   ar << _objId;
+
    size_t sz {targets.size()};
    ar << BOOST_SERIALIZATION_NVP(sz);
    

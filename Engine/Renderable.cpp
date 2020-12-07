@@ -85,6 +85,7 @@ void IRenderable::update(UpdateParams& params) {
     offset += sizeof(glm::uvec2); // viewport
 
     // Update values for all uniforms
+    // TODO: avoid loop values not dirty
     for (auto& i : uniforms) {
         std::visit([&offset, this](auto& e) {
             uint32_t sz{ sizeof(e) };
@@ -92,11 +93,10 @@ void IRenderable::update(UpdateParams& params) {
             offset += sz;
         }, i.second);
     }
-
-    uniformData->commit(); // Copy to GPU
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {
+   uniformData->commit(); // Copy to GPU
    pipelineState->apply( renderPass );
    renderCommand->encode( renderPass, *pipelineState );
 }
