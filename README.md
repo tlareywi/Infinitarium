@@ -10,6 +10,8 @@ This 'star catalog viewer' is more or less a sandbox for me to fuss with modern 
 
 #### Tycho2 Catalog Render
 ![Tycho2 Catalog](screen_captures/tycho2.png)
+#### Initial ImGUI integration (Hipparcos catalog in background)
+![ImGUI Integration](screen_captures/ImGUI.png)
 
 # Current Efforts
 * ImGUI integration to build out features needed to make this a tool some folks may actually want to use 
