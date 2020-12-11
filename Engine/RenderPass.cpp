@@ -35,6 +35,7 @@ template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned 
    std::cout << "Serializing RenderPassProxy" << std::endl;
 
    ar >> _objId;
+   ar >> loadOps;
 
    size_t sz;
    ar >> BOOST_SERIALIZATION_NVP(sz);
@@ -54,6 +55,7 @@ template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned 
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
    ar << _objId;
+   ar << loadOps;
 
    size_t sz {targets.size()};
    ar << BOOST_SERIALIZATION_NVP(sz);

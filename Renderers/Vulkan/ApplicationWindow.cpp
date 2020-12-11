@@ -43,6 +43,7 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 			glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 			glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 			glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+			glfwWindowHint(GLFW_FOCUSED, 1);
 			window = glfwCreateWindow(mode->width, mode->height, "Infinitarium", monitor, nullptr);
 
 			renderContext.setContextExtent(mode->width, mode->height);
@@ -60,6 +61,7 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 		}
 
 		params.surface = surface;
+		params.window = (void*)window;
 		std::shared_ptr<IEventSampler> eventSampler{ CreateEventSampler() };
 		WindowsEventSampler& winEvents{ dynamic_cast<WindowsEventSampler&>(*eventSampler) };
 		winEvents.setTargetWindow(window, renderContext);

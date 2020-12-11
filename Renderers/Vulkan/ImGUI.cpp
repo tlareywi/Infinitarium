@@ -4,6 +4,9 @@
 
 VulkanImGUI::~VulkanImGUI() {
 	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+
+	ImGui::DestroyContext();
 }
 
 void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
@@ -12,6 +15,7 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.WantCaptureMouse = true;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -20,7 +24,7 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 		//ImGui::StyleColorsClassic();
 
 		// Setup Platform/Renderer bindings
-		//ImGui_ImplGlfw_InitForVulkan(window, true);
+		ImGui_ImplGlfw_InitForVulkan(window, true);
 		init_info.CheckVkResultFn = [](VkResult result) {
 			assert(result == VK_SUCCESS);
 		};
@@ -31,6 +35,21 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 	VulkanRenderPass& vkRenderPass{ dynamic_cast<VulkanRenderPass&>(renderPass) };
 	if( !ImGui_ImplVulkan_Init(&init_info, vkRenderPass.getVulkanRenderPass()) )
 		throw("Failed to initialize ImGUI.");
+
+	{ // Initialize Fonts 
+		VkCommandBufferBeginInfo begin_info = {};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		assert( vkBeginCommandBuffer(commandBuffer, &begin_info) == VK_SUCCESS );
+
+		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+
+		assert( vkEndCommandBuffer(commandBuffer) == VK_SUCCESS );
+
+		vkSubmit();
+
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
+	}
 }
 
 void VulkanImGUI::prepare(IRenderContext& context) {
@@ -47,6 +66,24 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 	init_info.Allocator = nullptr;
 	init_info.MinImageCount = swapchainInfo.minImageCount;
 	init_info.ImageCount = vkContext.numImages();
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = vkContext.getCommandPool();
+	allocInfo.commandBufferCount = 1;
+	vkAllocateCommandBuffers(vkContext.getVulkanDevice(), &allocInfo, &commandBuffer);
+
+	vkSubmit = [&vkContext, this]() {
+		VkSubmitInfo end_info = {};
+		end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		end_info.commandBufferCount = 1;
+		end_info.pCommandBuffers = &commandBuffer;
+
+		vkContext.submit(end_info);
+	};
+
+	window = (GLFWwindow*)vkContext.getWindow();
 }
 
 void VulkanImGUI::apply(IRenderPass& renderPass) {
@@ -54,6 +91,19 @@ void VulkanImGUI::apply(IRenderPass& renderPass) {
 		initImGUI(renderPass);
 		dirty = false;
 	}
+
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+}
+
+void VulkanImGUI::update() {
+}
+
+void VulkanImGUI::render(IRenderPass& renderPass) {
+	VulkanRenderPass& vkRenderPass{ dynamic_cast<VulkanRenderPass&>(renderPass) };
+
+	ImDrawData* draw_data = ImGui::GetDrawData();
+	ImGui_ImplVulkan_RenderDrawData(draw_data, vkRenderPass.commandBuffer());
 }
 
 __declspec(dllexport) std::shared_ptr<IImGUI> CreateImGUI() {

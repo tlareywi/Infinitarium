@@ -12,11 +12,11 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(ApplicationWindowProxy)
 
 std::shared_ptr<IApplicationWindow> IApplicationWindow::Create() {
-   return ModuleFactory<PlatformFactory>::Instance()->createApplicationWindow();
+   return ModuleFactory<RendererFactory>::Instance()->createApplicationWindow();
 }
 
 std::shared_ptr<IApplicationWindow> IApplicationWindow::Clone( const IApplicationWindow& obj ) {
-   return ModuleFactory<PlatformFactory>::Instance()->cloneApplicationWindow( obj );
+   return ModuleFactory<RendererFactory>::Instance()->cloneApplicationWindow( obj );
 }
 
 template<class Archive> void ApplicationWindowProxy::serialize(Archive& ar) {

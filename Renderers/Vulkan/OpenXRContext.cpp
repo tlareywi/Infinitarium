@@ -162,7 +162,7 @@ VulkanRenderTarget& OpenXRContext::getSwapchainTarget() {
 	return xrSwapchainTargets[swapchains[activeSwapchain].handle][swapchainImageIndex];
 }
 
-void OpenXRContext::submit(VkCommandBuffer buffer) {
+void OpenXRContext::submit(VkCommandBuffer buffer, VkFence, VkSemaphore) {
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;

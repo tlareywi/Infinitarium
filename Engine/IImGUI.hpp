@@ -13,6 +13,9 @@ public:
 	virtual void prepare( IRenderContext& ) = 0;
 	virtual void apply( IRenderPass& ) = 0;
 
+	virtual void update() = 0;
+	virtual void render( IRenderPass& ) = 0;
+
 protected:
 	IImGUI() {}
 };

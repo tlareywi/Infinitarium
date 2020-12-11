@@ -32,6 +32,7 @@ public:
 		VkInstance vkInstance;
 		XrInstance xrInstance;
 		XrSystemId xrSystemId;
+		void* window{ nullptr };
 	};
 
 	VulkanRenderContext(const IRenderContext& obj);
@@ -52,7 +53,7 @@ public:
 	}
 	virtual VulkanRenderTarget& getSwapchainTarget();
 	virtual void attachTargets(IRenderPass& renderPass);
-	virtual void submit(VkCommandBuffer);
+	virtual void submit(VkCommandBuffer, VkFence, VkSemaphore);
 
 	void submit(VkSubmitInfo&);
 
@@ -80,6 +81,9 @@ public:
 	VkInstance const getVkInstance() {
 		return vkInstance;
 	}
+	void* getWindow() {
+		return window;
+	}
 
 protected:
 	VkPhysicalDevice physicalDevice;
@@ -87,19 +91,22 @@ protected:
 	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkDeviceCreateInfo& createDeviceQueueInfo(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
 	void createDeviceQueue();
-	void createDescriptorPool( uint32_t );
+	void createDescriptorPool(uint32_t);
 	unsigned int graphicsQueueIndx{ 0 };
 	VkQueue graphicsQueue;
 	VkInstance vkInstance;
 
 private:
-	void initializeGraphicsDevice( const VkSurfaceKHR&, const VkInstance& );
+	void initializeGraphicsDevice(const VkSurfaceKHR&, const VkInstance&);
 	unsigned int rateDeviceCompatiblities(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails&);
 	void createDeviceGraphicsQueue(const VkPhysicalDevice&, const VkSurfaceKHR&);
 	bool checkDeviceExtensionSupport(const VkPhysicalDevice&);
 	bool querySwapChain(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails& details);
-	void createSwapChain( const VkSurfaceKHR& surface );
+	void createSwapChain(const VkSurfaceKHR& surface);
 	void reAllocSwapchain();
+
+	// CLUDGE for ImGUI integration
+	void* window{ nullptr };
 	
 	// Device resources
 	VkCommandPool commandPool;
@@ -120,12 +127,9 @@ private:
 	};
 
 	std::vector<VkSemaphore> imageAvailableSemaphore;
-	std::vector<VkSemaphore> renderFinishedSemaphore;
-	std::vector<VkFence> imagesInFlight;
-	std::vector<VkFence> inFlightFences;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
 
 	uint32_t targetInFlight{ 0 };
-	unsigned short currentSwapFrame;
 
 	std::atomic<bool> renderingPaused;
 	std::function<void()> recreateSwapchain;

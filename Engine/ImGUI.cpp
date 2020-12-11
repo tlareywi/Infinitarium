@@ -15,11 +15,19 @@ void ImGUI::prepare(IRenderContext& context) {
 }
 
 void ImGUI::update(UpdateParams&) {
-
+	platformGUI->update();
 }
 
 void ImGUI::render(IRenderPass& renderPass) {
 	platformGUI->apply(renderPass);
+
+	ImGui::NewFrame();
+
+	ImGui::ShowDemoWindow(&show_demo_window);
+
+	ImGui::Render();
+
+	platformGUI->render(renderPass);
 }
 
 template<class Archive> void ImGUI::serialize(Archive& ar, unsigned int version) {

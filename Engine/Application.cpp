@@ -9,7 +9,7 @@
 #include "Module.hpp"
 
 std::shared_ptr<IApplication> IApplication::Create() {
-   return ModuleFactory<PlatformFactory>::Instance()->createApplication();
+   return ModuleFactory<RendererFactory>::Instance()->createApplication();
 }
 
 void IApplication::setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp ) {

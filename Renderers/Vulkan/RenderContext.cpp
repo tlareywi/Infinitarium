@@ -16,7 +16,7 @@ VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigne
 	physicalDevice = VK_NULL_HANDLE;
 	logicalDevice = VK_NULL_HANDLE;
 	graphicsQueue = VK_NULL_HANDLE;
-	currentSwapFrame = 0;
+	targetInFlight = 0;
 	renderingPaused = false;
 }
 
@@ -24,7 +24,7 @@ VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderCon
     physicalDevice = VK_NULL_HANDLE;
 	logicalDevice = VK_NULL_HANDLE;
 	graphicsQueue = VK_NULL_HANDLE;
-	currentSwapFrame = 0;
+	targetInFlight = 0;
 	renderingPaused = false;
 }
 
@@ -34,9 +34,7 @@ VulkanRenderContext::~VulkanRenderContext() {
 	vkDeviceWaitIdle(logicalDevice);
 	 
 	for( size_t i = 0; i < swapchainTargets.size(); i++ ) {
-		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore[i], nullptr);
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
-		vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
 	}
 
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
@@ -53,13 +51,7 @@ void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
 }
 
 void VulkanRenderContext::beginFrame() {
-	assert(vkWaitForFences(logicalDevice, 1, &inFlightFences[currentSwapFrame], VK_TRUE, UINT64_MAX) == VK_SUCCESS);
-	assert(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[currentSwapFrame], VK_NULL_HANDLE, &targetInFlight) == VK_SUCCESS);
-
-	if (imagesInFlight[targetInFlight] != VK_NULL_HANDLE)
-		vkWaitForFences(logicalDevice, 1, &imagesInFlight[targetInFlight], VK_TRUE, UINT64_MAX);
-
-	imagesInFlight[targetInFlight] = inFlightFences[currentSwapFrame];
+	assert(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[targetInFlight], VK_NULL_HANDLE, &targetInFlight) == VK_SUCCESS);
 }
 
 VkDeviceCreateInfo& VulkanRenderContext::createDeviceQueueInfo(const VkPhysicalDevice& device, const VkSurfaceKHR& surface) {
@@ -216,75 +208,42 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 		swapchainTargets.emplace_back(std::move(target));
 	}
 
-	size_t swapChainSize{ imageCount }; // Swapchain uses 1 image 'on screen' so the limit 'in-flight' is the total images available - 1;
-	imageAvailableSemaphore.resize( swapChainSize - 1 );
-	renderFinishedSemaphore.resize( swapChainSize - 1 );
-	inFlightFences.resize( swapChainSize - 1, VK_NULL_HANDLE );
-	imagesInFlight.resize( swapChainSize, VK_NULL_HANDLE);
+	size_t swapChainSize{ imageCount };
+	imageAvailableSemaphore.resize( swapChainSize );
 	VkSemaphoreCreateInfo semaphoreInfo = {};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	VkFenceCreateInfo fenceInfo = {};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	for (size_t i = 0; i < swapChainImages.size() - 1; i++) {
+	for (size_t i = 0; i < swapChainImages.size(); i++) {
 		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore[i]) != VK_SUCCESS)
 			throw std::runtime_error("failed to create semaphores!");
-		if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore[i]) != VK_SUCCESS)
-			throw std::runtime_error("failed to create semaphores!");
-		if( vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS )
-			throw std::runtime_error("failed to create synchronization objects for a frame!");
 	}
 }
 
 void VulkanRenderContext::endFrame() {
-	{
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-		VkSemaphore waitSemaphores[] = { imageAvailableSemaphore[currentSwapFrame] };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.commandBufferCount = commandQ.size();
-		submitInfo.pCommandBuffers = commandQ.data(); // TODO: Technically these are not garanteed to 'complete' in-order. May need to introduce more semaphores, but it doesn't matter for everything.
-		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore[currentSwapFrame] };
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
+	VkSemaphore waitSemaphores[] = { renderFinishedSemaphores.back() };
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = waitSemaphores;
 
-		vkResetFences(logicalDevice, 1, &inFlightFences[currentSwapFrame]);
+	VkSwapchainKHR swapChains[] = { swapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &targetInFlight;
 
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentSwapFrame]) != VK_SUCCESS)
-			throw std::runtime_error("failed to submit draw command buffer!");
+	presentInfo.pResults = nullptr; // Optional
+
+	if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS) {
+		while (renderingPaused) // Generally indecates app is minimized
+			std::this_thread::yield();
+
+		reAllocSwapchain();
 	}
 
-	commandQ.clear();
+	renderFinishedSemaphores.clear();
 
-	{
-		VkPresentInfoKHR presentInfo = {};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore[currentSwapFrame] };
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
-
-		VkSwapchainKHR swapChains[] = { swapChain };
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-		presentInfo.pImageIndices = &targetInFlight;
-
-		presentInfo.pResults = nullptr; // Optional
-
-		if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS) {
-			while (renderingPaused) // Generally indecates app is minimized
-				std::this_thread::yield();
-
-			reAllocSwapchain();
-		}
-	}
-
-	currentSwapFrame = (currentSwapFrame + 1) % (swapchainTargets.size() - 1); // 1 image is basically 'reserved' for the driver ... does this change for different presentation modes?
+	targetInFlight = (targetInFlight + 1) % swapchainTargets.size();
 }
 
 void* VulkanRenderContext::getSurface() {
@@ -409,6 +368,14 @@ void VulkanRenderContext::reAllocSwapchain() {
 	recreateSwapchain();
 }
 
+void VulkanRenderContext::setSurface(void* params) {
+	ContextParams* p{ reinterpret_cast<ContextParams*>(params) };
+	VkSurfaceKHR surface = p->surface;
+	vkInstance = p->vkInstance;
+	window = p->window;
+	initializeGraphicsDevice(surface, vkInstance);
+}
+
 void VulkanRenderContext::submit(VkSubmitInfo& submitInfo) {
 	if( vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS )
 		throw std::runtime_error("failed to submit command buffer!");
@@ -417,15 +384,38 @@ void VulkanRenderContext::submit(VkSubmitInfo& submitInfo) {
 	vkQueueWaitIdle(graphicsQueue);
 }
 
-void VulkanRenderContext::submit(VkCommandBuffer buffer) {
-	commandQ.push_back(buffer);
-}
+void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSemaphore renderFinished ) {
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-void VulkanRenderContext::setSurface(void* params) {
-	ContextParams* p{ reinterpret_cast<ContextParams*>(params) };
-	VkSurfaceKHR surface = p->surface;
-	vkInstance = p->vkInstance;
-	initializeGraphicsDevice(surface, vkInstance);
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkSemaphore waitSemaphores[1];
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.waitSemaphoreCount = 1;
+
+	if (renderFinishedSemaphores.empty()) { // Wait for swapchain image acquire
+		waitSemaphores[0] = imageAvailableSemaphore[targetInFlight];
+	}
+	else { // Wait for last submission to complete
+		// TODO: Could pass additional params to allow parallel execution when appropriate. Serial is sometimes desired though (e.g. UI overlay)
+		waitSemaphores[0] = renderFinishedSemaphores.back();
+	}
+	submitInfo.pWaitSemaphores = waitSemaphores;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &buffer;
+
+	VkSemaphore signalSemaphores[] = { renderFinished };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	// endFrame will wait the last of these semaphores to ensure all render ops are finished prior to present.
+	renderFinishedSemaphores.push_back(renderFinished);
+
+	vkResetFences(logicalDevice, 1, &vkFence);
+
+	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
+		throw std::runtime_error("failed to submit draw command buffer!");
 }
 
 __declspec(dllexport)
@@ -450,6 +440,3 @@ __declspec(dllexport)
 	return context;
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID) {
-	return TRUE;
-}

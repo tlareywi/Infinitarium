@@ -11,8 +11,9 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 	VulkanRenderContext* vkContext = dynamic_cast<VulkanRenderContext*>(&context);
 	device = vkContext->getVulkanDevice();
 
-	if(renderPass)
+	if (renderPass) {
 		vkDestroyRenderPass(device, renderPass, nullptr);
+	}
 
 	VkSwapchainCreateInfoKHR swapchainCreateInfo;
 	vkContext->getVulkanSwapchainInfo(swapchainCreateInfo);
@@ -26,16 +27,19 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 
 	VkAttachmentReference colorAttachmentRef = {};
 
+	unsigned int indx{ 0 };
 	for (auto& target : targets) {
 		VulkanRenderTarget* vkTarget = dynamic_cast<VulkanRenderTarget*>(target.get());
 
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		if( target->getClear() )
+		if( loadOps[indx] == LoadOp::CLEAR )
 			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		else
+		else if( loadOps[indx] == LoadOp::LOAD )
 			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		else
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -59,6 +63,8 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 
 		colorAttachmentRef.attachment = attachmentRefs.size();
 		attachmentRefs.emplace_back(std::move(colorAttachmentRef));
+
+		++indx;
 	}
 
 	VkSubpassDescription subpass = {};
@@ -107,7 +113,8 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	VulkanRenderContext& vkContext = dynamic_cast<VulkanRenderContext&>(context);
 
 	currentTarget = &vkContext.getSwapchainTarget();
-	if (!currentTarget->getFramebuffer() || !currentTarget->getCmdBuffer()) return;
+	VkFramebuffer fb = currentTarget->getFramebuffer( *this );
+	if (!fb || !currentTarget->getCmdBuffer()) return;
 
 	glm::vec4 cc = currentTarget->getClearColor();
 	const VkClearValue clearColor{ cc.r, cc.g, cc.b, cc.a };
@@ -118,7 +125,7 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = currentTarget->getFramebuffer();
+	renderPassInfo.framebuffer = fb;
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapchainCreateInfo.imageExtent;
 	renderPassInfo.clearValueCount = 1;
@@ -129,9 +136,11 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	beginInfo.flags = 0; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS ) {
+	VkFence vkFence{ currentTarget->getFence() };
+	assert(vkWaitForFences(vkContext.getVulkanDevice(), 1, &vkFence, VK_TRUE, UINT64_MAX) == VK_SUCCESS);
+
+	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS )
 		throw std::runtime_error("failed to begin recording command buffer!");
-	}
 
 	vkCmdBeginRenderPass(currentTarget->getCmdBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
@@ -145,7 +154,7 @@ void VulkanRenderPass::end(IRenderContext& context) {
 		throw std::runtime_error("failed to record command buffer!");
 	}
 	 
-	vkContext.submit( currentTarget->getCmdBuffer() );
+	vkContext.submit( currentTarget->getCmdBuffer(), currentTarget->getFence(), currentTarget->getSemaphore( *this ) );
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {

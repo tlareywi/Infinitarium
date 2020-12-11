@@ -9,7 +9,7 @@
 #include "Module.hpp"
 
 std::shared_ptr<IEventSampler> IEventSampler::Create() {
-   return ModuleFactory<PlatformFactory>::Instance()->createEventSampler();
+   return ModuleFactory<RendererFactory>::Instance()->createEventSampler();
 }
 
 

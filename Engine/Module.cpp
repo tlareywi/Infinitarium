@@ -4,10 +4,8 @@
 
 #if defined(WIN32)
 static const char* libRenderer = "IERenderer.dll";
-static const char* libPlatform = "IEPlatform.dll";
 #else
 static const char* libRenderer = "libIERenderer.dylib";
-static const char* libPlatform = "libIEPlatform.dylib";
 #endif
 
 static void* getSym(void* handle, const char* name) {
@@ -125,28 +123,26 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>(libRenderer)
    if (!createImGUI) {
        throw std::runtime_error("CRITICAL: No implementation for CreateImGUI!");
    }
+
+   createEventSampler = (EventSamplerImpl)getSym(handle, symbolMap["CreateEventSampler"].c_str());
+   if (!createEventSampler) {
+       throw std::runtime_error("CRITICAL: No implementation for EventSampler!");
+   }
+
+   createApplication = (ApplicationImpl)getSym(handle, symbolMap["CreateApplication"].c_str());
+   if (!createApplication) {
+       throw std::runtime_error("CRITICAL: No implementation for Application!");
+   }
+
+   createApplicationWindow = (ApplicationWindowImpl)getSym(handle, symbolMap["CreateApplicationWindow"].c_str());
+   if (!createApplicationWindow) {
+       throw std::runtime_error("CRITICAL: No implementation for ApplicationWindow!");
+   }
+
+   cloneApplicationWindow = (ApplicationWindowClone)getSym(handle, symbolMap["CloneApplicationWindow"].c_str());
+   if (!cloneApplicationWindow) {
+       throw std::runtime_error("CRITICAL: No implementation for CloneApplicationWindow!");
+   }
 }
 
-PlatformFactory::PlatformFactory() : ModuleFactory<PlatformFactory>(libPlatform) {
-   
-   createEventSampler = (EventSamplerImpl)getSym( handle, symbolMap["CreateEventSampler"].c_str() );
-   if( !createEventSampler ) {
-      throw std::runtime_error("CRITICAL: No implementation for EventSampler!");
-   }
-   
-   createApplication = (ApplicationImpl)getSym( handle, symbolMap["CreateApplication"].c_str() );
-   if( !createApplication ) {
-      throw std::runtime_error("CRITICAL: No implementation for Application!");
-   }
-   
-   createApplicationWindow = (ApplicationWindowImpl)getSym( handle, symbolMap["CreateApplicationWindow"].c_str() );
-   if( !createApplicationWindow ) {
-      throw std::runtime_error("CRITICAL: No implementation for ApplicationWindow!");
-   }
-   
-   cloneApplicationWindow = (ApplicationWindowClone)getSym( handle, symbolMap["CloneApplicationWindow"].c_str() );
-   if( !cloneApplicationWindow ) {
-      throw std::runtime_error("CRITICAL: No implementation for CloneApplicationWindow!");
-   }
-}
 

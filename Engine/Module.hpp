@@ -109,6 +109,11 @@ public:
    typedef std::shared_ptr<IRenderTarget> (*RenderTargetImplCopy)( const IRenderTarget& );
    typedef std::shared_ptr<ITexture> (*textureCloneImpl)( const ITexture& );
    typedef std::shared_ptr<IImGUI>(*ImGUIImpl)();
+
+   typedef std::shared_ptr<IEventSampler>(*EventSamplerImpl)();
+   typedef std::shared_ptr<IApplicationWindow>(*ApplicationWindowImpl)();
+   typedef std::shared_ptr<IApplicationWindow>(*ApplicationWindowClone)(const IApplicationWindow&);
+   typedef std::shared_ptr<IApplication>(*ApplicationImpl)();
       
    virtual ~RendererFactory() {
       createRenderCommand = nullptr;
@@ -124,6 +129,11 @@ public:
       cloneRenderContext = nullptr;
       cloneTexture = nullptr;
       createImGUI = nullptr;
+
+      createEventSampler = nullptr;
+      createApplication = nullptr;
+      createApplicationWindow = nullptr;
+      cloneApplicationWindow = nullptr;
    }
    
    RenderCommandImpl createRenderCommand;
@@ -139,30 +149,18 @@ public:
    RenderContextClone cloneRenderContext;
    textureCloneImpl cloneTexture;
    ImGUIImpl createImGUI;
-};
 
-///
-/// \brief Provides objects that implement platform specific UI/Event/Windowing.
-///
-class PlatformFactory : public ModuleFactory<PlatformFactory> {
-public:
-   PlatformFactory();
-   
-   typedef std::shared_ptr<IEventSampler> (*EventSamplerImpl)();
-   typedef std::shared_ptr<IApplicationWindow> (*ApplicationWindowImpl)();
-   typedef std::shared_ptr<IApplicationWindow> (*ApplicationWindowClone)( const IApplicationWindow& );
-   typedef std::shared_ptr<IApplication> (*ApplicationImpl)();
-   
-   virtual ~PlatformFactory() {
-      createEventSampler = nullptr;
-      createApplication = nullptr;
-      createApplicationWindow = nullptr;
-      cloneApplicationWindow = nullptr;
-   }
-   
    EventSamplerImpl createEventSampler;
    ApplicationImpl createApplication;
    ApplicationWindowImpl createApplicationWindow;
    ApplicationWindowClone cloneApplicationWindow;
+};
+
+///
+/// \brief DEPRECATED
+///
+class PlatformFactory : public ModuleFactory<PlatformFactory> {
+public:
+    PlatformFactory() : ModuleFactory<PlatformFactory>("") {};
 };
 

@@ -47,7 +47,7 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	
 	// TODO: Temporary override for dev/testing. For now, we'll just use the current video mode of the primary monitor always.
 	// Also, fullscreen causes issues when step debugging on Visual Studio (unrecoverable hang). 
-	//_fullScreen = true;
+	_fullScreen = true;
 }
 
 

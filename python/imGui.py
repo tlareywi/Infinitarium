@@ -33,8 +33,8 @@ guiPass.addRenderTarget( renderTarget )
 clearScreen = engine.ClearScreen()
 clearCamera.addChild( clearScreen )
 
-#imgui = engine.ImGUI()
-#gui.addChild( imgui )
+imgui = engine.ImGUI()
+gui.addChild( imgui )
 
 print( 'Exporting ' + exportPath + 'imgui.ieb' )
 scene.save(exportPath + 'imgui.ieb')

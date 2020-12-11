@@ -33,7 +33,7 @@ public:
     size_t numImages() override {
         return xrSwapchainTargets.size();
     }
-    void submit(VkCommandBuffer bufffer) override;
+    void submit(VkCommandBuffer bufffer, VkFence, VkSemaphore) override;
 
 private:
     struct Swapchain {

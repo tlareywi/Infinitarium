@@ -269,7 +269,7 @@ static void ImGui_ImplGlfw_UpdateMousePosAndButtons()
 #else
     const bool focused = glfwGetWindowAttrib(g_Window, GLFW_FOCUSED) != 0;
 #endif
-    if (focused)
+//    if (focused) glfwGetWindowAttrib seems to always return 0 ...
     {
         if (io.WantSetMousePos)
         {

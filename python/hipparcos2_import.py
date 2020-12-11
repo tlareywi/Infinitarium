@@ -38,8 +38,13 @@ camera = engine.Camera()
 camera.setName('hipStars')
 scene.add( camera )
 
+gui = engine.Camera()
+gui.setName('ImGui')
+scene.add( gui )
+
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
+gui.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
 
@@ -49,22 +54,24 @@ motionController = engine.Orbit()
 motionController.setHomeSystem( origin )
 camera.setMotionController( motionController )
 
+guiPass = engine.IRenderPass.create()
+gui.setRenderPass( guiPass )
+
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.Swapchain)
-renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
 renderTarget.setBlendState( engine.BlendState(engine.Op.Add, engine.Op.Add, engine.Factor.One, engine.Factor.One, engine.Factor.SourceAlpha, engine.Factor.OneMinusSourceAlpha) )
-renderPass.addRenderTarget( renderTarget )
+renderPass.addRenderTarget( renderTarget, engine.LoadOp.Clear )
+guiPass.addRenderTarget( renderTarget, engine.LoadOp.Load ) 
 
 # Pick buffer
 pickTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.RF32, engine.Type.Color,
     engine.Resource.Offscreen)
-pickTarget.setClear( True )
 pickTarget.setClearColor(0,0,0,0)
-renderPass.addRenderTarget( pickTarget )
+renderPass.addRenderTarget( pickTarget, engine.LoadOp.Clear )
 
 hip2Cloud = engine.PointCloud()
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
@@ -103,12 +110,15 @@ for record in t.filled():
 
 hip2Cloud.setNumPoints( numRecrods )
 
-print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inomplete or non-sensical data.')
+print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due incomplete or non-sensical data.')
 
 hip2Cloud.addVertexBuffer( engine.wrap(position), 'position' )
 hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( hip2Cloud )
+
+imgui = engine.ImGUI()
+gui.addChild( imgui )
 
 exportPath = exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)

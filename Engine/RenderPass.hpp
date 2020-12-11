@@ -18,22 +18,35 @@
 
 class IRenderPass {
 public:
+    enum class LoadOp {
+        UNDEFINED,
+        CLEAR,
+        LOAD
+    };
+
    virtual ~IRenderPass() {
    }
-   IRenderPass( const IRenderPass& rp ) : _objId(rp._objId) {
-      std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));
+   IRenderPass(const IRenderPass& rp) : _objId(rp._objId) {
+       std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));
+       std::copy(rp.loadOps.begin(), rp.loadOps.end(), std::back_inserter(loadOps));
    }
    
    static std::shared_ptr<IRenderPass> Create();
    static std::shared_ptr<IRenderPass> Clone( const IRenderPass& );
    
-   void addRenderTarget( const std::shared_ptr<IRenderTarget>& t ) {
+   void addRenderTarget( const std::shared_ptr<IRenderTarget>& t, LoadOp op ) {
       targets.push_back( t );
+      loadOps.push_back( op );
    }
    
    virtual void prepare( IRenderContext& ) = 0;
    virtual void begin( IRenderContext& ) = 0;
    virtual void end( IRenderContext& ) = 0;
+
+   bool operator< (const IRenderPass& obj) const
+   {
+       return true;
+   }
    
    void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
       targets[indx]->getData( rect, data );
@@ -57,6 +70,7 @@ public:
 protected:
    IRenderPass() : _objId(reinterpret_cast<unsigned long long>(this)) {};
    std::vector<std::shared_ptr<IRenderTarget>> targets;
+   std::vector<LoadOp> loadOps;
    unsigned long long _objId;
    
 private:

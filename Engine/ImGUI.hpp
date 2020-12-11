@@ -19,6 +19,7 @@ public:
 
 private:
     std::shared_ptr<IImGUI> platformGUI{ nullptr };
+    bool show_demo_window{ true };
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive&, const unsigned int);

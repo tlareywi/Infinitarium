@@ -5,7 +5,6 @@
 VulkanRenderTarget::VulkanRenderTarget(const glm::uvec2& d, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r) :
 	colorView(nullptr),
 	depthView(nullptr),
-	framebuffer(nullptr),
 	cmdBuffer(nullptr),
 	IRenderTarget(d, f, t, r) {
 }
@@ -42,11 +41,26 @@ VkCommandBuffer VulkanRenderTarget::getCmdBuffer() {
 		return (*cmdBuffer)();
 }
 
-VkFramebuffer VulkanRenderTarget::getFramebuffer() {
-	if (framebuffer == nullptr)
+VkFence VulkanRenderTarget::getFence() {
+	if (cmdBuffer == nullptr)
 		return VK_NULL_HANDLE;
 	else
-		return (*framebuffer)();
+		return cmdBuffer->getFence();
+}
+
+VkFramebuffer VulkanRenderTarget::getFramebuffer( const IRenderPass& renderPass ) {
+	if (!framebuffer.size())
+		return VK_NULL_HANDLE;
+	else
+		return (*framebuffer[reinterpret_cast<unsigned long long>(&renderPass)])();
+}
+
+VkSemaphore VulkanRenderTarget::getSemaphore( const IRenderPass& renderPass ) {
+	if (!framebuffer.size())
+		return VK_NULL_HANDLE;
+	else {
+		return (*framebuffer[reinterpret_cast<unsigned long long>(&renderPass)]).getSemaphore();
+	}
 }
 
 void VulkanRenderTarget::attach(IRenderContext& context, IRenderPass& renderPass) {
@@ -69,15 +83,17 @@ void VulkanRenderTarget::attach(IRenderContext& context, IRenderPass& renderPass
 	framebufferInfo.height = dim.y;
 	framebufferInfo.layers = 1;
 
-	framebuffer = std::make_shared<FramebufferResource>(vkContext.getVulkanDevice(), framebufferInfo);
+	framebuffer.emplace( reinterpret_cast<unsigned long long>(&renderPass), std::move(std::make_shared<FramebufferResource>(vkContext.getVulkanDevice(), framebufferInfo)) );
 
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = vkContext.getCommandPool();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	if (!cmdBuffer) {
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = vkContext.getCommandPool();
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
 
-	cmdBuffer = std::make_shared<CommandBufferResource>(vkContext.getVulkanDevice(), allocInfo);
+		cmdBuffer = std::make_shared<CommandBufferResource>(vkContext.getVulkanDevice(), allocInfo);
+	}
 }
 
 __declspec(dllexport) std::shared_ptr<IRenderTarget> CreateRenderTarget(const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r) {

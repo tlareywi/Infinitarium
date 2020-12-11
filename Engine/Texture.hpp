@@ -132,7 +132,7 @@ protected:
 
 class IRenderTarget : public ITexture {
 public:
-   IRenderTarget( const IRenderTarget& obj ) :  ITexture(obj), type(obj.type), resource(obj.resource), clear(obj.clear), clearColor(obj.clearColor), blending(obj.blending) {}
+   IRenderTarget( const IRenderTarget& obj ) :  ITexture(obj), type(obj.type), resource(obj.resource), clearColor(obj.clearColor), blending(obj.blending) {}
    
    enum Type {
       Color,
@@ -151,8 +151,6 @@ public:
    static std::shared_ptr<IRenderTarget> Clone( const IRenderTarget& );
    
    Resource getResource() { return resource; }
-   bool getClear() { return clear; }
-   void setClear( bool c ) { clear = c; }
    glm::vec4 getClearColor() { return clearColor; }
    void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
    const BlendState& getBlendState() const {
@@ -164,11 +162,10 @@ public:
    virtual void getData( const glm::uvec4&, void* ) = 0;
    
 protected:
-   IRenderTarget() : ITexture(), clear(false), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
-   IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clear(false), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
+   IRenderTarget() : ITexture(), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
+   IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
    Type type;
    Resource resource;
-   bool clear;
    glm::vec4 clearColor;
    BlendState blending;
 };

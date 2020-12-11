@@ -143,6 +143,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    
     // IRenderPass ////////////////////////////////////////////////////////////////////////////////////////////
+   enum_<IRenderPass::LoadOp>("LoadOp")
+       .value("Undefined", IRenderPass::LoadOp::UNDEFINED)
+       .value("Clear", IRenderPass::LoadOp::CLEAR)
+       .value("Load", IRenderPass::LoadOp::LOAD)
+       .export_values()
+   ;
    class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
       .def("create", &IRenderPass::Create)
       .def("addRenderTarget", &IRenderPass::addRenderTarget)
@@ -155,7 +161,6 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    class_<IRenderTarget, bases<ITexture>, boost::noncopyable>("IRenderTarget", no_init)
       .def("create", &IRenderTarget::Create)
-      .def("setClear", &IRenderTarget::setClear)
       .def("setClearColor", &IRenderTarget::setClearColor)
       .def("setBlendState", &IRenderTarget::setBlendState)
    ;

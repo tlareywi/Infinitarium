@@ -28,13 +28,14 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(Python3 COMPONENTS Development)
 include_directories(${Python3_INCLUDE_DIRS})
 
+add_subdirectory( ImGUI )
+
 if( APPLE )
     add_subdirectory( Renderers/Metal )
     add_subdirectory( Platforms/OSX )
 endif( APPLE )
 if( MSVC )
     add_subdirectory( Renderers/Vulkan )
-    add_subdirectory( Platforms/Windows )
 endif( MSVC )
 
 add_subdirectory( Engine )
