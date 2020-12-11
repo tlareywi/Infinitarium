@@ -3,7 +3,7 @@
 #include "Renderable.hpp"
 #include "IImGUI.hpp"
 
-#include "ImGUI/imgui.h"
+#include "imgui.h"
 
 class ImGUI : public IRenderable {
 public:
