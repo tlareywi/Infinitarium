@@ -34,67 +34,6 @@ private:
 };
 
 ///
-/// \brief Encapsulates arguments for an event fired by JS code. Also serves as handler for rapidjson lib parsing.
-/// In this type of event, argument number and type are not known until runtime.
-///
-class JSONEvent : public IEvent {
-public:
-   typedef std::variant<
-   std::string,
-   bool,
-   int,
-   unsigned,
-   double> JSONType;
-   
-   typedef std::vector<JSONType> Args;
-   
-   JSONEvent() : isId(false) {
-   }
-      
-   bool Null() { return true; }
-   bool Bool(bool b) { return true; }
-   bool Int(int i) {
-      args.push_back((double)i); // TODO: This didn't reall work as planned. Temp workaround is to cast everything to a double. Issue with variant types not able to automatically cast.
-      return true;
-   }
-   bool Uint(unsigned u) {
-      args.push_back((double)u);
-      return true;
-   }
-   bool Int64(int64_t i) { return true; }
-   bool Uint64(uint64_t u) { return true; }
-   bool Double(double d) {
-      args.push_back(d);
-      return true;
-   }
-   bool RawNumber(const char* str, rapidjson::SizeType length, bool copy) { return true; }
-      bool String(const char* str, rapidjson::SizeType length, bool copy) {
-         if( isId )
-            name = str;
-         else
-            args.push_back(std::string(str));
-         
-         return true;
-      }
-   bool StartObject() { return true; }
-   bool Key(const char* str, rapidjson::SizeType length, bool copy) {
-      if( strcmp(str, "id") == 0 )
-         isId = true;
-      else
-         isId = false;
-      
-      return true;
-   }
-   bool EndObject(rapidjson::SizeType memberCount) { return true; }
-   bool StartArray() { return true; }
-   bool EndArray(rapidjson::SizeType elementCount) { return true; }
-   
-   bool isId;
-   std::string name;
-   std::vector<JSONType> args;
-};
-
-///
 /// \brief An Event with variable arguments known at compile time (fired from C++ rather than JS).
 ///
 template<typename... Args> class Event : public IEvent {
@@ -133,22 +72,6 @@ private:
       fun( std::get<Is>(tuple)... );
    }
    
-   T fun; // T is an std::function
-};
-
-///
-/// \brief JSON events have unknown types at compile time. Can't handle this type of event quite as generally.
-///
-template<typename T> class JSONDelegate : public IDelegate {
-public:
-   JSONDelegate( T f ) : fun(f) {}
-   void operator()( IEvent& event ) override {
-      JSONEvent* evt = dynamic_cast<JSONEvent*>( &event ); // Runtime path
-      if( evt )
-         fun( evt->args );
-   }
-   
-private:
    T fun; // T is an std::function
 };
 

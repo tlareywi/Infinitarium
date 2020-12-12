@@ -132,7 +132,7 @@ void CoordinateSystem::update( UpdateParams& params ) {
       UniversalPoint localEye = camera.convert( units );
       view[3] = glm::dvec4( localEye.getPoint(), 1.0 );
       
-      UpdateParams paramsCopy( params, view, model );
+      UpdateParams paramsCopy( params, params.getProjection(), view, model );
       SceneObject::update( paramsCopy );
    }
 }

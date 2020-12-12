@@ -76,6 +76,9 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def(init<int>())
       .def(init<unsigned int>())
    ;
+
+   class_<Uniform>("Uniform", init<UniformType&, UniformType&, UniformType&>())
+   ;
    
    class_<UniversalPoint>("UniversalPoint", init<double, double, double, UniversalPoint::Unit>())
    ;
@@ -188,11 +191,13 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    // Scene-graph objects ///////////////////////////////////////////////////////////////////////////////////
    class_<SceneObject>("SceneObject", init<>())
       .def("addChild", &SceneObject::addChild)
+      .def("setName", &SceneObject::setName)
    ;
    class_<Transform, bases<SceneObject>>("Transform", init<>())
       .def("translate", &Transform::translate)
       .def("rotate", &Transform::rotate)
       .def("scale", &Transform::scale)
+      .def("setName", &SceneObject::setName)
    ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
@@ -203,20 +208,25 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setUniform", &IRenderable::setUniform)
       .def("setDirty", &IRenderable::setDirty)
       .def("removeUniform", &IRenderable::removeUniform)
-      .def("manipulateUniform", &IRenderable::manipulateUniform)
       .def("setTexture", &IRenderable::setTexture)
+      .def("setName", &SceneObject::setName)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
+      .def("setName", &SceneObject::setName)
    ;
    class_<ImGUI, bases<IRenderable>>("ImGUI", init<>())
+      .def("setName", &SceneObject::setName)
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
       .def("setNumPoints", &PointCloud::setNumPoints)
+      .def("setName", &SceneObject::setName)
    ;
    class_<Sprite, bases<IRenderable>>("Sprite", init<>())
+      .def("setName", &SceneObject::setName)
    ;
    class_<Spheroid, bases<IRenderable>>("Spheroid", init<unsigned int, unsigned int, float, bool>())
+      .def("setName", &SceneObject::setName)
    ;
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,11 +237,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("add", &Scene::add)
       .def("clear", &Scene::clear)
       .def("propList", &Scene::propList)
+      .def("setName", &SceneObject::setName)
    ;
    
    // Camera ///////////////////////////////////////////////////////////////////////////////////////////////
    class_<Camera, bases<Transform>, boost::noncopyable>("Camera", init<>())
-      .def("setName", &Camera::setName)
+      .def("setName", &SceneObject::setName)
       .def("setRenderPass", &Camera::setRenderPass)
       .def("setMotionController", &Camera::setMotionController)
       .def("setRenderContext", &Camera::setRenderContext)

@@ -62,6 +62,8 @@ private:
    std::shared_ptr<IMotionController> motionController;
    
    glm::mat4 projection;
+
+   std::unique_ptr<UpdateParams> updateParams {nullptr};
 };
 
 #include <boost/serialization/export.hpp>

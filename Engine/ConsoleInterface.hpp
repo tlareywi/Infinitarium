@@ -46,7 +46,12 @@ template<typename T> std::string type_name() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/// <summary>
+/// Largely experimental approach to exposing scenegraph node functionallity out to script or UI interfaces in a general way. 
+/// This templated approach really only makes sense when you have a human, say interacting with a console interface, that is
+/// looking at the props and methods exposed by propList and deciding what to do with them. 
+/// It's kinda academic though still, not sure I'm convinced of great pratcical use.
+/// </summary>
 namespace Reflection {
 
 #define STRINGIZE_2(A) #A
@@ -85,7 +90,7 @@ public:
    }
    virtual ~IConsole() {}
    
-   void propList() {
+   void propList( T& ) {
       PyConsoleRedirect console;
       std::stringstream ss;
       
@@ -100,5 +105,6 @@ public:
 private:
    T* child;
 };
+
    
 }

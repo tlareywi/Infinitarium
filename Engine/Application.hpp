@@ -39,21 +39,6 @@ public:
    void subscribe( const std::string& msg, std::shared_ptr<IDelegate>& delegate );
    void unsubscribe( const std::string& msg );
 
-   void invoke( const std::string& json ) {
-      JSONEvent jsonEvent;
-      rapidjson::Reader reader;
-      rapidjson::StringStream ss(json.c_str());
-      reader.Parse(ss, jsonEvent);
-      std::size_t val = std::hash<std::string>{}(jsonEvent.name);
-      
-      // Call on every subscriber of message
-      for( auto& i : subscribers ) {
-         if( i.first == val ) {
-            i.second->operator()(jsonEvent);
-         }
-      }
-   }
-
    void invoke( IEvent& event ) {
       std::size_t val = std::hash<std::string>{}(event.getName());
 

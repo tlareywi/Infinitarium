@@ -114,14 +114,14 @@ void PointCloud::render( IRenderPass& renderPass ) {
          std::cout<<"Pick ID "<<pick<<", mag "<<maxMag<<" pos "<<pos.x<< " "<<pos.y <<" "<< pos.z<<std::endl;
          
          UniversalPoint center( pos, UniversalPoint::Parsec );
-         std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
-         addChild( system );
-         motionController->select( system );
+        // std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
+        // addChild( system );
+        // motionController->select( system );
          
          pickCoords = glm::uvec2(0.0);
       };
       
-      renderPass.postRenderOperation( postRenderOp );
+      //renderPass.postRenderOperation( postRenderOp );
    }
 }
 

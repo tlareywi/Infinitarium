@@ -26,7 +26,7 @@ public:
    virtual void prepare( IRenderState& ) = 0;
    virtual void apply( IRenderState& ) = 0;
    virtual void compile( const std::string& path, IRenderContext& ) = 0;
-   virtual void injectUniformStruct( const std::vector<std::pair<std::string, UniformType>>& ) = 0;
+   virtual void injectUniformStruct( const std::vector<std::pair<std::string, Uniform>>& ) = 0;
    
 protected:
    bool dirty;

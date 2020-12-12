@@ -10,11 +10,8 @@
 #include <string>
 #include <vector>
 
-//#include <boost/archive/polymorphic_xml_woarchive.hpp>
-//#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
-
 #include <boost/serialization/vector.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,7 +21,7 @@
 
 #include "../config.h"
 
-class IE_EXPORT Scene : public Reflection::IConsole<Scene> {
+class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();
    virtual ~Scene() {}
@@ -33,11 +30,16 @@ public:
    void loadLocal( const std::string& );
    void setLocalScenePath( const std::string& );
    void clear();
-   
-   void add( const std::shared_ptr<Camera>& );
-   
    void update();
    void render();
+   void add( const std::shared_ptr<Camera>& );
+   
+   // SceneObject ////////////////////////////////////
+   void prepare(IRenderContext&) override {};
+   void update(UpdateParams&) override {};
+   void render(IRenderPass&) override {};
+   void visit(const class Visitor&) override;
+   void visit(const class Accumulator&) override;
    
    auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
@@ -45,7 +47,6 @@ public:
          REFLECT_METHOD(&Scene::load, load),
          REFLECT_METHOD(&Scene::clear, clear)
       );
-      
       return tup;
    }
    

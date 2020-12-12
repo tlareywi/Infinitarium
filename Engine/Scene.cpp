@@ -90,7 +90,7 @@ void Scene::update() {
    std::lock_guard<std::mutex> lock( loadLock );
 
    for( auto& camera : cameras ) {
-      UpdateParams ident( *camera );
+      UpdateParams ident( *camera, *this );
       camera->update( ident );
    }
 }
@@ -108,8 +108,30 @@ void Scene::render() {
         context->endFrame();
 }
 
+void Scene::visit(const Visitor& v) {
+    if (!v.apply(*this))
+        return;
+
+    for (auto& camera : cameras) {
+        camera->visit(v);
+    }
+}
+
+void Scene::visit(const Accumulator& v) {
+    if (!v.push(*this))
+        return;
+
+    for (auto& camera : cameras) {
+        camera->visit(v);
+    }
+
+    v.pop(*this);
+}
+
 template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {
    std::cout<<"Serializing Scene"<<std::endl;
+   boost::serialization::void_cast_register<Scene, SceneObject>();
+   ar & boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
    ar & BOOST_SERIALIZATION_NVP(cameras);
 }
 

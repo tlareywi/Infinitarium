@@ -7,8 +7,6 @@
 
 #pragma once
 
-//#include <boost/archive/polymorphic_xml_woarchive.hpp>
-//#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -50,10 +48,10 @@ public:
    
    void setTexture( const std::shared_ptr<ITexture>& );
    
-   void setUniform( const std::string&, UniformType );
+   void setUniform( const std::string&, const Uniform& );
    void listUniforms();
    void removeUniform( const std::string& );
-   void manipulateUniform( const std::string&, float, float, float );
+   std::vector<std::pair<std::string, Uniform>>& getUniforms();
    
    auto reflect() {  // IConsole /////////////////////
       IRenderable& obj = *this;
@@ -62,7 +60,6 @@ public:
          REFLECT_METHOD(&IRenderable::setUniform, setUniform),
          REFLECT_METHOD(&IRenderable::listUniforms, listUniforms),
          REFLECT_METHOD(&IRenderable::removeUniform, removeUniform),
-         REFLECT_METHOD(&IRenderable::manipulateUniform, manipulateUniform),
          REFLECT_MEMBER(obj, programName)
       );
       
@@ -77,8 +74,8 @@ protected:
    std::shared_ptr<IRenderCommand> renderCommand;
    
 private:
-   std::vector<std::pair<std::string, UniformType>> allUniforms; // built-ins, not serialized
-   std::vector<std::pair<std::string, UniformType>> uniforms;
+   std::vector<std::pair<std::string, Uniform>> allUniforms; // built-ins, not serialized
+   std::vector<std::pair<std::string, Uniform>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
    std::shared_ptr<ITexture> texture;  
    std::string programName;

@@ -33,14 +33,19 @@ t = Table.read("E:/HipTyc/hip2.dat",
 t['Plx'].fill_value = 0
 
 scene = engine.Scene()
+scene.setName('Hipparcos2 Catalog')
 
 camera = engine.Camera()
-camera.setName('hipStars')
+camera.setName('Hip2 Camera')
 scene.add( camera )
 
 gui = engine.Camera()
-gui.setName('ImGui')
+gui.setName('ImGui Camera')
 scene.add( gui )
+
+imgui = engine.ImGUI()
+imgui.setName('GUI Renderable')
+gui.addChild( imgui )
 
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
@@ -48,12 +53,14 @@ gui.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
 
+# Main RenderPass
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
 motionController = engine.Orbit() 
 motionController.setHomeSystem( origin )
 camera.setMotionController( motionController )
 
+# ImGUI RenderPass
 guiPass = engine.IRenderPass.create()
 gui.setRenderPass( guiPass )
 
@@ -74,18 +81,19 @@ pickTarget.setClearColor(0,0,0,0)
 renderPass.addRenderTarget( pickTarget, engine.LoadOp.Clear )
 
 hip2Cloud = engine.PointCloud()
+hip2Cloud.setName('Hip2 PointCloud')
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
 apparentMagV = engine.DataPack_FLOAT32(len(t))
 
-hip2Cloud.setProgram( 'starsDefault' )
-hip2Cloud.setUniform( 'epsilon', engine.UniformType(0.0001) )
-hip2Cloud.setUniform( 'diskDensity', engine.UniformType(0.88) )
-hip2Cloud.setUniform( 'haloDensity', engine.UniformType(6.2) )
-hip2Cloud.setUniform( 'limitingMagnitude', engine.UniformType(14.0) )
-hip2Cloud.setUniform( 'saturationMagnitude', engine.UniformType(-2.0) )
-hip2Cloud.setUniform( 'diskBrightness', engine.UniformType(28.0) )
-hip2Cloud.setUniform( 'haloBrightness', engine.UniformType(1.0) )
+hip2Cloud.setProgram( 'starsDefault' ) # Shader program for star catalogs with dinstance info / Plx
+hip2Cloud.setUniform( 'epsilon', engine.Uniform(engine.UniformType(0.0001), engine.UniformType(0.00001), engine.UniformType(0.001)) )
+hip2Cloud.setUniform( 'diskDensity', engine.Uniform(engine.UniformType(0.88), engine.UniformType(0.1), engine.UniformType(2.0)) )
+hip2Cloud.setUniform( 'haloDensity', engine.Uniform(engine.UniformType(6.2), engine.UniformType(0.1), engine.UniformType(10.0)) )
+hip2Cloud.setUniform( 'limitingMagnitude', engine.Uniform(engine.UniformType(14.0), engine.UniformType(-4.0), engine.UniformType(18.0)) )
+hip2Cloud.setUniform( 'saturationMagnitude', engine.Uniform(engine.UniformType(-2.0), engine.UniformType(-4.0), engine.UniformType(4.0)) )
+hip2Cloud.setUniform( 'diskBrightness', engine.Uniform(engine.UniformType(28.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
+hip2Cloud.setUniform( 'haloBrightness', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
 
 print('Processing ...')
 
@@ -116,9 +124,6 @@ hip2Cloud.addVertexBuffer( engine.wrap(position), 'position' )
 hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( hip2Cloud )
-
-imgui = engine.ImGUI()
-gui.addChild( imgui )
 
 exportPath = exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)

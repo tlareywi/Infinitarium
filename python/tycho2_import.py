@@ -17,43 +17,55 @@ t['BTmag'].fill_value = 0
 t['VTmag'].fill_value = 0
 
 scene = engine.Scene()
+scene.setName('Tycho 2 Catalog')
 
 camera = engine.Camera()
-camera.setName('tyc2Stars')
+camera.setName('Tych2 Camera')
 scene.add( camera )
+
+gui = engine.Camera()
+gui.setName('ImGui Camera')
+scene.add( gui )
 
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
+gui.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
 
+# Main RenderPass
 renderPass = engine.IRenderPass.create()
 camera.setRenderPass( renderPass )
 motionController = engine.Orbit() 
 motionController.setHomeSystem( origin )
 camera.setMotionController( motionController )
 
+# ImGUI RenderPass
+guiPass = engine.IRenderPass.create()
+gui.setRenderPass( guiPass )
+
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.Swapchain)
-renderTarget.setClear( True )
 renderTarget.setClearColor(0,0,0,1)
-renderPass.addRenderTarget( renderTarget )
+renderPass.addRenderTarget( renderTarget, engine.LoadOp.Clear )
+guiPass.addRenderTarget( renderTarget, engine.LoadOp.Load ) 
 
 tychoCloud = engine.PointCloud()
+tychoCloud.setName('Tycho2 PointCloud')
 position = engine.DataPack_FLOAT32(len(t)*3) # xyz
 color = engine.DataPack_FLOAT32(len(t)*3) # rgb
 apparentMagV = engine.DataPack_FLOAT32(len(t))
 
-tychoCloud.setProgram( 'starsUnitSphere' )
-tychoCloud.setUniform( 'epsilon', engine.UniformType(0.0001) )
-tychoCloud.setUniform( 'diskDensity', engine.UniformType(0.88) )
-tychoCloud.setUniform( 'haloDensity', engine.UniformType(6.2) )
-tychoCloud.setUniform( 'limitingMagnitude', engine.UniformType(14.0) )
-tychoCloud.setUniform( 'saturationMagnitude', engine.UniformType(-2.0) )
-tychoCloud.setUniform( 'diskBrightness', engine.UniformType(28.0) )
-tychoCloud.setUniform( 'haloBrightness', engine.UniformType(1.0) )
+tychoCloud.setProgram( 'starsUnitSphere' ) # Shader program for stars without dinstance info / Plx
+tychoCloud.setUniform( 'epsilon', engine.Uniform(engine.UniformType(0.0001), engine.UniformType(0.00001), engine.UniformType(0.001)) )
+tychoCloud.setUniform( 'diskDensity', engine.Uniform(engine.UniformType(0.88), engine.UniformType(0.1), engine.UniformType(2.0)) )
+tychoCloud.setUniform( 'haloDensity', engine.Uniform(engine.UniformType(6.2), engine.UniformType(0.1), engine.UniformType(10.0)) )
+tychoCloud.setUniform( 'limitingMagnitude', engine.Uniform(engine.UniformType(14.0), engine.UniformType(-4.0), engine.UniformType(18.0)) )
+tychoCloud.setUniform( 'saturationMagnitude', engine.Uniform(engine.UniformType(-2.0), engine.UniformType(-4.0), engine.UniformType(4.0)) )
+tychoCloud.setUniform( 'diskBrightness', engine.Uniform(engine.UniformType(28.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
+tychoCloud.setUniform( 'haloBrightness', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
 
 print('Processing ...')
 
@@ -82,6 +94,10 @@ tychoCloud.addVertexBuffer( engine.wrap(position), 'position' )
 tychoCloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 tychoCloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( tychoCloud )
+
+imgui = engine.ImGUI()
+imgui.setName('GUI Renderable')
+gui.addChild( imgui )
 
 exportPath = exportPath + 'tyco2.ieb'
 print('Exporting ' + exportPath)

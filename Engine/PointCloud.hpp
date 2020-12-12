@@ -57,7 +57,8 @@ public:
 class PointCloud : public IRenderable {
 public:
    PointCloud();
-   PointCloud( const PointCloud& ) {}
+   PointCloud( const PointCloud& obj ) : IRenderable( obj ) {
+   }
    
    virtual ~PointCloud() {
       vertexBuffers.clear();

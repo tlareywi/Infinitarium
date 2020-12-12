@@ -23,9 +23,11 @@ IRenderable::IRenderable() : programName{"default"} {
    
    // Set built-in uniforms.
    allUniforms.reserve(30);
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
-   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
-   allUniforms.push_back( std::make_pair("viewport", glm::uvec2()) );
+
+   // TODO: need these declared here?
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", Uniform(UniformType(glm::fmat4x4()))));
+   allUniforms.push_back( std::make_pair("modelViewMatrix", Uniform(UniformType(glm::fmat4x4()))));
+   allUniforms.push_back( std::make_pair("viewport", Uniform(UniformType(glm::uvec2()))));
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
@@ -43,16 +45,16 @@ void IRenderable::prepare( IRenderContext& context ) {
    
    // Merge built-ins with user uniforms
    allUniforms.clear();
-   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", glm::fmat4x4()) );
-   allUniforms.push_back( std::make_pair("modelViewMatrix", glm::fmat4x4()) );
-   allUniforms.push_back( std::make_pair("viewport", viewport) );
+   allUniforms.push_back( std::make_pair("modelViewProjectionMatrix", Uniform(UniformType(glm::fmat4x4()))) );
+   allUniforms.push_back( std::make_pair("modelViewMatrix", Uniform(UniformType(glm::fmat4x4()))) );
+   allUniforms.push_back( std::make_pair("viewport", Uniform(UniformType(viewport))) );
    allUniforms.insert( allUniforms.end(), uniforms.begin(), uniforms.end() );
    
    unsigned int sizeBytes {0};
    for( auto& i : allUniforms ) {
       std::visit( [&sizeBytes](auto& e) {
          sizeBytes += sizeof(e);
-      }, i.second );
+      }, i.second.val );
    }
    
    // Reserve enough GPU memory for all uniforms.
@@ -91,7 +93,7 @@ void IRenderable::update(UpdateParams& params) {
             uint32_t sz{ sizeof(e) };
             uniformData->set(&e, offset, sz);
             offset += sz;
-        }, i.second);
+        }, i.second.val);
     }
 }
 
@@ -105,7 +107,7 @@ void IRenderable::setTexture( const std::shared_ptr<ITexture>& t ) {
    texture = t;
 }
 
-void IRenderable::setUniform( const std::string& name, UniformType value ) {
+void IRenderable::setUniform( const std::string& name, const Uniform& value ) {
    for( auto& i : uniforms ) {
       if( i.first == name ) {
          i.second = value;
@@ -128,36 +130,6 @@ void IRenderable::removeUniform( const std::string& name ) {
    }
 }
 
-void IRenderable::manipulateUniform( const std::string& name, float min, float max, float step ) {
-   for( auto& i : uniforms ) {
-      if( i.first == name ) {
-         auto fun = [&i]( JSONEvent::Args& args ) {
-            if( args.size() < 1 ) return;
-            std::visit(overload{
-               [&i](double val) {
-                  UniformType v {(float)val};
-                  i.second = v;
-               },
-               [](bool f) {},
-               [&i](int val) {
-                  UniformType v {val};
-                  i.second = v;
-               },
-               [&i](unsigned int val) {
-                  UniformType v {val};
-                  i.second = v;
-               },
-               [](std::string& s) {}
-            }, args[0]);
-         };
-         std::shared_ptr<IDelegate> delegate = std::make_shared<JSONDelegate<decltype(fun)>>( fun );
-         IApplication::Create()->subscribe(name, delegate);
-         IApplication::Create()->addManipulator(name, min, max, step);
-         break;
-      }
-   }
-}
-
 void IRenderable::listUniforms() {
    PyConsoleRedirect console;
    std::stringstream ss;
@@ -167,12 +139,16 @@ void IRenderable::listUniforms() {
       
       std::visit( [&ss](auto& e) {
          ss << " " << type_name<decltype(e)>();
-      }, i.second );
+      }, i.second.val );
       
       ss << std::endl;
    }
    
    console.write( ss.str() );
+}
+
+std::vector<std::pair<std::string, Uniform>>& IRenderable::getUniforms() {
+    return uniforms;
 }
 
 template<class Archive> void IRenderable::save( Archive& ar ) const {

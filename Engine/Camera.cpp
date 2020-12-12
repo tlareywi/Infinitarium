@@ -38,11 +38,13 @@ std::shared_ptr<IRenderContext> Camera::getContext() {
    return renderContext;
 }
 
-void Camera::update( UpdateParams& /* identity */ ) {
+void Camera::update( UpdateParams& params ) {
    if( motionController )
       motionController->processEvents();
    
    Transform::prepare( *renderContext );
+
+   updateParams = std::make_unique<UpdateParams>(params);
 }
 
 void Camera::render( IRenderPass& ) {
@@ -61,7 +63,7 @@ void Camera::render( IRenderPass& ) {
        if (proj == glm::mat4(1.0))
            proj = projection;
 
-       UpdateParams params(proj, eye * view, *this);
+       UpdateParams params(*updateParams, proj, eye * view, glm::mat4(1.0));
        Transform::update(params);
 
        renderPass->begin( *renderContext );
@@ -105,7 +107,10 @@ template<class Archive> void Camera::load( Archive& ar ) {
        if (this->renderContext.get() != &renderContext)
            return;
 
-       std::function<void(SceneObject&)> f{ [](SceneObject& obj) { obj.setDirty(); } };
+       std::function<bool(SceneObject&)> f{ [](SceneObject& obj) {
+           obj.setDirty(); 
+           return true; 
+       }};
        visit( Visitor(f) );
    };
    std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const IRenderContext&>>(fun);
@@ -113,6 +118,11 @@ template<class Archive> void Camera::load( Archive& ar ) {
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
+   if (!renderPass)
+      throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderPass");
+   if (!renderContext)
+      throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderContext");
+
    ar << boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
    
    ar << BOOST_SERIALIZATION_NVP(motionController);

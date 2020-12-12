@@ -12,8 +12,6 @@
 
 #include <vector>
 
-//#include <boost/archive/polymorphic_xml_woarchive.hpp>
-//#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/serialization/export.hpp>
@@ -21,21 +19,37 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 class Camera;
+class Scene;
 
 /// <summary>
 /// State accumulator for update traversal.
 /// </summary>
 class UpdateParams {
 public:
-   UpdateParams( Camera& c ) : camera( c ) {}
-   UpdateParams( const glm::mat4& p, const glm::mat4& v, Camera& c) : camera(c), projection( p ), view( v ), model( glm::mat4(1.0) ) {
+   UpdateParams( Camera& c, Scene& s ) : 
+       camera( c ), 
+       scene( s ), 
+       model(glm::mat4(1.0)), 
+       view(glm::mat4(1.0)), 
+       projection(glm::mat4(1.0)) {
    }
-   UpdateParams( const UpdateParams& p, const glm::mat4& v, const glm::mat4& m ) : camera(p.camera) {
-      projection = p.projection;
-      view = v;
-      model = m;
+
+   UpdateParams( const UpdateParams& obj, const glm::mat4& p, const glm::mat4& v, const glm::mat4& m) : 
+       camera(obj.camera), 
+       scene(obj.scene),
+       projection( p ), 
+       view( v ), 
+       model( m ) {
    }
-   
+
+   UpdateParams(const UpdateParams& obj) : 
+       camera(obj.camera), 
+       scene(obj.scene), 
+       projection(obj.projection), 
+       view(obj.view),
+       model(obj.model) {
+   }
+ 
    glm::mat4 getProjection() {
       return projection;
    }
@@ -59,9 +73,14 @@ public:
    Camera& getCamera() {
       return camera;
    }
+
+   Scene& getScene() {
+       return scene;
+   }
    
 private:
    Camera& camera;
+   Scene& scene;
    glm::mat4 projection;
    glm::mat4 view;
    glm::mat4 model;
@@ -70,16 +89,17 @@ private:
 /// <summary>
 /// Base class for all scenegraph nodes. Implements common traversal logic.
 /// </summary>
-class SceneObject {
+class IE_EXPORT SceneObject {
 public:
-   SceneObject() : dirty(true) {}
+   SceneObject() : dirty(true), name("Undefined") {}
    virtual ~SceneObject() {}
 
    virtual void prepare( IRenderContext& );
    virtual void update( UpdateParams& );
    virtual void render( IRenderPass& );
    
-   void visit(const class Visitor& v);
+   virtual void visit(const class Visitor& v);
+   virtual void visit(const class Accumulator& v);
    
    virtual glm::vec3 getCenter() { return {0,0,0}; }
    
@@ -90,6 +110,9 @@ public:
    
    void setName( const std::string& n ) {
       name = n;
+   }
+   const std::string& getName() const {
+       return name;
    }
 
    void setDirty() {
@@ -112,13 +135,32 @@ private:
 /// </summary>
 class Visitor {
 public:
-    Visitor(std::function<void(SceneObject&)>& f) : fun{ f } {}
-    void apply(SceneObject& s) const {
-        fun(s);
+    Visitor(std::function<bool(SceneObject&)>& f) : fun{ f } {}
+    bool apply(SceneObject& obj) const {
+        return fun(obj); // Returning true indecates continuing traversal
     }
 
 private:
-    std::function<void(SceneObject&)> fun;
+    std::function<bool(SceneObject&)> fun;
+};
+
+/// <summary>
+/// Similar to a visitor pattern but visits every node twice, once on downward traverse and once on return upward.
+/// </summary>
+class Accumulator {
+public:
+    Accumulator(std::function<bool(SceneObject&)>& _push, std::function<void(SceneObject&)>& _pop) : pu{ _push }, po{ _pop } {
+    }
+    bool push(SceneObject& obj) const {
+        return pu(obj);
+    }
+    void pop(SceneObject& obj) const {
+        po(obj);
+    }
+
+private:
+    std::function<bool(SceneObject&)> pu;
+    std::function<void(SceneObject&)> po;
 };
 
 

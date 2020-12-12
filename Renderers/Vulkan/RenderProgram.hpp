@@ -20,7 +20,7 @@ public:
 
 	void compile(const std::string& name, IRenderContext& context) override;
 
-	void injectUniformStruct(const std::vector<std::pair<std::string, UniformType>>& uniforms) override;
+	void injectUniformStruct(const std::vector<std::pair<std::string, Uniform>>& uniforms) override;
 
 private:
 	std::vector<uint32_t> VulkanRenderProgram::compileToByteCode(const std::string& source_name, shaderc_shader_kind kind, const std::string& source, bool optimize = false);

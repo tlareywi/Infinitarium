@@ -10,8 +10,6 @@
 #include <variant>
 #include <iostream>
 
-//#include <boost/archive/polymorphic_xml_woarchive.hpp>
-//#include <boost/archive/polymorphic_xml_wiarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -51,11 +49,41 @@ namespace boost {
       }
       
       template<class Archive, class T> void save( Archive& ar, const T& t, const unsigned int version ) {
-         ar & boost::serialization::make_nvp("Uniform", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
+         ar & boost::serialization::make_nvp("Uniform Value", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
       }
       template<class Archive, class T> void load( Archive& ar, T& t, const unsigned int version ) {
-         ar & boost::serialization::make_nvp("Uniform", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
+         ar & boost::serialization::make_nvp("Uniform Value", boost::serialization::make_binary_object( (void*)&t, sizeof(t) ));
       }
    }
 }
+
+struct Uniform {
+    Uniform() {}
+
+    Uniform(UniformType& v) :
+        val(v),
+        min(0u),
+        max(0u) {
+    }
+    Uniform(UniformType& v, UniformType& mn, UniformType& mx) :
+        val(v), 
+        min(mn), 
+        max(mx) {
+    }
+    UniformType val;
+    UniformType min;
+    UniformType max;
+};
+
+namespace boost {
+    namespace serialization {
+        template<class Archive> void serialize(Archive& ar, Uniform& t, const unsigned int version) {
+            std::cout << "Serializing Uniform" << std::endl;
+            ar & BOOST_SERIALIZATION_NVP(t.val);
+            ar & BOOST_SERIALIZATION_NVP(t.min);
+            ar & BOOST_SERIALIZATION_NVP(t.max);
+        }
+    }
+}
+
 

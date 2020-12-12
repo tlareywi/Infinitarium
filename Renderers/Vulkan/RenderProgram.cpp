@@ -91,12 +91,12 @@ void VulkanRenderProgram::compile(const std::string& name, IRenderContext& conte
 	shaderStages[1] = fragShaderStageInfo;
 }
 
-void VulkanRenderProgram::injectUniformStruct(const std::vector<std::pair<std::string, UniformType>>& uniforms) {
+void VulkanRenderProgram::injectUniformStruct(const std::vector<std::pair<std::string, Uniform>>& uniforms) {
 	std::stringstream ss;
 	ss << "\n\nlayout(binding = 0) uniform ConstUniforms { \n";
 
 	for (auto& i : uniforms)
-		ss << i.second << " " << i.first << ";\n";
+		ss << i.second.val << " " << i.first << ";\n";
 
 	ss << "} uniforms;\n\n";
 
