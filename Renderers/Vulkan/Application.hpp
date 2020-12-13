@@ -74,5 +74,8 @@ private:
 	PFN_xrCreateDebugUtilsMessengerEXT ext_xrCreateDebugUtilsMessengerEXT = nullptr;
 	PFN_xrDestroyDebugUtilsMessengerEXT ext_xrDestroyDebugUtilsMessengerEXT = nullptr;
 	XrDebugUtilsMessengerEXT debugHook;
+
+	std::atomic<bool> running{true};
+	std::atomic<bool> terminatePending{false};
 };
 

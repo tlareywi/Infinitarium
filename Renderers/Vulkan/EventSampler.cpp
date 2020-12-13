@@ -25,7 +25,22 @@ void WindowsEventSampler::setTargetWindow( GLFWwindow* window, IRenderContext& c
 		sampler->onFramebufferSize(window, w, h);
 	});
 
+	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		WindowsEventSampler* sampler = static_cast<WindowsEventSampler*>(glfwGetWindowUserPointer(window));
+		sampler->onKeyDown(window, key, scancode, action, mods);
+	});
+
 	context = &c;
+}
+
+void WindowsEventSampler::onKeyDown(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	IEventSampler::Key k;
+	k.key = key;
+	if (action == GLFW_RELEASE)
+		k.state = IEventSampler::State::UP;
+	if (action == GLFW_PRESS)
+		k.state = IEventSampler::State::DOWN;
+	eventSampler->push(k);
 }
 
 void WindowsEventSampler::onMouseButton(GLFWwindow* window, int button, int action, int mods) {

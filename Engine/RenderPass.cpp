@@ -31,6 +31,10 @@ std::shared_ptr<IRenderPass> IRenderPass::Clone( const IRenderPass& obj ) {
     return registeredObjs[obj._objId];
 }
 
+void IRenderPass::clearRegisteredObjs() {
+    registeredObjs.clear();
+}
+
 template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
    std::cout << "Serializing RenderPassProxy" << std::endl;
 

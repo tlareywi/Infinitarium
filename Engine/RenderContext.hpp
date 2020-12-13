@@ -34,6 +34,7 @@ public:
    
    static std::shared_ptr<IRenderContext> Create( unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fullScreen, bool headset );
    static std::shared_ptr<IRenderContext> Clone( const IRenderContext& );
+   static void clearRegisteredObjs();
  
    #if defined ENGINE_BUILD
    void init();
@@ -44,6 +45,7 @@ public:
    virtual void pauseRendering(bool) = 0;
    virtual void beginFrame() = 0;
    virtual void endFrame() = 0;
+   virtual void waitOnIdle() = 0;
 
    // OpenXR integration ///
    virtual unsigned int getPerspectiveCount() { return 1; }
@@ -105,6 +107,7 @@ public:
    void pauseRendering(bool) override {};
    void beginFrame() override {};
    void endFrame() override {};
+   void waitOnIdle() override {};
   
 private:
 #if defined ENGINE_BUILD

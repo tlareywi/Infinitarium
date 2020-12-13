@@ -29,5 +29,9 @@ int main(int argc, const char * argv[]) {
    
    std::shared_ptr<Simulation> simulation = std::make_shared<Simulation>();
    simulation->setScene( s );
+  
+   // Don't hang on to references here. Prevents clean exit.
+   s = nullptr;
+   
    app->run();
 }

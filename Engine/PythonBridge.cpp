@@ -315,7 +315,7 @@ PythonInterpreter::PythonInterpreter() {
 }
 
 PythonInterpreter::~PythonInterpreter() {
-   Py_Finalize();
+  // Py_Finalize();
 }
    
 std::string PythonInterpreter::eval( const std::string& expr ) {

@@ -30,12 +30,12 @@ VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderCon
 
 VulkanRenderContext::~VulkanRenderContext() {
 	if (!logicalDevice) return;
-
-	vkDeviceWaitIdle(logicalDevice);
 	 
 	for( size_t i = 0; i < swapchainTargets.size(); i++ ) {
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
 	}
+
+	swapchainTargets.clear(); // Must be done before device destruction
 
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
@@ -416,6 +416,11 @@ void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSem
 
 	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
 		throw std::runtime_error("failed to submit draw command buffer!");
+}
+
+void VulkanRenderContext::waitOnIdle() {
+	if(logicalDevice)
+		vkDeviceWaitIdle(logicalDevice);
 }
 
 __declspec(dllexport)

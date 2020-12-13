@@ -15,7 +15,10 @@ VulkanRenderTarget::VulkanRenderTarget( VkDevice logicalDevice, VkImageViewCreat
 }
 
 VulkanRenderTarget::~VulkanRenderTarget() {
-
+	colorView = nullptr;
+	depthView = nullptr;
+	framebuffer.clear();
+	cmdBuffer = nullptr;
 }
 
 VkFormat VulkanRenderTarget::getPixelFormat() {

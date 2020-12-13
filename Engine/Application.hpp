@@ -22,7 +22,10 @@
 
 class IApplication {
 public:
-   virtual ~IApplication() {}
+   virtual ~IApplication() {
+       subscribers.clear();
+       pyInterp = nullptr;
+   }
    
    IE_EXPORT static std::shared_ptr<IApplication> Create();
    

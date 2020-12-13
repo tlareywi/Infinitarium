@@ -2,6 +2,7 @@
 #include "Scene.hpp"
 #include "ConsoleInterface.hpp"
 #include "Delegate.hpp"
+#include "Application.hpp"
 
 #include <glm/glm.hpp>
 
@@ -22,6 +23,14 @@ static void HelpMarker(const char* desc)
 
 ImGUI::ImGUI() {
 	platformGUI = IImGUI::Create();
+
+	// Subscribe to ESC event for showing/hiding UI
+	auto fun = [this](int key) {
+		showSceneGraph = !showSceneGraph;
+		showSettings = !showSettings;
+	};
+	std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), int>>(fun);
+	IApplication::Create()->subscribe("ESC", delegate);
 
 	// Accumulator functions for building tree representation of scene graph.
 	accumulatorPush = [this](SceneObject& obj) {
@@ -63,10 +72,13 @@ void ImGUI::prepare(IRenderContext& context) {
 }
 
 void ImGUI::update(UpdateParams& params) {
-	if (showSceneGraph) {
+	if (showSceneGraph || showSettings) {
 		Scene& scene{ params.getScene() };
 		doVisit = [&scene, this]() {
 			scene.visit(Accumulator(accumulatorPush, accumulatorPop));
+		};
+		setExit = [&scene]() {
+			scene.terminatePending();
 		};
 	}
 
@@ -80,6 +92,8 @@ void ImGUI::render(IRenderPass& renderPass) {
 
 	if( showSceneGraph )
 		ShowSceneGraph();
+	if( showSettings )
+		ShowSettings();
 
 	//ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -159,6 +173,22 @@ void ImGUI::ShowSceneGraph() {
 	ImGui::Columns(1);
 	ImGui::Separator();
 	ImGui::PopStyleVar();
+	ImGui::End();
+}
+
+void ImGUI::ShowSettings() {
+	ImGui::SetNextWindowSize(ImVec2(200, 380), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Settings", &showSettings)) {
+		ImGui::End();
+		return;
+	}
+
+	ImVec2 pos((ImGui::GetWindowSize().x - 80) * 0.5, ImGui::GetCursorPosY());
+	ImGui::SetCursorPos(pos);
+	if (ImGui::Button("Exit", ImVec2(80,20))) {
+		setExit();
+	}
+
 	ImGui::End();
 }
 

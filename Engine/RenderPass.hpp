@@ -25,6 +25,7 @@ public:
     };
 
    virtual ~IRenderPass() {
+       targets.clear();
    }
    IRenderPass(const IRenderPass& rp) : _objId(rp._objId) {
        std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));
@@ -33,6 +34,7 @@ public:
    
    static std::shared_ptr<IRenderPass> Create();
    static std::shared_ptr<IRenderPass> Clone( const IRenderPass& );
+   static void clearRegisteredObjs();
    
    void addRenderTarget( const std::shared_ptr<IRenderTarget>& t, LoadOp op ) {
       targets.push_back( t );

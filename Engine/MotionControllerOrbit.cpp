@@ -84,6 +84,13 @@ void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
          distance += 0.4;
          break;
       }
+      case 256: { //ESC
+          std::tuple<int> args(evt.key);
+          Event e( args );
+          e.setName("ESC");
+          IApplication::Create()->invoke(e);
+          break;
+      }
       default:
          break;
    }

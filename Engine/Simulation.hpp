@@ -16,7 +16,6 @@ public:
    Simulation();
    ~Simulation();
    
-   void terminate();
    void setScene( std::shared_ptr<Scene>& s );
    
 protected:
@@ -29,5 +28,4 @@ protected:
    
 private:
    std::unique_ptr<std::thread> simulation;
-   std::atomic<bool> exiting;
 };

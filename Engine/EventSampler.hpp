@@ -27,7 +27,7 @@ public:
    };
    
    struct Key {
-      unsigned char key;
+      int key;
       State state;
    };
    

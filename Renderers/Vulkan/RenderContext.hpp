@@ -44,6 +44,7 @@ public:
 	void pauseRendering(bool) override;
 	void beginFrame() override;
 	void endFrame() override;
+	void waitOnIdle() override;
 
 	virtual VkImageLayout swapchainLayout() {
 		return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;

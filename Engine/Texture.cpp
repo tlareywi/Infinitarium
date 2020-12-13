@@ -43,6 +43,10 @@ std::shared_ptr<ITexture> ITexture::Clone( const ITexture& obj ) {
 	return registeredObjs[obj._objId];
 }
 
+void ITexture::clearRegisteredObjs() {
+	registeredObjs.clear();
+}
+
 template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigned int version ) {
 	std::cout << "Serializing Texture" << std::endl;
 	ar & BOOST_SERIALIZATION_NVP(dim);
@@ -68,6 +72,10 @@ std::shared_ptr<IRenderTarget> IRenderTarget::Clone( const IRenderTarget& obj ) 
 		registeredObjsRT[obj._objId] = ModuleFactory<RendererFactory>::Instance()->createRenderTargetCopy(obj);
 
 	return registeredObjsRT[obj._objId];
+}
+
+void IRenderTarget::clearRegisteredObjs() {
+	registeredObjsRT.clear();
 }
 
 template<class Archive> void RenderTargetProxy::serialize( Archive& ar, const unsigned int version ) {

@@ -83,6 +83,14 @@ void Scene::save( const std::string& filename ) const {
    ofs.close();
 }
 
+void Scene::terminatePending() {
+    shouldExit = true;
+}
+
+bool Scene::isTerminatePending() {
+    return shouldExit;
+}
+
 void Scene::update() {
    for (auto& context : renderContexts)
        context->beginFrame();
@@ -126,6 +134,13 @@ void Scene::visit(const Accumulator& v) {
     }
 
     v.pop(*this);
+}
+
+void Scene::waitOnIdle() {
+    // Wait till execution queue is complete on all render contexts. Use sparingly. 
+    // A valid use is say 'on exit' when we need to wait for completion prior to tearing down resources. 
+    for (auto& ctx : renderContexts)
+        ctx->waitOnIdle();
 }
 
 template<class Archive> void Scene::serialize(Archive & ar, const unsigned int version) {

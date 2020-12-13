@@ -25,7 +25,11 @@
 class Camera : public Transform, public Reflection::IConsole<Camera> {
 public:
    Camera();
-   virtual ~Camera() {}
+   virtual ~Camera() {
+       renderPass = nullptr;
+       renderContext = nullptr;
+       motionController = nullptr;
+   }
    
    std::shared_ptr<IRenderContext> getContext();
    

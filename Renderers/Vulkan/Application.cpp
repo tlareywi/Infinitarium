@@ -161,13 +161,17 @@ XrInstance WinApplication::getXrInstance() {
 }
 
 void WinApplication::run() {
-	while( 1 ) {
-		glfwPollEvents();
+	while( running ) {
+		if( !terminatePending )
+			glfwPollEvents();
+
 		std::this_thread::yield();
 	}
 }
 
 void WinApplication::stop() {
+	terminatePending = true;
+
 	if (enableValidation) {
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr( vkInstance, "vkDestroyDebugUtilsMessengerEXT" );
 		if (func != nullptr) {
@@ -178,6 +182,8 @@ void WinApplication::stop() {
 	vkDestroyInstance( vkInstance, nullptr );
 
 	glfwTerminate();
+
+	running = false;
 }
 
 void WinApplication::addManipulator(const std::string& id, float, float, float) {

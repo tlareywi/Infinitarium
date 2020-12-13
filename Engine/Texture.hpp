@@ -111,6 +111,7 @@ public:
    
    static std::shared_ptr<ITexture> Create( unsigned int, unsigned int, Format );
    static std::shared_ptr<ITexture> Clone( const ITexture& );
+   static void clearRegisteredObjs();
    
    void set( DataPackContainer& i ) {
          image = std::move(i);
@@ -149,6 +150,7 @@ public:
    
    static std::shared_ptr<IRenderTarget> Create( unsigned int, unsigned int, Format, Type, Resource );
    static std::shared_ptr<IRenderTarget> Clone( const IRenderTarget& );
+   static void clearRegisteredObjs();
    
    Resource getResource() { return resource; }
    glm::vec4 getClearColor() { return clearColor; }

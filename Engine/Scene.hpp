@@ -24,7 +24,10 @@
 class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();
-   virtual ~Scene() {}
+   virtual ~Scene() {
+       cameras.clear();
+       renderContexts.clear();
+   }
    void save( const std::string& ) const;
    void load( const std::string& );
    void loadLocal( const std::string& );
@@ -33,6 +36,9 @@ public:
    void update();
    void render();
    void add( const std::shared_ptr<Camera>& );
+   void terminatePending();
+   bool isTerminatePending();
+   void waitOnIdle();
    
    // SceneObject ////////////////////////////////////
    void prepare(IRenderContext&) override {};
@@ -58,12 +64,14 @@ private:
    template<class Archive> void serialize(Archive & ar, const unsigned int version);
    
    std::mutex loadLock;
+   std::atomic<bool> shouldExit{false};
    
    // This object is non-copyable. Can be indirectly copied easilly by saving/loading new instance. 
    Scene( const Scene& ) = delete;
    Scene& operator=( const Scene& ) = delete;
    
    std::string localScenePath;
+
 };
 
 BOOST_CLASS_EXPORT_KEY(Scene);

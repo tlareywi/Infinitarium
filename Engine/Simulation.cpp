@@ -6,18 +6,15 @@
 //
 
 #include "Simulation.hpp"
+#include "Application.hpp"
 
-Simulation::Simulation() : exiting(false) {
+Simulation::Simulation() {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
 }
 
 Simulation::~Simulation() {
    if( simulation != nullptr && simulation->joinable() )
       simulation->join();
-}
-
-void Simulation::terminate() {
-   exiting = true;
 }
 
 void Simulation::setScene( std::shared_ptr<Scene>& s ) {
@@ -35,26 +32,28 @@ void Simulation::render() {
 }
 
 void Simulation::simLoop() {
-  // clock_t time{ 0 };
- //  const double clocks_per_ms { CLOCKS_PER_SEC / 1000.0 };
-   
    while( 1 ) {
-       // Hmm, I think we don't want to artificially force any clock here. We'll wait on swapchain image fences as necessary already. 
-  //    time += clock();
-  //    if( time / clocks_per_ms < 16.6666666667 ) {
-	//	 std::this_thread::yield();
-   //      continue;
-    //  }
-      
-   //   time = 0;
       update();
       render();
       
-      {
-         if( exiting )
-            break;
-      }
+      if(scene && scene->isTerminatePending())
+        break;
 
       std::this_thread::yield();
    }
+
+   // Wait for all contexts to finish execution before tearing down resources
+   scene->waitOnIdle();
+
+   // Dealloc scenegraph
+   scene = nullptr;
+
+   // Dealloc static instance tracking caches
+   ITexture::clearRegisteredObjs();
+   IRenderTarget::clearRegisteredObjs();
+   IRenderPass::clearRegisteredObjs();
+   IRenderContext::clearRegisteredObjs();
+
+   // Signal main thread exit
+   IApplication::Create()->stop();
 }

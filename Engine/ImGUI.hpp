@@ -20,12 +20,16 @@ public:
 private:
     std::shared_ptr<IImGUI> platformGUI{ nullptr };
     
+    bool showSceneGraph{ false };
     void ShowSceneGraph();
     void ShowRenderNodeProps( IRenderable* const );
-    bool showSceneGraph{ true };
     std::function<void()> doVisit;
     std::function<bool(SceneObject&)> accumulatorPush;
     std::function<void(SceneObject&)> accumulatorPop;
+
+    bool showSettings{ false };
+    void ShowSettings();
+    std::function<void()> setExit;
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive&, const unsigned int);

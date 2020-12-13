@@ -92,7 +92,9 @@ private:
 class IE_EXPORT SceneObject {
 public:
    SceneObject() : dirty(true), name("Undefined") {}
-   virtual ~SceneObject() {}
+   virtual ~SceneObject() {
+       children.clear();
+   }
 
    virtual void prepare( IRenderContext& );
    virtual void update( UpdateParams& );

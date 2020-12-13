@@ -35,6 +35,11 @@ void IRenderContext::init() {
    }
 }
 
+void IRenderContext::clearRegisteredObjs() {
+	registeredObjs.clear();
+	window = nullptr;
+}
+
 template<class Archive> void RenderContextProxy::serialize(Archive& ar, const unsigned int version) {
 	std::cout << "Serializing RenderContextProxy" << std::endl;
 	ar & BOOST_SERIALIZATION_NVP(_x);

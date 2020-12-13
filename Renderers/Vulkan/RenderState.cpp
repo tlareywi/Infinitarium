@@ -17,8 +17,10 @@ VulkanRenderState::VulkanRenderState() : newPipeline(true), graphicsPipeline(nul
 
 VulkanRenderState::~VulkanRenderState() {
 	if (device) {
-		vkDestroyPipeline(device, graphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+		if(graphicsPipeline)
+			vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		if(pipelineLayout)
+			vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 	}
 }
 
