@@ -27,8 +27,7 @@ ImGUI::ImGUI() {
 
 	// Subscribe to ESC event for showing/hiding UI
 	auto fun = [this](int key) {
-		showSceneGraph = !showSceneGraph;
-		showSettings = !showSettings;
+		_showMainMenuBar = !_showMainMenuBar;
 	};
 	std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), int>>(fun);
 	IApplication::Create()->subscribe("ESC", delegate);
@@ -51,7 +50,7 @@ ImGUI::ImGUI() {
 		else {
 			IRenderable* renderNode{ dynamic_cast<IRenderable*>(&obj) };
 			if (renderNode) {
-				ShowRenderNodeProps(renderNode);
+				showRenderNodeProps(renderNode);
 			}
 
 			return true;
@@ -73,7 +72,7 @@ void ImGUI::prepare(IRenderContext& context) {
 }
 
 void ImGUI::update(UpdateParams& params) {
-	if (showSceneGraph || showSettings) {
+	if (_showMainMenuBar) {
 		Scene& scene{ params.getScene() };
 		doVisit = [&scene, this]() {
 			scene.visit(Accumulator(accumulatorPush, accumulatorPop));
@@ -91,19 +90,86 @@ void ImGUI::render(IRenderPass& renderPass) {
 
 	ImGui::NewFrame();
 
-	if( showSceneGraph )
-		ShowSceneGraph();
-	if( showSettings )
-		ShowSettings();
+	if (_showMainMenuBar) {
+		showMainMenuBar();
 
-	//ImGui::ShowDemoWindow(&show_demo_window);
+		if (_showSceneGraph)
+			showSceneGraph();
+		if (_showSettings)
+			showSettings();
+		if (_showStats)
+			showStats();
+		if (_showHelp)
+			showHelp();
+		if (_showAbout)
+			showAbout();
+
+	//	bool show_demo_window{ true };
+	//	ImGui::ShowDemoWindow(&show_demo_window);
+	}
 
 	ImGui::Render();
 
 	platformGUI->render(renderPass);
 }
 
-void ImGUI::ShowRenderNodeProps(IRenderable* const renderable) {
+void ImGUI::showAbout() {
+	ImGui::SetNextWindowSize(ImVec2(640, 240), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("About Infinitarium", &_showAbout)) {
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Text("Infinitarium Pre-Alpha\n\n(c)2020 Blue Canvas Studios LLC\n\nSee LICENSE for 3rd party acknowledgements.");
+
+	ImGui::End();
+}
+
+void ImGUI::showHelp() {
+	ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Help Content", &_showHelp)) {
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Text(""
+		"ESC: Show/Hide all UI elements\n"
+		"Right Mouse Button Drag: Rotate Camera View");
+
+	ImGui::End();
+}
+
+void ImGUI::showMainMenuBar() {
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Quit", ""))
+				setExit();
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Window"))
+		{
+			ImGui::MenuItem("SceneGraph", nullptr, &_showSceneGraph);
+			ImGui::MenuItem("Settings", nullptr, &_showSettings);
+			ImGui::MenuItem("Statistics", nullptr, &_showStats);
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("Content", nullptr))
+				_showHelp = true;
+			ImGui::Separator();
+			if( ImGui::MenuItem("About", nullptr) )
+				_showAbout = true;
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+}
+
+void ImGUI::showRenderNodeProps(IRenderable* const renderable) {
 	for (auto& uniform : renderable->getUniforms()) {
 		ImGui::PushID(reinterpret_cast<unsigned long long>(&uniform));
 
@@ -152,9 +218,9 @@ void ImGUI::ShowRenderNodeProps(IRenderable* const renderable) {
 	}
 }
 
-void ImGUI::ShowSceneGraph() {
+void ImGUI::showSceneGraph() {
 	ImGui::SetNextWindowSize(ImVec2(480, 640), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("SceneGraph", &showSceneGraph))
+	if (!ImGui::Begin("SceneGraph", &_showSceneGraph))
 	{
 		ImGui::End();
 		return;
@@ -177,22 +243,36 @@ void ImGUI::ShowSceneGraph() {
 	ImGui::End();
 }
 
-void ImGUI::ShowSettings() {
-	Stats& stats{ Stats::Instance() };
-
+void ImGUI::showSettings() {
 	ImGui::SetNextWindowSize(ImVec2(200, 380), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Settings", &showSettings)) {
+	if (!ImGui::Begin("Settings", &_showSettings)) {
 		ImGui::End();
 		return;
 	}
 
-	ImGui::Text("FPS: %i", stats.fps);
+//	ImVec2 pos((ImGui::GetWindowSize().x - 80) * 0.5, ImGui::GetCursorPosY());
+//	ImGui::SetCursorPos(pos);
+//	if (ImGui::Button("Exit", ImVec2(80,20))) {
+//		setExit();
+//	}
 
-	ImVec2 pos((ImGui::GetWindowSize().x - 80) * 0.5, ImGui::GetCursorPosY());
-	ImGui::SetCursorPos(pos);
-	if (ImGui::Button("Exit", ImVec2(80,20))) {
-		setExit();
+	ImGui::End();
+}
+
+void ImGUI::showStats() {
+	Stats& stats{ Stats::Instance() };
+
+	ImGui::SetNextWindowSize(ImVec2(200, 380), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Statistics", &_showStats)) {
+		ImGui::End();
+		return;
 	}
+
+	HelpMarker(
+		"FPS is a 60 frame rolling average.\n"
+	);
+
+	ImGui::Text("FPS: %u", stats.fps);
 
 	ImGui::End();
 }
