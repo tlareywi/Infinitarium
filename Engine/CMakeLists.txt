@@ -15,7 +15,7 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   RenderState.hpp DataBuffer.hpp MotionControllerOrbit.hpp RenderProgram.hpp Scene.hpp
   EventSampler.cpp ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp
   Camera.cpp Texture.cpp Pipeline.cpp Sprite.cpp Transform.cpp SceneObject.cpp
-  Spheroid.cpp CoordinateSystem.cpp
+  Spheroid.cpp CoordinateSystem.cpp Stats.cpp Stats.hpp
   Application.hpp Simulation.cpp Simulation.hpp RenderContext.cpp RenderContext.hpp
   PythonBridge.hpp EngineInterface.hpp ConsoleInterface.cpp ConsoleInterface.hpp
   PyUtil.hpp UniformType.hpp Delegate.hpp Camera.hpp Texture.hpp Pipeline.hpp

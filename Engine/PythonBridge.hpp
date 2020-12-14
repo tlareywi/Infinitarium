@@ -22,8 +22,8 @@ public:
    void setScene( std::shared_ptr<Scene>& );
 
 private:
-   boost::python::object main_module;
-   boost::python::object main_namespace;
+   std::shared_ptr<boost::python::object> main_module;
+   std::shared_ptr < boost::python::object> main_namespace;
 };
 
 

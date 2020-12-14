@@ -7,6 +7,7 @@
 
 #include "Simulation.hpp"
 #include "Application.hpp"
+#include "Stats.hpp"
 
 Simulation::Simulation() {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
@@ -32,6 +33,14 @@ void Simulation::render() {
 }
 
 void Simulation::simLoop() {
+   const unsigned short sampleSize{ 60 };
+   auto frameStart = std::chrono::high_resolution_clock::now();
+   std::chrono::duration<double, std::milli> duration(std::chrono::high_resolution_clock::now() - frameStart);
+   std::vector<std::chrono::duration<double, std::milli>> frameSamples;
+   frameSamples.resize(sampleSize);
+   unsigned short sampleIndx = { 0 };
+   Stats& stats = Stats::Instance();
+
    while( 1 ) {
       update();
       render();
@@ -39,7 +48,20 @@ void Simulation::simLoop() {
       if(scene && scene->isTerminatePending())
         break;
 
+      // Measure frame duration just prior to yield
+      frameSamples[sampleIndx] = std::chrono::high_resolution_clock::now() - frameStart;
+     
+      double sum{ 0 };
+      for (auto& sample : frameSamples)
+          sum += sample.count();
+      sum /= sampleSize;
+      sampleIndx = ++sampleIndx % sampleSize;
+      stats.fps = trunc(1000.0 / sum);
+
       std::this_thread::yield();
+
+      // Start fps clock after we have regained execution
+      frameStart = std::chrono::high_resolution_clock::now();
    }
 
    // Wait for all contexts to finish execution before tearing down resources

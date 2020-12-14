@@ -297,10 +297,10 @@ static PyConsoleRedirect python_stdio_redirector;
 
 PythonInterpreter::PythonInterpreter() {
    Py_Initialize();
-   main_module = import("__main__");
-   main_namespace = main_module.attr("__dict__");
+   main_module = std::make_shared<boost::python::object>(import("__main__"));
+   main_namespace = std::make_shared<boost::python::object>(main_module->attr("__dict__"));
    
-   main_namespace["PyConsoleRedirect"] = class_<PyConsoleRedirect>("PyConsoleRedirect", init<>())
+   (*main_namespace)["PyConsoleRedirect"] = class_<PyConsoleRedirect>("PyConsoleRedirect", init<>())
       .def("write", &PyConsoleRedirect::write);
    
    import("sys").attr("stderr") = python_stdio_redirector;
@@ -315,7 +315,9 @@ PythonInterpreter::PythonInterpreter() {
 }
 
 PythonInterpreter::~PythonInterpreter() {
-  // Py_Finalize();
+    main_namespace = nullptr;
+    main_module = nullptr;
+    Py_Finalize();
 }
    
 std::string PythonInterpreter::eval( const std::string& expr ) {
@@ -329,7 +331,7 @@ std::string PythonInterpreter::eval( const std::string& expr ) {
    boost::replace_all(inStr, "”","\"");
    
    try {
-      object result = exec( str(inStr), main_namespace );
+      object result = exec( str(inStr), *main_namespace );
       
       retVal = python_stdio_redirector.GetOutput();
       

@@ -3,6 +3,7 @@
 #include "ConsoleInterface.hpp"
 #include "Delegate.hpp"
 #include "Application.hpp"
+#include "Stats.hpp"
 
 #include <glm/glm.hpp>
 
@@ -177,11 +178,15 @@ void ImGUI::ShowSceneGraph() {
 }
 
 void ImGUI::ShowSettings() {
+	Stats& stats{ Stats::Instance() };
+
 	ImGui::SetNextWindowSize(ImVec2(200, 380), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin("Settings", &showSettings)) {
 		ImGui::End();
 		return;
 	}
+
+	ImGui::Text("FPS: %i", stats.fps);
 
 	ImVec2 pos((ImGui::GetWindowSize().x - 80) * 0.5, ImGui::GetCursorPosY());
 	ImGui::SetCursorPos(pos);
