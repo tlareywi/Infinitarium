@@ -33,7 +33,7 @@ private:
     void showSettings();
     std::function<void()> setExit;
 
-    bool _showMainMenuBar{ false };
+    bool _showMainMenuBar{ true };
     void showMainMenuBar();
 
     bool _showStats{ false };

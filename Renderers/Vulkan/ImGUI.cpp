@@ -4,7 +4,9 @@
 
 VulkanImGUI::~VulkanImGUI() {
 	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+
+	if( window )
+		ImGui_ImplGlfw_Shutdown();
 
 	ImGui::DestroyContext();
 }
@@ -24,7 +26,13 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 		//ImGui::StyleColorsClassic();
 
 		// Setup Platform/Renderer bindings
-		ImGui_ImplGlfw_InitForVulkan(window, true);
+		if( window )
+			ImGui_ImplGlfw_InitForVulkan(window, true);
+		else {
+			io.DisplaySize.x = fbWidth; 
+			io.DisplaySize.y = fbHeight;
+		}
+
 		init_info.CheckVkResultFn = [](VkResult result) {
 			assert(result == VK_SUCCESS);
 		};
@@ -84,6 +92,8 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 	};
 
 	window = vkContext.getWindow();
+	fbWidth = context.width();
+	fbHeight = context.height();
 }
 
 void VulkanImGUI::apply(IRenderPass& renderPass) {
@@ -93,7 +103,9 @@ void VulkanImGUI::apply(IRenderPass& renderPass) {
 	}
 
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
+
+	if( window )
+		ImGui_ImplGlfw_NewFrame();
 }
 
 void VulkanImGUI::update() {

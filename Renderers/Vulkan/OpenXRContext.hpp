@@ -32,7 +32,14 @@ public:
     VulkanRenderTarget& getSwapchainTarget() override;
     void attachTargets(IRenderPass& renderPass) override;
     size_t numImages() override {
-        return xrSwapchainTargets.size();
+        size_t n{ 0 };
+        for( auto& p : xrSwapchainTargets )
+            n += p.second.size();
+
+        return n;
+    }
+    GLFWwindow* getWindow() override {
+        return nullptr;
     }
     void submit(VkCommandBuffer, VkFence, VkSemaphore) override;
 

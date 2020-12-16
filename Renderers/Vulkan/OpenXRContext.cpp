@@ -148,6 +148,7 @@ void OpenXRContext::setSurface(void* params) {
 		swapchainCreateInfo.imageExtent.width = view.recommendedImageRectWidth;
 		swapchainCreateInfo.imageExtent.height = view.recommendedImageRectHeight;
 		swapchainCreateInfo.imageFormat = (VkFormat)swapchain.createInfo.format;
+		swapchainCreateInfo.minImageCount = imageCount;
 
 		setContextExtent(view.recommendedImageRectWidth, view.recommendedImageRectHeight);
 	}

@@ -58,6 +58,12 @@ public:
 	virtual VulkanRenderTarget& getSwapchainTarget();
 	virtual void attachTargets(IRenderPass& renderPass);
 	virtual void submit(VkCommandBuffer, VkFence, VkSemaphore);
+	virtual GLFWwindow* getWindow() {
+		return static_cast<GLFWwindow*>(window->getPlatformWindow());
+	}
+	virtual size_t numImages() {
+		return swapchainTargets.size();
+	}
 
 	void submit(VkSubmitInfo&);
 
@@ -76,17 +82,11 @@ public:
 	void getVulkanSwapchainInfo(VkSwapchainCreateInfoKHR& info) {
 		memcpy(&info, &swapchainCreateInfo, sizeof(info));
 	}
-	virtual size_t numImages() {
-		return swapchainTargets.size();
-	}
 	VkQueue const getGraphicsQueue() {
 		return graphicsQueue;
 	}
 	VkInstance const getVkInstance() {
 		return vkInstance;
-	}
-	GLFWwindow* getWindow() {
-		return static_cast<GLFWwindow*>(window->getPlatformWindow());
 	}
 
 protected:
