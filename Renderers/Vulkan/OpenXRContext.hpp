@@ -20,6 +20,7 @@ public:
     void endFrame() override;
     unsigned int getPerspectiveCount() override;
     void getPerspective(unsigned int, glm::mat4x4& proj, glm::mat4x4& view) override;
+    void toggleFullScreen() override {};
    
     // VulkanRenderContext ////////////////////////////
     VkImageLayout swapchainLayout() override {
@@ -33,7 +34,7 @@ public:
     size_t numImages() override {
         return xrSwapchainTargets.size();
     }
-    void submit(VkCommandBuffer bufffer, VkFence, VkSemaphore) override;
+    void submit(VkCommandBuffer, VkFence, VkSemaphore) override;
 
 private:
     struct Swapchain {

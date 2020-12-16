@@ -14,7 +14,7 @@ std::shared_ptr<IEventSampler> CreateEventSampler();
 // WinApplicationWindow
 ///////////////////////////////////////////////////////////////////////////////
 
-WinApplicationWindow::WinApplicationWindow() : window(nullptr), surface(VK_NULL_HANDLE) {
+WinApplicationWindow::WinApplicationWindow() : window(nullptr), surface(VK_NULL_HANDLE), monitor(nullptr) {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
@@ -25,6 +25,8 @@ WinApplicationWindow::~WinApplicationWindow() {
 	glfwDestroyWindow(window);
 }
 
+// TODO We can drop reference to renderContext by passing necessary values. ApplicationWindow doesn't need to know about context. 
+// Don't have a problem with circular references yet but I see one on the horizon.
 void WinApplicationWindow::init( IRenderContext& renderContext ) {
 	bool headset = dynamic_cast<OpenXRContext*>(&renderContext) ? true : false;
 	WinApplication& instance = dynamic_cast<WinApplication&>(*WinApplication::Instance());
@@ -37,7 +39,7 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 	}
 	else {
 		if (renderContext.fullScreen()) {
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 			glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
@@ -61,7 +63,6 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 		}
 
 		params.surface = surface;
-		params.window = (void*)window;
 		std::shared_ptr<IEventSampler> eventSampler{ CreateEventSampler() };
 		WindowsEventSampler& winEvents{ dynamic_cast<WindowsEventSampler&>(*eventSampler) };
 		winEvents.setTargetWindow(window, renderContext);
@@ -72,13 +73,31 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 	renderContext.setSurface(&params);
 }
 
+void WinApplicationWindow::toggleFullScreen(IRenderContext& renderContext) {
+	if (!monitor) {
+		monitor = glfwGetPrimaryMonitor();
+
+		// backup window position and size
+		glfwGetWindowPos(window, &wndPos[0], &wndPos[1]);
+		glfwGetWindowSize(window, &wndSize[0], &wndSize[1]);
+
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+		renderContext.setContextExtent(mode->width, mode->height);
+	}
+	else {
+		// restore 
+		monitor = nullptr;
+		glfwSetWindowMonitor(window, monitor, wndPos[0], wndPos[1], wndSize[0], wndSize[1], 0);
+		renderContext.setContextExtent(wndSize[0], wndSize[1]);
+	}
+}
+
 __declspec(dllexport) std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
 	std::shared_ptr<IApplicationWindow> window = std::make_shared<WinApplicationWindow>();
 	return window;
 }
 
-__declspec(dllexport) std::shared_ptr<IApplicationWindow> CloneApplicationWindow(const IApplicationWindow& obj) {
-	std::shared_ptr<IApplicationWindow> window = std::make_shared<WinApplicationWindow>(obj);
-	return window;
-}
+
 

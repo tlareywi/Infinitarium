@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../Engine/ApplicationWindow.hpp"
 #include "../../Engine/RenderContext.hpp"
 #include "RenderTarget.hpp"
 
@@ -9,6 +10,8 @@
 #include <functional>
 
 #include <windows.h>
+
+#include <GLFW/glfw3.h>
 
 #define XR_USE_PLATFORM_WIN32
 #define XR_USE_GRAPHICS_API_VULKAN
@@ -32,7 +35,6 @@ public:
 		VkInstance vkInstance;
 		XrInstance xrInstance;
 		XrSystemId xrSystemId;
-		void* window{ nullptr };
 	};
 
 	VulkanRenderContext(const IRenderContext& obj);
@@ -45,6 +47,7 @@ public:
 	void beginFrame() override;
 	void endFrame() override;
 	void waitOnIdle() override;
+	void toggleFullScreen() override;
 
 	virtual VkImageLayout swapchainLayout() {
 		return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -82,8 +85,8 @@ public:
 	VkInstance const getVkInstance() {
 		return vkInstance;
 	}
-	void* getWindow() {
-		return window;
+	GLFWwindow* getWindow() {
+		return static_cast<GLFWwindow*>(window->getPlatformWindow());
 	}
 
 protected:
@@ -105,9 +108,6 @@ private:
 	bool querySwapChain(const VkPhysicalDevice&, const VkSurfaceKHR&, SwapChainSupportDetails& details);
 	void createSwapChain(const VkSurfaceKHR& surface);
 	void reAllocSwapchain();
-
-	// CLUDGE for ImGUI integration
-	void* window{ nullptr };
 	
 	// Device resources
 	VkCommandPool commandPool;
@@ -133,6 +133,8 @@ private:
 	uint32_t targetInFlight{ 0 };
 
 	std::atomic<bool> renderingPaused;
-	std::function<void()> recreateSwapchain;
+	std::atomic<bool> toggleFullscreen;
+	std::function<void(VkSurfaceKHR&)> recreateSwapchain;
+	void deAllocSwapchain();
 };
 

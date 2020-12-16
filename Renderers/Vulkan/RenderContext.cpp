@@ -18,6 +18,7 @@ VulkanRenderContext::VulkanRenderContext(unsigned int x, unsigned int y, unsigne
 	graphicsQueue = VK_NULL_HANDLE;
 	targetInFlight = 0;
 	renderingPaused = false;
+	toggleFullscreen = false;
 }
 
 VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderContext(obj) {
@@ -26,18 +27,14 @@ VulkanRenderContext::VulkanRenderContext(const IRenderContext& obj) : IRenderCon
 	graphicsQueue = VK_NULL_HANDLE;
 	targetInFlight = 0;
 	renderingPaused = false;
+	toggleFullscreen = false;
 }
 
 VulkanRenderContext::~VulkanRenderContext() {
 	if (!logicalDevice) return;
 	 
-	for( size_t i = 0; i < swapchainTargets.size(); i++ ) {
-		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
-	}
+	deAllocSwapchain();
 
-	swapchainTargets.clear(); // Must be done before device destruction
-
-	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 	vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 	vkDestroyDevice(logicalDevice, nullptr);
@@ -52,6 +49,16 @@ void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
 
 void VulkanRenderContext::beginFrame() {
 	assert(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[targetInFlight], VK_NULL_HANDLE, &targetInFlight) == VK_SUCCESS);
+}
+
+void VulkanRenderContext::deAllocSwapchain() {
+	for (size_t i = 0; i < swapchainTargets.size(); i++) {
+		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
+	}
+
+	swapchainTargets.clear(); // Must be done before device destruction
+
+	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 }
 
 VkDeviceCreateInfo& VulkanRenderContext::createDeviceQueueInfo(const VkPhysicalDevice& device, const VkSurfaceKHR& surface) {
@@ -244,6 +251,15 @@ void VulkanRenderContext::endFrame() {
 	renderFinishedSemaphores.clear();
 
 	targetInFlight = (targetInFlight + 1) % swapchainTargets.size();
+
+	if (toggleFullscreen) {
+		toggleFullscreen = false;
+		renderingPaused = true;
+		window->toggleFullScreen(*this);
+		while(renderingPaused) // The glfw framebuffer size callback will unpause us when the new framebuffer is up. 
+			std::this_thread::yield();
+		reAllocSwapchain();
+	}
 }
 
 void* VulkanRenderContext::getSurface() {
@@ -281,7 +297,7 @@ void VulkanRenderContext::initializeGraphicsDevice(const VkSurfaceKHR& surface, 
 
 	createDeviceGraphicsQueue(physicalDevice, surface);
 
-	recreateSwapchain = [this, surface]() {
+	recreateSwapchain = [this](VkSurfaceKHR& surface) {
 		createSwapChain(surface);
 	};
 
@@ -361,18 +377,18 @@ unsigned int VulkanRenderContext::rateDeviceCompatiblities(const VkPhysicalDevic
 void VulkanRenderContext::reAllocSwapchain() {
 	vkDeviceWaitIdle(logicalDevice);
 
-	swapchainTargets.clear();
+	deAllocSwapchain();
 
-	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+	VkSurfaceKHR surface = static_cast<VkSurfaceKHR>(window->getPlatformSurface());
+	recreateSwapchain(surface);
 
-	recreateSwapchain();
+	targetInFlight = 0;
 }
 
 void VulkanRenderContext::setSurface(void* params) {
 	ContextParams* p{ reinterpret_cast<ContextParams*>(params) };
 	VkSurfaceKHR surface = p->surface;
 	vkInstance = p->vkInstance;
-	window = p->window;
 	initializeGraphicsDevice(surface, vkInstance);
 }
 
@@ -417,6 +433,10 @@ void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSem
 	if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
 		throw std::runtime_error("failed to submit draw command buffer!");
 }
+
+void VulkanRenderContext::toggleFullScreen() {
+	toggleFullscreen = true;
+};
 
 void VulkanRenderContext::waitOnIdle() {
 	if(logicalDevice)

@@ -17,29 +17,14 @@ public:
    IApplicationWindow( const IApplicationWindow& ) {}
    
    static std::shared_ptr<IApplicationWindow> Create();
-   static std::shared_ptr<IApplicationWindow> Clone( const IApplicationWindow& );
    
    virtual void init( IRenderContext& ) = 0;
-   
+   virtual void* getPlatformWindow() = 0;
+   virtual void toggleFullScreen(IRenderContext&) = 0;
+   virtual void* getPlatformSurface() = 0;
+
 protected:
    IApplicationWindow() {}
 };
 
-class ApplicationWindowProxy : public IApplicationWindow {
-public:
-   ApplicationWindowProxy() {}
-   ApplicationWindowProxy( const IApplicationWindow& obj ) : IApplicationWindow(obj) {}
-   
-   void init( IRenderContext& ) override {}
 
-   template<class Archive> void serialize(Archive& ar);
-   
-private:
-#if defined ENGINE_BUILD
-   friend class boost::serialization::access;
-#endif
-};
-
-#if defined ENGINE_BUILD
-BOOST_CLASS_EXPORT_KEY(ApplicationWindowProxy);
-#endif

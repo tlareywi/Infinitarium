@@ -10,12 +10,17 @@ public:
 	static std::shared_ptr<IImGUI> Create();
 	virtual ~IImGUI() {}
 
-	virtual void prepare( IRenderContext& ) = 0;
-	virtual void apply( IRenderPass& ) = 0;
+	virtual void prepare(IRenderContext&) = 0;
+	virtual void apply(IRenderPass&) = 0;
+	
+	void setDirty() {
+		dirty = true;
+	}
 
 	virtual void update() = 0;
-	virtual void render( IRenderPass& ) = 0;
+	virtual void render(IRenderPass&) = 0;
 
 protected:
 	IImGUI() {}
+	bool dirty{true};
 };

@@ -27,11 +27,13 @@ private:
     std::function<bool(SceneObject&)> accumulatorPush;
     std::function<void(SceneObject&)> accumulatorPop;
 
+    std::function<void()> toggleFullScreen;
+
     bool _showSettings{ false };
     void showSettings();
     std::function<void()> setExit;
 
-    bool _showMainMenuBar{ true };
+    bool _showMainMenuBar{ false };
     void showMainMenuBar();
 
     bool _showStats{ false };

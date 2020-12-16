@@ -69,6 +69,10 @@ ImGUI::~ImGUI() {
 
 void ImGUI::prepare(IRenderContext& context) {
 	platformGUI->prepare(context);
+
+	toggleFullScreen = [&context]() {
+		context.toggleFullScreen();
+	};
 }
 
 void ImGUI::update(UpdateParams& params) {
@@ -80,36 +84,42 @@ void ImGUI::update(UpdateParams& params) {
 		setExit = [&scene]() {
 			scene.terminatePending();
 		};
-	}
 
-	platformGUI->update();
+		platformGUI->update();
+	}
 }
 
 void ImGUI::render(IRenderPass& renderPass) {
+	if (!_showMainMenuBar)
+		return;
+
+	if (dirty) {
+		// Currently, there's no case under which ImGUI needs to be re-initialized. A framebuffer/swapchain resize 'just works'. How nice. 
+		dirty = false;
+	}
+				
 	platformGUI->apply(renderPass);
 
 	ImGui::NewFrame();
 
-	if (_showMainMenuBar) {
-		showMainMenuBar();
+	showMainMenuBar();
 
-		if (_showSceneGraph)
-			showSceneGraph();
-		if (_showSettings)
-			showSettings();
-		if (_showStats)
-			showStats();
-		if (_showHelp)
-			showHelp();
-		if (_showAbout)
-			showAbout();
+	if (_showSceneGraph)
+		showSceneGraph();
+	if (_showSettings)
+		showSettings();
+	if (_showStats)
+		showStats();
+	if (_showHelp)
+		showHelp();
+	if (_showAbout)
+		showAbout();
 
+	// Really nice for debugging and design ideas. 
 	//	bool show_demo_window{ true };
 	//	ImGui::ShowDemoWindow(&show_demo_window);
-	}
 
 	ImGui::Render();
-
 	platformGUI->render(renderPass);
 }
 
@@ -149,10 +159,17 @@ void ImGUI::showMainMenuBar() {
 
 			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Toggle Fullscreen", ""))
+				toggleFullScreen();
+
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Window"))
 		{
 			ImGui::MenuItem("SceneGraph", nullptr, &_showSceneGraph);
-			ImGui::MenuItem("Settings", nullptr, &_showSettings);
+		//	ImGui::MenuItem("Settings", nullptr, &_showSettings);
 			ImGui::MenuItem("Statistics", nullptr, &_showStats);
 			ImGui::EndMenu();
 		}

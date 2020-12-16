@@ -19,7 +19,6 @@ public:
 
 private:
 	void initImGUI(IRenderPass&);
-	bool dirty{ true };
 
 	ImGui_ImplVulkan_InitInfo init_info = {};
 

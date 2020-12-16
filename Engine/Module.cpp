@@ -20,7 +20,6 @@ static void* getSym(void* handle, const char* name) {
 static std::map<std::string, std::string> symbolMap {
    {"CreateEventSampler", "?CreateEventSampler@@YA?AV?$shared_ptr@VIEventSampler@@@std@@XZ"},
    {"CreateApplicationWindow", "?CreateApplicationWindow@@YA?AV?$shared_ptr@VIApplicationWindow@@@std@@XZ"},
-   {"CloneApplicationWindow", "?CloneApplicationWindow@@YA?AV?$shared_ptr@VIApplicationWindow@@@std@@AEBVIApplicationWindow@@@Z"},
    {"CreateApplication", "?CreateApplication@@YA?AV?$shared_ptr@VIApplication@@@std@@XZ"},
    {"CreateRenderCommand", "?CreateRenderCommand@@YA?AV?$shared_ptr@VIRenderCommand@@@std@@XZ"},
    {"CreateRenderState", "?CreateRenderState@@YA?AV?$shared_ptr@VIRenderState@@@std@@XZ"},
@@ -40,7 +39,6 @@ static std::map<std::string, std::string> symbolMap {
 static std::map<std::string, std::string> symbolMap {
    {"CreateEventSampler", "_Z18CreateEventSamplerv"},
    {"CreateApplicationWindow", "_Z23CreateApplicationWindowv"},
-   {"CloneApplicationWindow", "_Z22CloneApplicationWindowRK18IApplicationWindow"},
    {"CreateApplication", "_Z17CreateApplicationv"},
    {"CreateRenderCommand", "_Z19CreateRenderCommandv"},
    {"CreateRenderState", "_Z17CreateRenderStatev"},
@@ -137,11 +135,6 @@ RendererFactory::RendererFactory() : ModuleFactory<RendererFactory>(libRenderer)
    createApplicationWindow = (ApplicationWindowImpl)getSym(handle, symbolMap["CreateApplicationWindow"].c_str());
    if (!createApplicationWindow) {
        throw std::runtime_error("CRITICAL: No implementation for ApplicationWindow!");
-   }
-
-   cloneApplicationWindow = (ApplicationWindowClone)getSym(handle, symbolMap["CloneApplicationWindow"].c_str());
-   if (!cloneApplicationWindow) {
-       throw std::runtime_error("CRITICAL: No implementation for CloneApplicationWindow!");
    }
 }
 

@@ -83,7 +83,7 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 		vkContext.submit(end_info);
 	};
 
-	window = (GLFWwindow*)vkContext.getWindow();
+	window = vkContext.getWindow();
 }
 
 void VulkanImGUI::apply(IRenderPass& renderPass) {

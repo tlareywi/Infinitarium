@@ -20,6 +20,8 @@
 #include <boost/serialization/export.hpp>
 #endif
 
+class IApplicationWindow;
+
 class IRenderContext {
 public:
    IRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs, bool headset ) : 
@@ -46,6 +48,7 @@ public:
    virtual void beginFrame() = 0;
    virtual void endFrame() = 0;
    virtual void waitOnIdle() = 0;
+   virtual void toggleFullScreen() = 0;
 
    // OpenXR integration ///
    virtual unsigned int getPerspectiveCount() { return 1; }
@@ -82,11 +85,11 @@ public:
    void setContextExtent( unsigned int w, unsigned int h ) {
        _width = w;
        _height = h;
-       std::cout << "Using fullscreen window mode @" << w << "x" << h << std::endl;
    }
    
 protected:
    IRenderContext() : _x(0), _y(0), _width(0), _height(0), _fullScreen(false), _headset(false), _objId(0) {}
+   std::shared_ptr<IApplicationWindow> window{ nullptr };
    
    unsigned int _x;
    unsigned int _y;
@@ -108,6 +111,7 @@ public:
    void beginFrame() override {};
    void endFrame() override {};
    void waitOnIdle() override {};
+   void toggleFullScreen() override {};
   
 private:
 #if defined ENGINE_BUILD
