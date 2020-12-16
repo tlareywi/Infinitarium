@@ -88,6 +88,10 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 		std::cout << "WARNING, failed cast to vkRenderPass." << std::endl;
 		return;
 	}
+	if (!vkRenderPass->commandBuffer()) {
+		std::cout << "WARNING, enccode called without a valid target and/or command buffer." << std::endl;
+		return;
+	}
 
 	vkCmdBindPipeline( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipeline() );
 

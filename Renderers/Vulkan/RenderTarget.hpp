@@ -7,12 +7,16 @@
 
 #include <map>
 
+static inline void CheckVkResult( VkResult result ) {
+	assert(result == VK_SUCCESS);
+}
+
 /// <summary>
 /// Wrapper to enable smart pointer tracking of a Vulkan image view resource.
 /// </summary>
 struct ImageViewResource {
 	ImageViewResource(VkDevice d, VkImageViewCreateInfo& createInfo) : device(d) {
-		assert(vkCreateImageView(device, &createInfo, nullptr, &imageView) == VK_SUCCESS);
+		CheckVkResult( vkCreateImageView(device, &createInfo, nullptr, &imageView) );
 	}
 	VkImageView operator()() {
 		return imageView;
@@ -34,11 +38,11 @@ private:
 /// </summary>
 struct FramebufferResource {
 	FramebufferResource(VkDevice d, VkFramebufferCreateInfo& createInfo) : device(d) {
-		assert(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS);
+		CheckVkResult(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer));
 		
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		assert(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinished) == VK_SUCCESS);
+		CheckVkResult(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinished));
 	}
 	VkFramebuffer operator()() {
 		return framebuffer;
@@ -65,12 +69,12 @@ private:
 /// </summary>
 struct CommandBufferResource {
 	CommandBufferResource(VkDevice d, VkCommandBufferAllocateInfo& ci) : device(d), createInfo(ci) {
-		assert(vkAllocateCommandBuffers(d, &createInfo, &cmdBuffer) == VK_SUCCESS);
-		
+		CheckVkResult(vkAllocateCommandBuffers(d, &createInfo, &cmdBuffer));
+
 		VkFenceCreateInfo fenceInfo = {};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-		assert(vkCreateFence(d, &fenceInfo, nullptr, &fence) == VK_SUCCESS);
+		CheckVkResult(vkCreateFence(d, &fenceInfo, nullptr, &fence));
 	}
 	VkCommandBuffer operator()() {
 		return cmdBuffer;

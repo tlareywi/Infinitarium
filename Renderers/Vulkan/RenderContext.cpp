@@ -48,7 +48,7 @@ void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
 }
 
 void VulkanRenderContext::beginFrame() {
-	assert(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[targetInFlight], VK_NULL_HANDLE, &targetInFlight) == VK_SUCCESS);
+	CheckVkResult(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[targetInFlight], VK_NULL_HANDLE, &targetInFlight));
 }
 
 void VulkanRenderContext::deAllocSwapchain() {
@@ -189,9 +189,9 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	}
 
 	std::vector<VkImage> swapChainImages;
-	assert( vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr) == VK_SUCCESS );
+	CheckVkResult( vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr));
 	swapChainImages.resize(imageCount);
-	assert( vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data()) == VK_SUCCESS );
+	CheckVkResult(vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data()));
 
 	// Render targets (image + imageview + framebuffer)
 	swapchainTargets.reserve(imageCount);

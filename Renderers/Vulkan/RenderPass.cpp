@@ -137,7 +137,8 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
 	VkFence vkFence{ currentTarget->getFence() };
-	assert(vkWaitForFences(vkContext.getVulkanDevice(), 1, &vkFence, VK_TRUE, UINT64_MAX) == VK_SUCCESS);
+	VkResult result = vkWaitForFences(vkContext.getVulkanDevice(), 1, &vkFence, VK_TRUE, UINT64_MAX);
+	assert(result == VK_SUCCESS);
 
 	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS )
 		throw std::runtime_error("failed to begin recording command buffer!");

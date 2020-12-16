@@ -332,7 +332,7 @@ void OpenXRContext::HandleSessionStateChangedEvent(const XrEventDataSessionState
 		break;
 	}
 	case XR_SESSION_STATE_STOPPING: {
-		assert(xrEndSession(xrSession) == XR_SUCCESS);
+		xrEndSession(xrSession);
 		break;
 	}
 	case XR_SESSION_STATE_EXITING: {
