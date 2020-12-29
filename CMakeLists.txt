@@ -21,6 +21,8 @@ add_executable( Infinitarium main.cpp
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD 17)
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD_REQUIRED ON)
 
+include_directories("./ImGUI")
+
 # boost
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})

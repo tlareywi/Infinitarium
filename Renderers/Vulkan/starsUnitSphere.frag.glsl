@@ -16,6 +16,7 @@ struct VertexIn {
 	uint id;
 };
 
+layout(origin_upper_left) in vec4 gl_FragCoord;
 layout(location = 0) flat in VertexIn point;
 
 layout(location = 0) out vec4 color;
@@ -26,6 +27,7 @@ void main() {
 
 	float disk = point.diskBrightness * point.brightness * exp(-len / (2.0 * point.diskDensity));
 	float psf = point.haloBrightness * point.brightness * exp(-len / (2.0 * point.haloDensity));
+	float subjectiveBrightness = disk + psf;
 
-	color = vec4(point.color.rgb * (disk + psf), 1.0);
+	color = vec4(point.color.rgb * subjectiveBrightness, 1.0);
 }

@@ -1,5 +1,6 @@
 #include "RenderPass.hpp"
 #include "RenderContext.hpp"
+#include "DataBuffer.hpp"
 
 VulkanRenderPass::~VulkanRenderPass() {
 	if (device) {
@@ -142,6 +143,12 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 
 	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS )
 		throw std::runtime_error("failed to begin recording command buffer!");
+
+	if (vkContext.isNewFrame()) { // Need to zero the pick buffer on the first pass on a new frame.
+		auto pickBuf = context.pickBuffer();
+		VulkanBuffer& vkBuffer = dynamic_cast<VulkanBuffer&>(*pickBuf);
+		vkCmdFillBuffer(currentTarget->getCmdBuffer(), vkBuffer.getVkBuffer(), 0, (VkDeviceSize)context.width() * (VkDeviceSize)context.height() * sizeof(PickUnit), 0);
+	}
 
 	vkCmdBeginRenderPass(currentTarget->getCmdBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }

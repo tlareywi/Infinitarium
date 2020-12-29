@@ -1,7 +1,7 @@
 #include "DataBuffer.hpp"
 
-VulkanBuffer::VulkanBuffer(VulkanRenderContext& c) : context(c), cpu(nullptr), gpu(nullptr), map(nullptr), stride(0), 
-stagingBufferMemory(nullptr), gpuBufferMemory(nullptr), bufferSize(0), format(VK_FORMAT_UNDEFINED) {
+VulkanBuffer::VulkanBuffer(VulkanRenderContext& c) : context(c), cpu(nullptr), gpu(nullptr), xfer(nullptr), map(nullptr), stride(0), 
+stagingBufferMemory(nullptr), gpuBufferMemory(nullptr), xferBufferMemory(nullptr), bufferSize(0), format(VK_FORMAT_UNDEFINED) {
 
 }
 
@@ -13,6 +13,10 @@ VulkanBuffer::~VulkanBuffer() {
     if (gpu) {
         vkDestroyBuffer(context.getVulkanDevice(), gpu, nullptr);
         vkFreeMemory(context.getVulkanDevice(), gpuBufferMemory, nullptr);
+    }
+    if (xfer) {
+        vkDestroyBuffer(context.getVulkanDevice(), xfer, nullptr);
+        vkFreeMemory(context.getVulkanDevice(), xferBufferMemory, nullptr);
     }
 }
 
@@ -48,7 +52,7 @@ void VulkanBuffer::set(DataPackContainer& container) {
     std::visit([this](auto& e) {
         bufferSize = e.sizeBytes();
 
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, cpu, stagingBufferMemory);
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, cpu, stagingBufferMemory);
 
         void* data{ nullptr };
         vkMapMemory(context.getVulkanDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
@@ -101,7 +105,7 @@ void VulkanBuffer::set(const void* const data, unsigned int offset, unsigned int
 }
 
 void VulkanBuffer::copy(IRenderTarget&, const glm::uvec4&) {
-    // TODO: Picking. Need render target and texture implementation first.
+    // TODO: not yet implemented
 }
 
 void VulkanBuffer::getData(void* buf) {
@@ -109,6 +113,22 @@ void VulkanBuffer::getData(void* buf) {
     memcpy(buf, map, bufferSize);
     vkUnmapMemory(context.getVulkanDevice(), stagingBufferMemory);
     map = nullptr;
+}
+
+void VulkanBuffer::getData(const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit, void* out) {
+    size_t bytesRect{ (size_t)rect.z * (size_t)rect.w * bytesPerUnit };
+    if (!xfer || xferSz < bytesRect) {
+        vkDestroyBuffer(context.getVulkanDevice(), xfer, nullptr);
+        vkFreeMemory(context.getVulkanDevice(), xferBufferMemory, nullptr);
+        createBuffer(bytesRect, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, xfer, xferBufferMemory);
+    }
+
+    copyBuffer(gpu, xfer, rect, srcWidth, bytesPerUnit);
+
+    void* bufferMap{ nullptr };
+    vkMapMemory(context.getVulkanDevice(), xferBufferMemory, 0, bytesRect, 0, &bufferMap);
+    memcpy(out, bufferMap, bytesRect);
+    vkUnmapMemory(context.getVulkanDevice(), xferBufferMemory);
 }
 
 void VulkanBuffer::createBuffer( VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memProps, VkBuffer& buffer, VkDeviceMemory& bufferMemory ) {
@@ -156,6 +176,42 @@ uint32_t VulkanBuffer::findMemoryType( uint32_t typeFilter, VkMemoryPropertyFlag
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
+void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit) {
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = context.getCommandPool();
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(context.getVulkanDevice(), &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    for (size_t i = 0; i < rect.w; ++i ) {
+        VkBufferCopy copyRegion = {};
+        copyRegion.srcOffset = (((size_t)rect.y + i) * srcWidth * bytesPerUnit) + rect.x * bytesPerUnit;
+        copyRegion.dstOffset = i * (size_t)rect.z * bytesPerUnit;
+        copyRegion.size = rect.z * bytesPerUnit;
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+    }
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    context.submit(submitInfo);
+
+    vkFreeCommandBuffers(context.getVulkanDevice(), context.getCommandPool(), 1, &commandBuffer);
+}
+
 void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -176,8 +232,8 @@ void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
     
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
     VkBufferCopy copyRegion = {};
-    copyRegion.srcOffset = 0; // Optional
-    copyRegion.dstOffset = 0; // Optional
+    copyRegion.srcOffset = 0; 
+    copyRegion.dstOffset = 0;
     copyRegion.size = size;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
     vkEndCommandBuffer(commandBuffer);
@@ -273,6 +329,8 @@ VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
         return  static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     case IDataBuffer::Usage::Storage:
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    case IDataBuffer::Usage::Pick: // Pick buffer requires readback from GPU so set transfer src bit.
+        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     case IDataBuffer::Usage::VertexAttribute:
     default:
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);

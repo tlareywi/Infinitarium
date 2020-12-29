@@ -2,7 +2,7 @@
 //  Copyright © 2018 Blue Canvas Studios LLC. All rights reserved.
 // 
 //  glslangValidator.exe  .\starsDefault.frag.glsl -o .\starsDefault.frag.spirv -V
-//  #version 450
+// #version 450
 
 struct VertexIn {
    float pointSize;
@@ -16,10 +16,10 @@ struct VertexIn {
    uint id;
 };
 
+layout(origin_upper_left) in vec4 gl_FragCoord;
 layout(location = 0) flat in VertexIn point;
 
 layout(location = 0) out vec4 color;
-//layout(location = 1) out float pick;
 
 void main() {
    vec2 offset = gl_FragCoord.xy - point.pointCenter;
@@ -27,12 +27,8 @@ void main() {
    
    float disk = point.diskBrightness * point.brightness * exp(-len / (2.0 * point.diskDensity));
    float psf = point.haloBrightness * point.brightness * exp(-len / (2.0 * point.haloDensity));
-   
-   color = vec4( point.color.rgb * (disk+psf), 1.0 );
-   //color = vec4( point.color.rgb, 1.0);
- //  if( len < 6.0f )
-  //    pick = float(point.id);
-  // else
-  //    pick = 0.0f;
+   float subjectiveBrightness = disk + psf;
+
+   color = vec4( point.color.rgb * subjectiveBrightness, 1.0 );
 }
 

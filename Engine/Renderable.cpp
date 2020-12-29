@@ -36,12 +36,15 @@ void IRenderable::prepare( IRenderContext& context ) {
    uniformData = IDataBuffer::Create( context );
    uniformData->setUsage( IDataBuffer::Usage::Uniform );
    renderCommand->add( uniformData );
+
+   renderCommand->add( context.pickBuffer() );
+
    if( texture != nullptr ) {
       renderCommand->add( texture );
       texture->prepare( context );
    }
    
-   glm::uvec2 viewport(context.width(), context.height());
+   viewport = glm::uvec2(context.width(), context.height());
    
    // Merge built-ins with user uniforms
    allUniforms.clear();
@@ -58,7 +61,7 @@ void IRenderable::prepare( IRenderContext& context ) {
    }
    
    // Reserve enough GPU memory for all uniforms.
-   // TODO: +12 is hack; Double check alignment and padding (+1, see https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets). This trips a validation flag on Metal.
+   // TODO: +12 is hack; Double check alignment and padding (see https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets). This trips a validation flag on Metal.
    uniformData->reserve( sizeBytes + 12 );
    uniformData->set( &viewport, sizeof(glm::fmat4x4) * 2, sizeof(viewport) );
   

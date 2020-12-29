@@ -13,6 +13,8 @@
 #include "EngineInterface.hpp"
 #include "Delegate.hpp"
 
+#include "imgui.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,6 +25,7 @@
 class IApplication {
 public:
    virtual ~IApplication() {
+       ImGui::DestroyContext();
        subscribers.clear();
        pyInterp = nullptr;
    }
@@ -55,6 +58,13 @@ public:
    virtual void stop() = 0;
    virtual void addManipulator( const std::string& id, float, float, float ) = 0;
    virtual void* platformInstance() = 0;
+
+protected:
+    IApplication() {
+        // Just always init this with the app. Otherwise we get asserts when checkng state for events when ImGui is not included in the scene. 
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+    }
    
 private:
    std::shared_ptr<IPythonInterpreter> pyInterp;

@@ -72,6 +72,7 @@ public:
 protected:
    std::shared_ptr<IRenderState> pipelineState;
    std::shared_ptr<IRenderCommand> renderCommand;
+   glm::uvec2 viewport;
    
 private:
    std::vector<std::pair<std::string, Uniform>> allUniforms; // built-ins, not serialized

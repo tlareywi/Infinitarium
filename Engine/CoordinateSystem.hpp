@@ -8,6 +8,8 @@
 #pragma once
 
 #define GLM_FORCE_RADIANS
+#define GLM_DEPTH_ZERO_TO_ONE
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "SceneObject.hpp"

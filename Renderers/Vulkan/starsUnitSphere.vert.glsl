@@ -22,17 +22,28 @@ struct PositionData
     float z;
 };
 
-layout(std430, binding = 1) buffer ColorRGB
+struct PickData
+{
+    float brightness;
+    uint  objId;
+};
+
+layout(std430, binding = 1) buffer Pick
+{
+    PickData pick[];
+};
+
+layout(std430, binding = 2) buffer ColorRGB
 {
     ColorData color[];
 };
 
-layout(std430, binding = 2) buffer Magnitude
+layout(std430, binding = 3) buffer Magnitude
 {
     MagnitudeData V[];
 };
 
-layout(std430, binding = 3) buffer CartesianPosition
+layout(std430, binding = 4) buffer CartesianPosition
 {
     PositionData pos[];
 };
@@ -81,4 +92,13 @@ void main() {
     vertOut.pointCenter = (ndcPosition * 0.5 + vec2(0.5, 0.5)) * vec2(uniforms.viewport);
 
     vertOut.id = gl_InstanceIndex;
+
+    // TODO: we could get rid of the conditional by doing this in a geometry shader and perform culling there as well. 
+    // This is needed so we don't map stars outside the frustrum into the pick buffer ;)
+    if (abs(ndcPosition.x) < 1.000001 && abs(ndcPosition.y) < 1.000001) {
+        uvec2 screenPt = uvec2(floor(vertOut.pointCenter));
+        uint indx = uint(screenPt.y * uniforms.viewport.x + screenPt.x);
+        pick[indx].objId = pick[indx].brightness > vertOut.brightness ? pick[indx].objId : vertOut.id;
+        pick[indx].brightness = max(pick[indx].brightness, vertOut.brightness);
+    }
 }

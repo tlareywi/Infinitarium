@@ -21,6 +21,7 @@
 #endif
 
 class IApplicationWindow;
+class IDataBuffer;
 
 class IRenderContext {
 public:
@@ -49,6 +50,7 @@ public:
    virtual void endFrame() = 0;
    virtual void waitOnIdle() = 0;
    virtual void toggleFullScreen() = 0;
+   virtual void resizePickBuffer() = 0;
 
    // OpenXR integration ///
    virtual unsigned int getPerspectiveCount() { return 1; }
@@ -57,39 +59,49 @@ public:
        view = glm::mat4x4(1.0); 
    }
    /////////////////////////
+
+   void unInit() {
+       _pickBuffer = nullptr;
+   }
    
-   unsigned int x() {
+   unsigned int x() noexcept {
       return _x;
    }
    
-   unsigned int y() {
+   unsigned int y() noexcept {
       return _y;
    }
    
-   unsigned int width() {
+   unsigned int width() noexcept {
       return _width;
    }
    
-   unsigned int height() {
+   unsigned int height() noexcept {
       return _height;
    }
    
-   bool fullScreen() {
+   bool fullScreen() noexcept {
       return _fullScreen;
    }
 
-   bool headset() {
+   std::shared_ptr<IDataBuffer> pickBuffer() noexcept {
+       return _pickBuffer;
+   }
+
+   bool headset() noexcept {
        return _headset;
    }
 
-   void setContextExtent( unsigned int w, unsigned int h ) {
+   void setContextExtent( unsigned int w, unsigned int h ) noexcept {
        _width = w;
        _height = h;
+       resizePickBuffer();
    }
    
 protected:
    IRenderContext() : _x(0), _y(0), _width(0), _height(0), _fullScreen(false), _headset(false), _objId(0) {}
    std::shared_ptr<IApplicationWindow> window{ nullptr };
+   std::shared_ptr<IDataBuffer> _pickBuffer{ nullptr };
    
    unsigned int _x;
    unsigned int _y;
@@ -112,6 +124,7 @@ public:
    void endFrame() override {};
    void waitOnIdle() override {};
    void toggleFullScreen() override {};
+   void resizePickBuffer() override {};
   
 private:
 #if defined ENGINE_BUILD

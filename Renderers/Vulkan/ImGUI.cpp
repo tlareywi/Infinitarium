@@ -7,17 +7,11 @@ VulkanImGUI::~VulkanImGUI() {
 
 	if( window )
 		ImGui_ImplGlfw_Shutdown();
-
-	ImGui::DestroyContext();
 }
 
 void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 	if (!init_info.CheckVkResultFn) { // First run
-		// Setup Dear ImGui context
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.WantCaptureMouse = true;
+		ImGuiIO& io = ImGui::GetIO();
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 

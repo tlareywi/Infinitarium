@@ -1,5 +1,6 @@
 #include "EventSampler.hpp"
 #include "../../Engine/Application.hpp"
+#include "imgui.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -44,6 +45,9 @@ void WindowsEventSampler::onKeyDown(GLFWwindow* window, int key, int scancode, i
 }
 
 void WindowsEventSampler::onMouseButton(GLFWwindow* window, int button, int action, int mods) {
+	if (ImGui::GetIO().WantCaptureMouse)
+		return;
+
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		mouseLeftTimer = std::chrono::high_resolution_clock::now();
 		leftButtonDown = true;

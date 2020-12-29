@@ -10,6 +10,7 @@
 #include <iostream>
 
 #define GLM_FORCE_RADIANS
+#define GLM_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>

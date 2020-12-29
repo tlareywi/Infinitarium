@@ -49,6 +49,7 @@ void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
 
 void VulkanRenderContext::beginFrame() {
 	CheckVkResult(vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, imageAvailableSemaphore[targetInFlight], VK_NULL_HANDLE, &targetInFlight));
+	newFrame = true;
 }
 
 void VulkanRenderContext::deAllocSwapchain() {
@@ -331,7 +332,6 @@ bool VulkanRenderContext::querySwapChain(const VkPhysicalDevice& device, const V
 
 unsigned int VulkanRenderContext::rateDeviceCompatiblities(const VkPhysicalDevice& device, const VkSurfaceKHR& surface, SwapChainSupportDetails& details) {
 	VkPhysicalDeviceProperties deviceProperties;
-	VkPhysicalDeviceFeatures deviceFeatures;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
@@ -385,6 +385,11 @@ void VulkanRenderContext::reAllocSwapchain() {
 	targetInFlight = 0;
 }
 
+void VulkanRenderContext::resizePickBuffer() {
+	_pickBuffer->reserve(_width * _height * sizeof(PickUnit));
+	_pickBuffer->commit();
+}
+
 void VulkanRenderContext::setSurface(void* params) {
 	ContextParams* p{ reinterpret_cast<ContextParams*>(params) };
 	VkSurfaceKHR surface = p->surface;
@@ -401,6 +406,8 @@ void VulkanRenderContext::submit(VkSubmitInfo& submitInfo) {
 }
 
 void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSemaphore renderFinished ) {
+	newFrame = false;
+
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 

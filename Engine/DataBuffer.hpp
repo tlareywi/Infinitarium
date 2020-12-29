@@ -24,7 +24,8 @@ public:
    enum class Usage {
 	   VertexAttribute,
 	   Uniform,
-	   Storage
+	   Storage,
+	   Pick
    };
    
    virtual void commit() = 0;
@@ -34,6 +35,7 @@ public:
    virtual void set( const void* const, unsigned int offset, unsigned int sizeBytes ) = 0;
    virtual void copy( IRenderTarget&, const glm::uvec4& ) = 0;
    virtual void getData( void* ) = 0;
+   virtual void getData( const glm::uvec4&, size_t, size_t, void* ) = 0;
   
    virtual uint32_t getStride() { return 1; }
    virtual uint32_t getFormat() { return 0; }
@@ -43,4 +45,10 @@ public:
 
 private:
 	IDataBuffer::Usage usage;
+};
+
+
+struct PickUnit {
+	alignas(4) float brightness;
+	alignas(4) uint32_t objId;
 };

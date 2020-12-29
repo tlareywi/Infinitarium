@@ -31,10 +31,16 @@ public:
 
    virtual void add(std::shared_ptr<IDataBuffer>& buf) {
        dataBuffers.push_back(buf);
+       if (buf->getUsage() == IDataBuffer::Usage::Pick)
+           _pickIndx = dataBuffers.size() - 1;
    }
 
    virtual void add(std::shared_ptr<ITexture>& t) {
        textures.push_back(t);
+   }
+
+   void getBufferData( unsigned int indx, const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit, void* out ) {
+       dataBuffers[indx]->getData(rect, srcWidth, bytesPerUnit, out);
    }
    
    void setInstanceCount( unsigned int c ) {
@@ -42,6 +48,9 @@ public:
    }
    void setVertexCount( unsigned int c ) {
       vertexCount = c;
+   }
+   unsigned int pickIndx() {
+       return _pickIndx;
    }
    
    virtual void encode( IRenderPass&, IRenderState& ) = 0;
@@ -52,4 +61,5 @@ protected:
    std::vector<std::shared_ptr<ITexture>> textures;
    unsigned int instanceCount;
    unsigned int vertexCount;
+   unsigned int _pickIndx{0};
 };

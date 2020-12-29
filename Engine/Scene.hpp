@@ -25,6 +25,9 @@ class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();
    virtual ~Scene() {
+       for (auto& ctx : renderContexts)
+           ctx->unInit(); // Tear down non-static resources that the device still needs to be alive for.
+
        cameras.clear();
        renderContexts.clear();
    }

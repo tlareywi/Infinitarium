@@ -21,6 +21,9 @@ void VulkanRenderCommand::add(std::shared_ptr<IDataBuffer>& buffer) {
 	else if(buffer->getUsage() == IDataBuffer::Usage::Storage) {
 
 	}
+	else if (buffer->getUsage() == IDataBuffer::Usage::Pick) {
+
+	}
 	else { //  IDataBuffer::Usage::VertexAttribute
 		// First call, build the struct based on the buffers and primitives we have configured. 
 		VkVertexInputBindingDescription bindingDescription{};
@@ -104,7 +107,7 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 	offsets.reserve(numBuffers);
 
 	for (auto& buffer : dataBuffers) {
-		if (buffer->getUsage() == IDataBuffer::Usage::Uniform)
+		if (buffer->getUsage() != IDataBuffer::Usage::VertexAttribute)
 			continue;
 		VulkanBuffer* vulkanBuffer{ dynamic_cast<VulkanBuffer*>(buffer.get()) };
 		vertexBuffers.push_back(vulkanBuffer->getVkBuffer());
@@ -122,18 +125,24 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 	for (auto& buffer : dataBuffers) {
 		VkDescriptorSetLayoutBinding layoutBinding;
-		layoutBinding.binding = (uint32_t)layoutBindings.size() + 1; // Binding 0 reserved for injected uniforms
+		layoutBinding.binding = (uint32_t)layoutBindings.size() + 2; // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
 		layoutBinding.descriptorCount = 1;
 		layoutBinding.pImmutableSamplers = nullptr;
-		layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 		switch (buffer->getUsage()) {
 		case  IDataBuffer::Usage::Uniform:
 			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 			layoutBinding.binding = 0;
+			break;
+		case  IDataBuffer::Usage::Pick:
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+			layoutBinding.binding = 1;
 			break;
 		case IDataBuffer::Usage::Storage:
 			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 			break;
 		default:
 			continue;
@@ -157,6 +166,7 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 
 	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	descriptorAllocInfo.descriptorPool = vkContext.getDescriptorPool();
+	// TODO: Need a descriptor set per swapchian framebuffer?
 	descriptorAllocInfo.descriptorSetCount = 1; // static_cast<uint32_t>(swapChainFramebuffers.size());
 	descriptorAllocInfo.pSetLayouts = &descriptorSetLayout;
 
@@ -182,7 +192,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	std::vector<VkDescriptorBufferInfo> bufferDescriptors;
 	bufferDescriptors.reserve(dataBuffers.size());
 	writeDescriptorSets.reserve(dataBuffers.size());
-	unsigned int binding{ 1 };  // Binding 0 reserved for injected uniforms
+	unsigned int binding{ 2 };  // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
 
 	for (auto& buffer : dataBuffers) {
 		VkWriteDescriptorSet descriptorWrite{};
@@ -200,13 +210,17 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		bufferInfo.range = vulkanBuffer->length();
 		bufferDescriptors.emplace_back(std::move(bufferInfo));
 
-		descriptorWrite.pBufferInfo = &(bufferDescriptors[binding - 1]);
+		descriptorWrite.pBufferInfo = &(bufferDescriptors[binding - 2]);
 		descriptorWrite.dstBinding = binding++;
 
 		switch (buffer->getUsage()) {
 		case  IDataBuffer::Usage::Uniform:
 			descriptorWrite.dstBinding = 0;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			break;
+		case  IDataBuffer::Usage::Pick:
+			descriptorWrite.dstBinding = 1;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			break;
 		case IDataBuffer::Usage::Storage:
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;

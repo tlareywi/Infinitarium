@@ -31,6 +31,12 @@ void IRenderContext::init() {
    if( _width && _height ) {
       window = IApplicationWindow::Create();
       window->init( *this );
+
+	  // Pick buffer at context scope. Many renderables will use this.
+	  _pickBuffer = IDataBuffer::Create(*this);
+	  _pickBuffer->setUsage(IDataBuffer::Usage::Pick);
+	  _pickBuffer->reserve(_width * _height * sizeof(PickUnit)); // Each pixel for pick buffer is a float + uint, so 8 bytes. 4K res uses ~66MB.
+	  _pickBuffer->commit();
    }
 }
 

@@ -17,6 +17,8 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(PointCloud)
 
 PointCloud::PointCloud() : pickCoords(glm::uvec2(0)) {
+   definePickOp();
+
    // Subscribe to picking events.
    auto fun = [this]( const glm::uvec2& screenCoords ) {
       pickCoords = screenCoords;
@@ -30,6 +32,56 @@ void PointCloud::addVertexBuffer( DataPackContainer& datapack, const std::string
       vertexBuffers.emplace( name, std::move(e) );
    }, datapack );
 }
+
+#pragma warning( push )
+#pragma warning( disable : 4244 ) // Disable type conversion warnings for assignment from variant type
+
+void PointCloud::definePickOp() {
+    pickOp = [this](IRenderPass& renderPass) {
+        const unsigned int szx{ 10 }, szy{ 10 };
+        PickUnit buf[szx * szy];
+        memset(buf, 0, sizeof(buf));
+
+        glm::uvec4 rect( std::max(0, (int)pickCoords.x - 5), std::max(0, (int)pickCoords.y - 5), szx, szy );
+        renderCommand->getBufferData(renderCommand->pickIndx(), rect, viewport.x, sizeof(PickUnit), static_cast<void*>(buf));
+
+        float maxBrightness{ 0.0f };
+        unsigned int pick{ 0 };
+
+        // Find brightest star in pick region around click.
+        for (auto& val : buf) {
+            if (val.objId == 0)
+                continue;
+
+            if (val.brightness > maxBrightness) {
+                maxBrightness = val.brightness;
+                pick = val.objId;
+            }
+        }
+
+        glm::vec3 pos, color;
+        { auto p = vertexBuffers.find(std::string("position"));
+        std::visit([pick, &pos](auto& e) {
+            pos = glm::vec3(e[3 * pick], e[3 * pick + 1], e[3 * pick + 2]); // Maybe define name + stride in Py to generalize?
+        }, p->second); }
+
+        { auto p = vertexBuffers.find(std::string("color"));
+        std::visit([pick, &color](auto& e) {
+            color = glm::vec3(e[3 * pick], e[3 * pick + 1], e[3 * pick + 2]);
+        }, p->second); }
+
+        std::cout << "Pick ID " << pick << " pos " << pos.x << " " << pos.y << " " << pos.z << std::endl;
+
+        UniversalPoint center(pos, UniversalPoint::Parsec);
+        // std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
+        // addChild( system );
+        // motionController->select( system );
+
+        pickCoords = glm::uvec2(0.0);
+    };
+}
+
+#pragma warning( pop )
 
 void PointCloud::prepare( IRenderContext& context ) {
    static bool init{ false };
@@ -60,70 +112,11 @@ void PointCloud::update( UpdateParams& params ) {
    IRenderable::update( params );
 }
 
-#pragma warning( push )
-#pragma warning( disable : 4244 ) // Disable type conversion warnings for assignment from variant type
-
 void PointCloud::render( IRenderPass& renderPass ) {
    IRenderable::render(renderPass);
    
-   if( pickCoords != glm::uvec2(0) ) {
-      // Hmm, whether or not to have this as a post render op has interesting implications. As a non-post
-      // render op, it effectively forces pick buffer evaluation before other things have drawn. As a post
-      // op, everything on this camera will have drawn when this is called.
-      std::function<void(IRenderPass&)> postRenderOp = [this](IRenderPass& renderPass) {
-		 const unsigned short PickBuffer{ 1 };
-		 const unsigned int szx{10}, szy{10};
-         float buf[szx*szy];
-         memset( buf, 0, sizeof(buf) );
-         std::cout<<"Pick coord "<<pickCoords.x<<", "<<pickCoords.y<<std::endl;
-         glm::uvec4 rect( pickCoords.x - 5, pickCoords.y + 5, szx, szy );
-         renderPass.getData( PickBuffer, rect, (void*)buf );
-         // OK, so we have access to the buffers with the J2000 data right here! Just need to generalize looking
-         // up fields in the buffer. Then we can seed an instance of a slectable object with this data.
-         float maxMag{30.0f};
-         unsigned int pick{0};
-         
-         for( auto& val : buf ) {
-            if( val != 0 ) { // TODO init buffer to max(uint) and make that the uninitialized value.
-               float mag;
-               
-               { auto p = vertexBuffers.find(std::string("magnitude"));
-				 auto& v = val;
-                 std::visit( [v, &mag](auto& e) {
-                  mag = e[v];
-               }, p->second ); }
-               
-               if( mag < maxMag ) {
-                  maxMag = mag;
-                  pick = val;
-               }
-            }
-         }
-         
-         glm::vec3 pos, color;
-         { auto p = vertexBuffers.find(std::string("position"));
-            std::visit( [pick, &pos](auto& e) {
-               pos = glm::vec3( e[3*pick], e[3*pick+1], e[3*pick+2] ); // Maybe define name + stride in Py to generalize?
-            }, p->second ); }
-         
-         { auto p = vertexBuffers.find(std::string("color"));
-            std::visit( [pick, &color](auto& e) {
-               color = glm::vec3( e[3*pick], e[3*pick+1], e[3*pick+2] );
-            }, p->second ); }
-         
-         std::cout<<"Pick ID "<<pick<<", mag "<<maxMag<<" pos "<<pos.x<< " "<<pos.y <<" "<< pos.z<<std::endl;
-         
-         UniversalPoint center( pos, UniversalPoint::Parsec );
-        // std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
-        // addChild( system );
-        // motionController->select( system );
-         
-         pickCoords = glm::uvec2(0.0);
-      };
-      
-      //renderPass.postRenderOperation( postRenderOp );
-   }
+   if( pickCoords != glm::uvec2(0) )
+      renderPass.postRenderOperation( pickOp );
 }
 
-#pragma warning( pop )
 

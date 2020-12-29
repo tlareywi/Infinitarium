@@ -44,11 +44,6 @@ public:
    virtual void prepare( IRenderContext& ) = 0;
    virtual void begin( IRenderContext& ) = 0;
    virtual void end( IRenderContext& ) = 0;
-
-   bool operator< (const IRenderPass& obj) const
-   {
-       return true;
-   }
    
    void getData( unsigned int indx, const glm::uvec4& rect, void* data ) {
       targets[indx]->getData( rect, data );

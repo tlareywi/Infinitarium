@@ -48,6 +48,7 @@ public:
 	void endFrame() override;
 	void waitOnIdle() override;
 	void toggleFullScreen() override;
+	void resizePickBuffer() override;
 
 	virtual VkImageLayout swapchainLayout() {
 		return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -87,6 +88,9 @@ public:
 	}
 	VkInstance const getVkInstance() {
 		return vkInstance;
+	}
+	bool isNewFrame() {
+		return newFrame;
 	}
 
 protected:
@@ -136,5 +140,7 @@ private:
 	std::atomic<bool> toggleFullscreen;
 	std::function<void(VkSurfaceKHR&)> recreateSwapchain;
 	void deAllocSwapchain();
+
+	bool newFrame{ false };
 };
 
