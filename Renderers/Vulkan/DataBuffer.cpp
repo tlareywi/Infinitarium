@@ -1,7 +1,7 @@
 #include "DataBuffer.hpp"
 
-VulkanBuffer::VulkanBuffer(VulkanRenderContext& c) : context(c), cpu(nullptr), gpu(nullptr), xfer(nullptr), map(nullptr), stride(0), 
-stagingBufferMemory(nullptr), gpuBufferMemory(nullptr), xferBufferMemory(nullptr), bufferSize(0), format(VK_FORMAT_UNDEFINED) {
+VulkanBuffer::VulkanBuffer(VulkanRenderContext& c) : context(c), cpu(nullptr), gpu(nullptr), xfer(nullptr), map(nullptr), 
+stagingBufferMemory(nullptr), gpuBufferMemory(nullptr), xferBufferMemory(nullptr), bufferSize(0) {
 
 }
 
@@ -40,14 +40,6 @@ void VulkanBuffer::commit() {
     }
 }
 
-uint32_t VulkanBuffer::getStride() {
-    return stride;
-}
-
-uint32_t VulkanBuffer::getFormat() {
-    return static_cast<uint32_t>(format);
-}
-
 void VulkanBuffer::set(DataPackContainer& container) {
     std::visit([this](auto& e) {
         bufferSize = e.sizeBytes();
@@ -61,10 +53,7 @@ void VulkanBuffer::set(DataPackContainer& container) {
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | translateUsage(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gpu, gpuBufferMemory);
 
-        commit();
-
-        stride = e.getStride();
-        parseFormat( e.getChannelsPerVertex(), e.getType() );
+        setStride(e.getStride());
 
     }, container);
 }
@@ -148,7 +137,7 @@ void VulkanBuffer::createBuffer( VkDeviceSize size, VkBufferUsageFlags usage, Vk
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, memProps);
+    allocInfo.memoryTypeIndex = findMemoryType(context, memRequirements.memoryTypeBits, memProps);
 
     // TODO: It should be noted that in a real world application, you're not supposed to actually call vkAllocateMemory for every individual buffer. 
     // The maximum number of simultaneous memory allocations is limited by the maxMemoryAllocationCount physical device limit, which may be as low as 4096 
@@ -165,7 +154,7 @@ void VulkanBuffer::createBuffer( VkDeviceSize size, VkBufferUsageFlags usage, Vk
     vkBindBufferMemory(context.getVulkanDevice(), buffer, bufferMemory, 0);
 }
 
-uint32_t VulkanBuffer::findMemoryType( uint32_t typeFilter, VkMemoryPropertyFlags properties ) {
+uint32_t VulkanBuffer::findMemoryType( const VulkanRenderContext& context, uint32_t typeFilter, VkMemoryPropertyFlags properties ) {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(context.getPhysicalDevice(), &memProperties);
 
@@ -177,20 +166,7 @@ uint32_t VulkanBuffer::findMemoryType( uint32_t typeFilter, VkMemoryPropertyFlag
 }
 
 void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit) {
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = context.getCommandPool();
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(context.getVulkanDevice(), &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VkCommandBuffer commandBuffer = context.allocTransientBuffer();
 
     for (size_t i = 0; i < rect.w; ++i ) {
         VkBufferCopy copyRegion = {};
@@ -200,127 +176,19 @@ void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const glm:
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
     }
 
-    vkEndCommandBuffer(commandBuffer);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    context.submit(submitInfo);
-
-    vkFreeCommandBuffers(context.getVulkanDevice(), context.getCommandPool(), 1, &commandBuffer);
+    context.submitTransientBuffer(commandBuffer);
 }
 
 void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = context.getCommandPool();
-    allocInfo.commandBufferCount = 1;
+    VkCommandBuffer commandBuffer = context.allocTransientBuffer();
 
-    // TODO:  You may wish to create a separate command pool for these kinds of short-lived buffers, because the 
-    // implementation may be able to apply memory allocation optimizations. You should use the VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
-    // flag during command pool generation in that case.
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(context.getVulkanDevice(), &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = 0; 
     copyRegion.dstOffset = 0;
     copyRegion.size = size;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-    vkEndCommandBuffer(commandBuffer);
 
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    context.submit( submitInfo );
-
-    vkFreeCommandBuffers(context.getVulkanDevice(), context.getCommandPool(), 1, &commandBuffer);
-}
-
-void VulkanBuffer::parseFormat(uint8_t channelsPerVertex, DataType type) {
-    if (type == DataType::FLOAT) {
-        switch (channelsPerVertex) {
-        case 1:
-            format = VK_FORMAT_R32_SFLOAT;
-            break;
-        case 2:
-            format = VK_FORMAT_R32G32_SFLOAT;
-            break;
-        case 3:
-            format = VK_FORMAT_R32G32B32_SFLOAT;
-            break;
-        case 4:
-            format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            break;
-        default:
-            break;
-        }
-    }
-    else if (type == DataType::UINT32) {
-        switch (channelsPerVertex) {
-        case 1:
-            format = VK_FORMAT_R32_UINT;
-            break;
-        case 2:
-            format = VK_FORMAT_R32G32_UINT;
-            break;
-        case 3:
-            format = VK_FORMAT_R32G32B32_UINT;
-            break;
-        case 4:
-            format = VK_FORMAT_R32G32B32A32_UINT;
-            break;
-        default:
-            break;
-        }
-    }
-    else if (type == DataType::UINT16) {
-        switch (channelsPerVertex) {
-        case 1:
-            format = VK_FORMAT_R16_UINT;
-            break;
-        case 2:
-            format = VK_FORMAT_R16G16_UINT;
-            break;
-        case 3:
-            format = VK_FORMAT_R16G16B16_UINT;
-            break;
-        case 4:
-            format = VK_FORMAT_R16G16B16A16_UINT;
-            break;
-        default:
-            break;
-        }
-    }
-    else if (type == DataType::UINT8) {
-        switch (channelsPerVertex) {
-        case 1:
-            format = VK_FORMAT_R8_UINT;
-            break;
-        case 2:
-            format = VK_FORMAT_R8G8_UINT;
-            break;
-        case 3:
-            format = VK_FORMAT_R8G8B8_UINT;
-            break;
-        case 4:
-            format = VK_FORMAT_R8G8B8A8_UINT;
-            break;
-        default:
-            break;
-        }
-    }
+    context.submitTransientBuffer(commandBuffer);
 }
 
 VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
@@ -336,6 +204,7 @@ VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     }
 }
+
 
 __declspec(dllexport) std::shared_ptr<IDataBuffer> CreateDataBuffer( IRenderContext& c ) {
 	return std::make_shared<VulkanBuffer>( *dynamic_cast<VulkanRenderContext*>(&c) );

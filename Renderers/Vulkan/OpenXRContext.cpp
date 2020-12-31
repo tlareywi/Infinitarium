@@ -153,8 +153,7 @@ void OpenXRContext::setSurface(void* params) {
 		setContextExtent(view.recommendedImageRectWidth, view.recommendedImageRectHeight);
 	}
 
-	// Reserve enough descriptors for each swapchain image.
-	createDescriptorPool(view_count * imageCount);
+	createDescriptorPool();
 	xrInstance = cxParams->xrInstance;
 	vkInstance = cxParams->vkInstance;
 }

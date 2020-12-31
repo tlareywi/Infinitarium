@@ -2,6 +2,7 @@
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
 #include "DataBuffer.hpp"
+#include "Texture.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -15,30 +16,35 @@ template<typename T, typename U> const U static inline convert(const T& t) {
 void VulkanRenderCommand::add(std::shared_ptr<IDataBuffer>& buffer) {
 	IRenderCommand::add(buffer);
 
-	if (buffer->getUsage() == IDataBuffer::Usage::Uniform) {
-
-	}
-	else if(buffer->getUsage() == IDataBuffer::Usage::Storage) {
-
-	}
-	else if (buffer->getUsage() == IDataBuffer::Usage::Pick) {
-
-	}
-	else { //  IDataBuffer::Usage::VertexAttribute
-		// First call, build the struct based on the buffers and primitives we have configured. 
+	if (buffer->getUsage() == IDataBuffer::Usage::VertexAttribute) {
 		VkVertexInputBindingDescription bindingDescription{};
-		VkVertexInputAttributeDescription attribDescription{};
 		bindingDescription.binding = static_cast<uint32_t>(bindingDescriptions.size());
 		bindingDescription.stride = buffer->getStride();
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		bindingDescriptions.emplace_back(std::move(bindingDescription));
 
-		// TODO: Extend datapack to support multiple attributes.
-		attribDescription.binding = static_cast<uint32_t>(attribDescriptions.size());
-		attribDescription.location = static_cast<uint32_t>(attribDescriptions.size());
-		attribDescription.format = static_cast<VkFormat>(buffer->getFormat());
-		attribDescription.offset = 0; //offsetof(Vertex, pos);
-		attribDescriptions.emplace_back(std::move(attribDescription));
+		for (auto& attrib : attributes) {
+			VkVertexInputAttributeDescription attribDescription{};
+			attribDescription.binding = bindingDescription.binding;
+			attribDescription.location = attrib.location;
+			attribDescription.offset = attrib.offset;
+
+			switch (attrib.type) {
+			case AttributeType::Position:
+				attribDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+			case AttributeType::Color:
+				attribDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+				break;
+			case AttributeType::Normal:
+				attribDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+				break;
+			case AttributeType::UV:
+				attribDescription.format = VK_FORMAT_R32G32_SFLOAT;
+				break;
+			}
+
+			attribDescriptions.emplace_back(std::move(attribDescription));
+		}
 	}
 }
 
@@ -61,19 +67,19 @@ const VkPipelineVertexInputStateCreateInfo* VulkanRenderCommand::getVertexState(
 
 void VulkanRenderCommand::setPrimitiveType(PrimitiveType t) {
 	switch (t) {
-	case Triangle:
+	case PrimitiveType::Triangle:
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		break;
 
-	case TriangleStrip:
+	case PrimitiveType::TriangleStrip:
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 		break;
 
-	case Line:
+	case PrimitiveType::Line:
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 		break;
 
-	case Point:
+	case PrimitiveType::Point:
 	default:
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 		break;
@@ -84,21 +90,12 @@ void VulkanRenderCommand::setPrimitiveType(PrimitiveType t) {
 }
 
 void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
-	VulkanRenderState* vkRenderState{ dynamic_cast<VulkanRenderState*>(&state) };
-	VulkanRenderPass* vkRenderPass{ dynamic_cast<VulkanRenderPass*>(&renderPass) };
+	VulkanRenderState& vkRenderState{ dynamic_cast<VulkanRenderState&>(state) };
+	VulkanRenderPass& vkRenderPass{ dynamic_cast<VulkanRenderPass&>(renderPass) };
 
-	if (!vkRenderPass) {
-		std::cout << "WARNING, failed cast to vkRenderPass." << std::endl;
-		return;
-	}
-	if (!vkRenderPass->commandBuffer()) {
-		std::cout << "WARNING, enccode called without a valid target and/or command buffer." << std::endl;
-		return;
-	}
+	vkCmdBindPipeline( vkRenderPass.commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState.getPipeline() );
 
-	vkCmdBindPipeline( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipeline() );
-
-	vkCmdBindDescriptorSets( vkRenderPass->commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState->getPipelineState().layout, 0, 1, &descriptors, 0, nullptr);
+	vkCmdBindDescriptorSets( vkRenderPass.commandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, vkRenderState.getPipelineState().layout, 0, 1, &descriptorSet, 0, nullptr);
 
 	uint32_t numBuffers{ static_cast<uint32_t>(dataBuffers.size()) };
 	std::vector<VkBuffer> vertexBuffers;
@@ -115,10 +112,10 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 	}
 
 	if( !vertexBuffers.empty() )
-		vkCmdBindVertexBuffers(vkRenderPass->commandBuffer(), 1, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), offsets.data());
+		vkCmdBindVertexBuffers(vkRenderPass.commandBuffer(), 0, (uint32_t)vertexBuffers.size(), vertexBuffers.data(), offsets.data());
 
 	if( instanceCount > 0 )
-		vkCmdDraw( vkRenderPass->commandBuffer(), vertexCount, instanceCount, 0, 0 );
+		vkCmdDraw( vkRenderPass.commandBuffer(), vertexCount, instanceCount, 0, 0 );
 }
 
 void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState) {
@@ -151,6 +148,17 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 		layoutBindings.push_back(layoutBinding);
 	}
 
+	for (auto& texture : textures) {
+		VkDescriptorSetLayoutBinding layoutBinding;
+		layoutBinding.binding = (uint32_t)layoutBindings.size();
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.pImmutableSamplers = nullptr;
+		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		layoutBindings.push_back(layoutBinding);
+	}
+
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = (uint32_t)layoutBindings.size();
@@ -166,11 +174,10 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 
 	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	descriptorAllocInfo.descriptorPool = vkContext.getDescriptorPool();
-	// TODO: Need a descriptor set per swapchian framebuffer?
-	descriptorAllocInfo.descriptorSetCount = 1; // static_cast<uint32_t>(swapChainFramebuffers.size());
+	descriptorAllocInfo.descriptorSetCount = 1;
 	descriptorAllocInfo.pSetLayouts = &descriptorSetLayout;
 
-	if (vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptors) != VK_SUCCESS) {
+	if (vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptorSet) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 }
@@ -191,13 +198,13 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 	std::vector<VkDescriptorBufferInfo> bufferDescriptors;
 	bufferDescriptors.reserve(dataBuffers.size());
-	writeDescriptorSets.reserve(dataBuffers.size());
+	writeDescriptorSets.reserve(dataBuffers.size() + textures.size());
 	unsigned int binding{ 2 };  // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
 
 	for (auto& buffer : dataBuffers) {
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptors;
+		descriptorWrite.dstSet = descriptorSet;
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorCount = 1;
 		descriptorWrite.pImageInfo = nullptr; // Optional
@@ -228,6 +235,26 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		default:
 			continue;
 		}
+
+		writeDescriptorSets.emplace_back(std::move(descriptorWrite));
+	}
+
+	std::vector<VkDescriptorImageInfo> textureDescriptors;
+	textureDescriptors.reserve(textures.size());
+	for (auto& texture : textures) {
+		VulkanTexture* vkTexture{ dynamic_cast<VulkanTexture*>(texture.get()) };
+		VkDescriptorImageInfo imageInfo{};
+		vkTexture->descriptor(imageInfo);
+		textureDescriptors.emplace_back(imageInfo);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSet;
+		descriptorWrite.dstBinding = writeDescriptorSets.size();
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pImageInfo = &imageInfo;
 
 		writeDescriptorSets.emplace_back(std::move(descriptorWrite));
 	}

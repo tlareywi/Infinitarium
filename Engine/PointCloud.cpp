@@ -91,12 +91,13 @@ void PointCloud::prepare( IRenderContext& context ) {
 
        renderCommand->setVertexCount(1);
        renderCommand->setInstanceCount(numPoints);
-       renderCommand->setPrimitiveType(IRenderCommand::Point);
+       renderCommand->setPrimitiveType(IRenderCommand::PrimitiveType::Point);
 
        for (auto& dataBuf : vertexBuffers) {
            std::shared_ptr<IDataBuffer> buf = IDataBuffer::Create(context);
            buf->setUsage(IDataBuffer::Usage::Storage);
            buf->set(dataBuf.second);
+           buf->commit();
            std::cout << "Adding data buffer " << dataBuf.first << std::endl;
            renderCommand->add(buf);
        }

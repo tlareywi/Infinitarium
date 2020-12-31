@@ -12,16 +12,31 @@
 #include "RenderState.hpp"
 #include "Texture.hpp"
 
+#include <map>
+
 class IRenderCommand {
 public:
-   enum PrimitiveType {
+   enum class PrimitiveType {
       Point,
       Line,
       Triangle,
       TriangleStrip
    };
+
+   enum class AttributeType {
+       Position,
+       Normal,
+       Color,
+       UV
+   };
+
+   struct VertexAttribute {
+       AttributeType type;
+       uint8_t location;
+       uint16_t offset;
+   };
    
-   IRenderCommand() : instanceCount(0), vertexCount(0) {
+   IRenderCommand() : instanceCount(0), vertexCount(0), vertexStride(0) {
 
    }
 
@@ -32,24 +47,28 @@ public:
    virtual void add(std::shared_ptr<IDataBuffer>& buf) {
        dataBuffers.push_back(buf);
        if (buf->getUsage() == IDataBuffer::Usage::Pick)
-           _pickIndx = dataBuffers.size() - 1;
+           _pickIndx = (uint16_t)(dataBuffers.size() - 1);
    }
 
    virtual void add(std::shared_ptr<ITexture>& t) {
        textures.push_back(t);
    }
 
-   void getBufferData( unsigned int indx, const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit, void* out ) {
+   void addVertexAttribute( const VertexAttribute& attr ) {
+       attributes.push_back(attr);
+   }
+
+   void getBufferData( uint32_t indx, const glm::uvec4& rect, size_t srcWidth, size_t bytesPerUnit, void* out ) {
        dataBuffers[indx]->getData(rect, srcWidth, bytesPerUnit, out);
    }
    
-   void setInstanceCount( unsigned int c ) {
+   void setInstanceCount( uint32_t c ) {
       instanceCount = c;
    }
-   void setVertexCount( unsigned int c ) {
+   void setVertexCount( uint32_t c ) {
       vertexCount = c;
    }
-   unsigned int pickIndx() {
+   uint16_t pickIndx() {
        return _pickIndx;
    }
    
@@ -59,7 +78,9 @@ public:
 protected:
    std::vector<std::shared_ptr<IDataBuffer>> dataBuffers;
    std::vector<std::shared_ptr<ITexture>> textures;
-   unsigned int instanceCount;
-   unsigned int vertexCount;
-   unsigned int _pickIndx{0};
+   std::vector<VertexAttribute> attributes;
+   uint32_t instanceCount;
+   uint32_t vertexCount;
+   uint32_t vertexStride;
+   uint16_t _pickIndx{0};
 };

@@ -34,7 +34,7 @@ private:
 	void allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState);
 
 	VkDevice device{nullptr};
-	VkDescriptorSet descriptors{nullptr};
+	VkDescriptorSet descriptorSet;
 	VkDescriptorSetLayout descriptorSetLayout{nullptr};
 	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
 

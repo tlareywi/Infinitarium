@@ -16,23 +16,26 @@ public:
 	void copy(IRenderTarget&, const glm::uvec4&) override;
 	void getData(void*) override;
 	void getData(const glm::uvec4&, size_t, size_t, void*) override;
-	uint32_t getStride() override;
-	uint32_t getFormat() override;
 
-	VkBuffer getVkBuffer() {
+	VkBuffer const getVkBuffer() const {
 		return gpu;
 	}
 
-	VkDeviceSize length() {
+	VkBuffer const getStagingBuffer() const {
+		return cpu;
+	}
+
+	VkDeviceSize length() const {
 		return bufferSize;
 	}
 
+	// TODO: Eventuall should re-factor to a memory manager class. Along with some other things currently baked into VulkanBuffer.
+	static uint32_t findMemoryType(const VulkanRenderContext&, uint32_t, VkMemoryPropertyFlags);
+
 private:
 	void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer&, VkDeviceMemory&);
-	uint32_t findMemoryType(uint32_t, VkMemoryPropertyFlags);
 	void copyBuffer(VkBuffer, VkBuffer, VkDeviceSize);
 	void copyBuffer(VkBuffer, VkBuffer, const glm::uvec4&, size_t, size_t);
-	void parseFormat( uint8_t, DataType );
 	VkBufferUsageFlagBits translateUsage();
 
 	VkDeviceSize bufferSize;
@@ -53,7 +56,4 @@ private:
 	void* map;
 
 	VulkanRenderContext& context;
-
-	uint32_t stride;
-	VkFormat format;
 };

@@ -24,7 +24,7 @@ private:
 
 	GLFWwindow* window{ nullptr };
 	VkCommandBuffer commandBuffer{ nullptr };
-	std::function<void()> vkSubmit;
+	std::function<void()> initializeFonts;
 
 	int fbWidth;
 	int fbHeight;

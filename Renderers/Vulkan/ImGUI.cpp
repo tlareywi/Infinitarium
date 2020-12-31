@@ -38,20 +38,7 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 	if( !ImGui_ImplVulkan_Init(&init_info, vkRenderPass.getVulkanRenderPass()) )
 		throw("Failed to initialize ImGUI.");
 
-	{ // Initialize Fonts 
-		VkCommandBufferBeginInfo begin_info = {};
-		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		init_info.CheckVkResultFn( vkBeginCommandBuffer(commandBuffer, &begin_info) );
-
-		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-
-		init_info.CheckVkResultFn( vkEndCommandBuffer(commandBuffer) );
-
-		vkSubmit();
-
-		ImGui_ImplVulkan_DestroyFontUploadObjects();
-	}
+	initializeFonts();
 }
 
 void VulkanImGUI::prepare(IRenderContext& context) {
@@ -69,20 +56,11 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 	init_info.MinImageCount = swapchainInfo.minImageCount;
 	init_info.ImageCount = vkContext.numImages();
 
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = vkContext.getCommandPool();
-	allocInfo.commandBufferCount = 1;
-	vkAllocateCommandBuffers(vkContext.getVulkanDevice(), &allocInfo, &commandBuffer);
-
-	vkSubmit = [&vkContext, this]() {
-		VkSubmitInfo end_info = {};
-		end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		end_info.commandBufferCount = 1;
-		end_info.pCommandBuffers = &commandBuffer;
-
-		vkContext.submit(end_info);
+	initializeFonts = [&vkContext, this]() {
+		VkCommandBuffer commandBuffer = vkContext.allocTransientBuffer();
+		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+		vkContext.submitTransientBuffer(commandBuffer);
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	};
 
 	window = vkContext.getWindow();

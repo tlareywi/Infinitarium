@@ -48,11 +48,11 @@ void ITexture::clearRegisteredObjs() {
 }
 
 template<class Archive> void TextureProxy::serialize( Archive& ar, const unsigned int version ) {
-	std::cout << "Serializing Texture" << std::endl;
 	ar & BOOST_SERIALIZATION_NVP(dim);
 	ar & BOOST_SERIALIZATION_NVP(format);
 	ar & BOOST_SERIALIZATION_NVP(image);
 	ar & BOOST_SERIALIZATION_NVP(_objId);
+	std::cout << "Serializing Texture " << dim.x << " x " << dim.y << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

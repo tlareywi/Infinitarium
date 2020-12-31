@@ -67,7 +67,7 @@ void Spheroid::prepare( IRenderContext& context ) {
    
    renderCommand->setVertexCount( geometry->size() );
    renderCommand->setInstanceCount( 1 );
-   renderCommand->setPrimitiveType( IRenderCommand::TriangleStrip );
+   renderCommand->setPrimitiveType( IRenderCommand::PrimitiveType::TriangleStrip );
    
    spheroid = IDataBuffer::Create( context );
    spheroid->set( geometry->get(), geometry->sizeBytes() );

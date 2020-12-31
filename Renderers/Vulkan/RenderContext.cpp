@@ -40,6 +40,28 @@ VulkanRenderContext::~VulkanRenderContext() {
 	vkDestroyDevice(logicalDevice, nullptr);
 }
 
+VkCommandBuffer VulkanRenderContext::allocTransientBuffer() {
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = commandPool;
+	allocInfo.commandBufferCount = 1;
+
+	// TODO:  You may wish to create a separate command pool for these kinds of short-lived buffers, because the 
+	// implementation may be able to apply memory allocation optimizations. You should use the VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+	// flag during command pool generation in that case.
+
+	VkCommandBuffer commandBuffer;
+	CheckVkResult(vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer));
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	return commandBuffer;
+}
+
 void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
 	for (auto& target : swapchainTargets) {
 		target.setExtent(swapchainCreateInfo.imageExtent.width, swapchainCreateInfo.imageExtent.height);
@@ -122,17 +144,37 @@ void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& devi
 	createDeviceQueue();
 }
 
-void VulkanRenderContext::createDescriptorPool( uint32_t numDescriptors ) {
-	VkDescriptorPoolSize poolSize{};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(numDescriptors);
+void VulkanRenderContext::createDescriptorPool() {
+	std::vector<VkDescriptorPoolSize> poolSizes;
+	
+	{
+		VkDescriptorPoolSize poolSize;
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = 1;
+		poolSizes.push_back(poolSize);
+	}
+
+	{
+		VkDescriptorPoolSize poolSize;
+		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSize.descriptorCount = 6; // Arbitrary, 6 buffers should be enough for anyone :P
+		poolSizes.push_back(poolSize);
+	}
+
+	{
+		VkDescriptorPoolSize poolSize;
+		poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSize.descriptorCount = 4; // Arbitrary
+		poolSizes.push_back(poolSize);
+	}
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = poolSizes.size();
+	poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(numDescriptors);
+	// Only 4 descriptor sets can be 'bound' simulatainiously on many platforms. Somthing to keep in mind. For max sets allocated, we'll choose a rather arbitary number for now. 
+	poolInfo.maxSets = 16;
 
 	if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
@@ -303,7 +345,7 @@ void VulkanRenderContext::initializeGraphicsDevice(const VkSurfaceKHR& surface, 
 	};
 
 	createSwapChain(surface);
-	createDescriptorPool(swapchainTargets.size());
+	createDescriptorPool();
 }
 
 void VulkanRenderContext::pauseRendering(bool pause) {
@@ -397,12 +439,21 @@ void VulkanRenderContext::setSurface(void* params) {
 	initializeGraphicsDevice(surface, vkInstance);
 }
 
-void VulkanRenderContext::submit(VkSubmitInfo& submitInfo) {
+void VulkanRenderContext::submitTransientBuffer(VkCommandBuffer commandBuffer) {
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
 	if( vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS )
 		throw std::runtime_error("failed to submit command buffer!");
 
-	// TODO: A fence would allow you to schedule multiple transfers simultaneouslyand wait for all of them complete, instead of executing one at a time.That may give the driver more opportunities to optimize.
+	// TODO: A fence would allow to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time.That may give the driver more opportunities to optimize.
 	vkQueueWaitIdle(graphicsQueue);
+
+	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
 }
 
 void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSemaphore renderFinished ) {

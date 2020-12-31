@@ -21,7 +21,7 @@ struct SpriteVertex {
 
 static const SpriteVertex quadVerts[] =
 {
-   // Pixel positions, Texture coordinates
+   // Vertex positions, Texture coordinates
    { {  1.f,  -1.f, 0.0 },  { 1.f, 0.f } },
    { { -1.f,  -1.f, 0.0 },  { 0.f, 0.f } },
    { { -1.f,   1.f, 0.0 },  { 0.f, 1.f } },
@@ -42,16 +42,25 @@ void Sprite::prepare( IRenderContext& context ) {
    
    renderCommand->setVertexCount( 6 );
    renderCommand->setInstanceCount( 1 );
-   renderCommand->setPrimitiveType( IRenderCommand::Triangle );
+   renderCommand->setPrimitiveType( IRenderCommand::PrimitiveType::Triangle );
    
    // Shared data buffer across all sprite instances.
    // TODO: need to design a general way to cache/reuse databuffers
    if( !quad ) {
       quad = IDataBuffer::Create( context );
       quad->set( quadVerts, sizeof(quadVerts) );
+      quad->setStride( sizeof(SpriteVertex) );
       quad->commit();
    }
-   
+
+   {
+       IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::Position, 0, offsetof(SpriteVertex, coord) };
+       renderCommand->addVertexAttribute(attr);
+   }
+   {
+       IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::UV, 1, offsetof(SpriteVertex, textCoord) };
+       renderCommand->addVertexAttribute(attr);
+   }
    renderCommand->add( quad );
    
    IRenderable::prepare( context );

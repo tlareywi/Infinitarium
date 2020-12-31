@@ -37,14 +37,15 @@ public:
    virtual void getData( void* ) = 0;
    virtual void getData( const glm::uvec4&, size_t, size_t, void* ) = 0;
   
-   virtual uint32_t getStride() { return 1; }
-   virtual uint32_t getFormat() { return 0; }
+   uint32_t getStride() { return stride; }
+   void setStride(uint32_t sz) { stride = sz; }
 
    void setUsage(IDataBuffer::Usage u) { usage = u; }
    IDataBuffer::Usage getUsage() { return usage; }
 
 private:
-	IDataBuffer::Usage usage;
+	uint32_t stride{ 1 };
+	IDataBuffer::Usage usage{ Usage::VertexAttribute };
 };
 
 

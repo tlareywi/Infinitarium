@@ -66,15 +66,16 @@ public:
 		return swapchainTargets.size();
 	}
 
-	void submit(VkSubmitInfo&);
+	VkCommandBuffer allocTransientBuffer();
+	void submitTransientBuffer(VkCommandBuffer);
 
-	VkDevice const getVulkanDevice() {
+	VkDevice const getVulkanDevice() const {
 		return logicalDevice;
 	}
-	VkPhysicalDevice const getPhysicalDevice() {
+	VkPhysicalDevice const getPhysicalDevice() const {
 		return physicalDevice;
 	}
-	VkCommandPool const getCommandPool() {
+	VkCommandPool const getCommandPool() const {
 		return commandPool;
 	}
 	VkDescriptorPool const getDescriptorPool() {
@@ -99,7 +100,7 @@ protected:
 	VkSwapchainCreateInfoKHR swapchainCreateInfo{};
 	VkDeviceCreateInfo& createDeviceQueueInfo(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
 	void createDeviceQueue();
-	void createDescriptorPool(uint32_t);
+	void createDescriptorPool();
 	unsigned int graphicsQueueIndx{ 0 };
 	VkQueue graphicsQueue;
 	VkInstance vkInstance;

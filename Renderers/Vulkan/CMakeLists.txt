@@ -3,11 +3,12 @@ project( IERenderer )
 
 add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand.cpp RenderCommand.hpp RenderState.cpp RenderState.hpp
   RenderProgram.cpp RenderProgram.hpp DataBuffer.cpp DataBuffer.hpp RenderPass.cpp RenderPass.hpp Texture.cpp Texture.hpp RenderTarget.cpp
-  RenderTarget.hpp 
-
-  OpenXRContext.cpp OpenXRContext.hpp xr_linear.h ImGUI.cpp ImGUI.hpp
+  RenderTarget.hpp Image.cpp Image.hpp OpenXRContext.cpp OpenXRContext.hpp xr_linear.h ImGUI.cpp ImGUI.hpp
   ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp Application.hpp EventSampler.cpp EventSampler.hpp
-  UniformMap.h default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
+  UniformMap.h 
+  
+  default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
+  sprite.vert.glsl sprite.frag.glsl
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
@@ -51,4 +52,5 @@ include_directories(${RAPIDJSON_INCLUDE_DIR})
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 
 install(FILES default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
+        sprite.vert.glsl sprite.frag.glsl
   DESTINATION share/Infinitarium/shaders/glsl)
