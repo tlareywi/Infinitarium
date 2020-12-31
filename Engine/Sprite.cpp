@@ -12,7 +12,7 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Sprite)
 
-std::shared_ptr<IDataBuffer> Sprite::quad = nullptr;
+boost::uuids::uuid Sprite::geometryId{ boost::uuids::random_generator()() };
 
 struct SpriteVertex {
    glm::fvec3 coord;
@@ -44,13 +44,13 @@ void Sprite::prepare( IRenderContext& context ) {
    renderCommand->setInstanceCount( 1 );
    renderCommand->setPrimitiveType( IRenderCommand::PrimitiveType::Triangle );
    
-   // Shared data buffer across all sprite instances.
-   // TODO: need to design a general way to cache/reuse databuffers
-   if( !quad ) {
-      quad = IDataBuffer::Create( context );
-      quad->set( quadVerts, sizeof(quadVerts) );
-      quad->setStride( sizeof(SpriteVertex) );
-      quad->commit();
+   std::shared_ptr<IDataBuffer> quad = ObjectStore::instance().get(geometryId);
+   if (!quad) {
+       quad = IDataBuffer::Create(context);
+       quad->set(quadVerts, sizeof(quadVerts));
+       quad->setStride(sizeof(SpriteVertex));
+       quad->commit();
+       ObjectStore::instance().add(geometryId, quad);
    }
 
    {

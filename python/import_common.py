@@ -54,3 +54,24 @@ importlib.reload(libInfinitariumEngine)
 from astropy.table import Table
 
 engine = libInfinitariumEngine
+
+def initImGUI( scene, context, renderTarget ):
+    # Setup ImGUI Camera
+    gui = engine.Camera()
+    gui.setName('ImGui Camera')
+    scene.add( gui )
+    # Add ImGui drawable
+    imgui = engine.ImGUI()
+    imgui.setName('GUI Renderable')
+    gui.addChild( imgui )
+    # ImGUI RenderPass
+    guiPass = engine.IRenderPass.create()
+    gui.setRenderPass( guiPass )
+    gui.setRenderContext( context )
+    guiPass.addRenderTarget( renderTarget, engine.LoadOp.Load )
+    return
+
+
+
+
+

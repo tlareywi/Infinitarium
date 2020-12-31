@@ -11,6 +11,8 @@
 #include "Renderable.hpp"
 #include "DataPack.hpp"
 #include "Texture.hpp"
+#include "ObjectStore.hpp"
+
 #include "../config.h"
 
 class Sprite : public IRenderable {
@@ -23,7 +25,7 @@ public:
    void prepare( IRenderContext& context ) override;
    
 private:   
-   static std::shared_ptr<IDataBuffer> quad;
+   static boost::uuids::uuid geometryId;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize( Archive &, unsigned int );

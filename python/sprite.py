@@ -49,6 +49,9 @@ crosshair = engine.Sprite()
 crosshair.setTexture( texture )
 camera.addChild( crosshair )
 
+# Add GUI support
+initImGUI( scene, context, renderTarget )
+
 #
 # Write scene file.
 #

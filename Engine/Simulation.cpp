@@ -8,6 +8,7 @@
 #include "Simulation.hpp"
 #include "Application.hpp"
 #include "Stats.hpp"
+#include "ObjectStore.hpp"
 
 Simulation::Simulation() {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
@@ -74,6 +75,9 @@ void Simulation::simLoop() {
    ITexture::clearRegisteredObjs();
    IRenderTarget::clearRegisteredObjs();
    IRenderPass::clearRegisteredObjs();
+   ObjectStore::instance().clear();
+
+   // Deleting the context(s) will destroy the graphics device. Do this after cleaning up other graphics resources.
    IRenderContext::clearRegisteredObjs();
 
    // Signal main thread exit

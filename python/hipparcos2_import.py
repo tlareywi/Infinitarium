@@ -39,17 +39,8 @@ camera = engine.Camera()
 camera.setName('Hip2 Camera')
 scene.add( camera )
 
-gui = engine.Camera()
-gui.setName('ImGui Camera')
-scene.add( gui )
-
-imgui = engine.ImGUI()
-imgui.setName('GUI Renderable')
-gui.addChild( imgui )
-
 context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
-gui.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
 
@@ -60,10 +51,6 @@ motionController = engine.Orbit()
 motionController.setHomeSystem( origin )
 camera.setMotionController( motionController )
 
-# ImGUI RenderPass
-guiPass = engine.IRenderPass.create()
-gui.setRenderPass( guiPass )
-
 # Color target
 renderTarget = engine.IRenderTarget.create( 1920, 1080,
     engine.Format.BRGA8, engine.Type.Color,
@@ -71,7 +58,6 @@ renderTarget = engine.IRenderTarget.create( 1920, 1080,
 renderTarget.setClearColor(0,0,0,1)
 renderTarget.setBlendState( engine.BlendState(engine.Op.Add, engine.Op.Add, engine.Factor.One, engine.Factor.One, engine.Factor.SourceAlpha, engine.Factor.OneMinusSourceAlpha) )
 renderPass.addRenderTarget( renderTarget, engine.LoadOp.Clear )
-guiPass.addRenderTarget( renderTarget, engine.LoadOp.Load ) 
 
 # Pick buffer
 pickTarget = engine.IRenderTarget.create( 1920, 1080,
@@ -124,6 +110,8 @@ hip2Cloud.addVertexBuffer( engine.wrap(position), 'position' )
 hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
 camera.addChild( hip2Cloud )
+
+initImGUI( scene, context, renderTarget )
 
 exportPath = exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)
