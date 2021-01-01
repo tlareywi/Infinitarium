@@ -183,8 +183,6 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 }
 
 void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderState& state) {
-	static bool init{ false };
-
 	VulkanRenderContext& vkContext{ dynamic_cast<VulkanRenderContext&>(context) };
 	VulkanRenderState& vkState{ dynamic_cast<VulkanRenderState&>(state) };
 

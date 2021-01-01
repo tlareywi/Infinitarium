@@ -33,6 +33,8 @@ public:
 private:
 	void allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState);
 
+	bool init{ false };
+
 	VkDevice device{nullptr};
 	VkDescriptorSet descriptorSet;
 	VkDescriptorSetLayout descriptorSetLayout{nullptr};

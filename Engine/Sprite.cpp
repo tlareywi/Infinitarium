@@ -35,9 +35,7 @@ Sprite::Sprite( float nativeAspect ) {
    setProgram("sprite");
 }
 
-void Sprite::prepare( IRenderContext& context ) {
-   if( !dirty ) return;
-   
+void Sprite::prepare( IRenderContext& context ) {   
    renderCommand = IRenderCommand::Create();
    
    renderCommand->setVertexCount( 6 );

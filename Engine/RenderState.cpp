@@ -14,18 +14,13 @@ std::shared_ptr<IRenderState> IRenderState::Create() {
 
 void IRenderState::setProgram( std::shared_ptr<IRenderProgram>& p ) {
    renderProgram = p;
-   dirty = true;
 }
 
 void IRenderState::prepare( IRenderContext& context, IRenderCommand& command ) {
-   if( !dirty ) return;
-   
    if( renderProgram )
       renderProgram->prepare( *this );
    
    prepareImpl( context, command );
-   
-   dirty = false;
 }
 
 void IRenderState::apply( IRenderPass& renderPass ) {

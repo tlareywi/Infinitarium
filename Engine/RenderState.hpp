@@ -16,7 +16,7 @@ class IRenderCommand;
 
 class IRenderState {
 public:
-   IRenderState() : dirty(true) {}
+   IRenderState() {}
    virtual ~IRenderState() {
        renderProgram = nullptr;
    }
@@ -35,5 +35,4 @@ public:
 
 private:
    std::shared_ptr<IRenderProgram> renderProgram;
-   bool dirty;
 };

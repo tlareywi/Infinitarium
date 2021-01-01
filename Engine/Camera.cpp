@@ -42,7 +42,8 @@ void Camera::update( UpdateParams& params ) {
    if( motionController )
       motionController->processEvents();
    
-   Transform::prepare( *renderContext );
+   if( dirty )
+       Transform::prepare( *renderContext );
 
    updateParams = std::make_unique<UpdateParams>(params);
 }

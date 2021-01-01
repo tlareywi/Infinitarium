@@ -31,8 +31,6 @@ IRenderable::IRenderable() : programName{"default"} {
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
-   if( !dirty ) return;
-   
    uniformData = IDataBuffer::Create( context );
    uniformData->setUsage( IDataBuffer::Usage::Uniform );
    renderCommand->add( uniformData );
@@ -71,8 +69,6 @@ void IRenderable::prepare( IRenderContext& context ) {
    pipelineState->setProgram( shader );
    
    pipelineState->prepare( context, *renderCommand );
-   
-   dirty = false;
 }
 
 void IRenderable::update(UpdateParams& params) {

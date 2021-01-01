@@ -18,7 +18,7 @@ class IRenderState;
 
 class IRenderProgram {
 public:
-   IRenderProgram() : dirty(true) {}
+   IRenderProgram() {}
    virtual ~IRenderProgram() {}
    
    static std::shared_ptr<IRenderProgram> Create();
@@ -27,9 +27,6 @@ public:
    virtual void apply( IRenderState& ) = 0;
    virtual void compile( const std::string& path, IRenderContext& ) = 0;
    virtual void injectUniformStruct( const std::vector<std::pair<std::string, Uniform>>& ) = 0;
-   
-protected:
-   bool dirty;
 };
 
 class IVertexProgram : public IRenderProgram {
