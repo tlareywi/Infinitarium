@@ -10,13 +10,13 @@
 #include <boost/serialization/export.hpp>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Spheroid)
+BOOST_CLASS_EXPORT_IMPLEMENT(Spheroid::SpheroidVertex)
+
+boost::uuids::uuid Spheroid::geometryId{ boost::uuids::random_generator()() };
 
 Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblateness, bool flipNormals ) {
    
    geometry = std::make_shared<DataPack<SpheroidVertex>>( meridian * parallel );
-   // Hmm maybe a geometry cache would be good with this pattern of IRenderables having a shared pointer to their vertex data?
-   // So, request a matching DataPack type + size and if one exists return it otherewise create it? Also, then this cache would
-   // be the serializer/deserializer of the DataPacks.
    
    glm::dvec4 start = glm::dvec4(0, 0, 1, 1);
    glm::dvec3 rotationAxis = glm::dvec3(0, 0, -1);
@@ -35,14 +35,14 @@ Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblatene
          glm::dvec3 below = glm::rotate( glm::dmat4x4(1.0), s / meridian * 2.0 * glm::pi<double>() * direction, rotationAxis) * two;
          
          glm::dvec3 point = glm::dvec3( above.x, above.y, above.z * (1.0 - oblateness) );
-         SpheroidVertex vert;
+         SpheroidVertex vert{};
          if( flipNormals || t > 0 || s > 0 ) {
             vert.vertex = point;
             vert.normal = point * (double)direction;
             if( flipNormals )
-               vert.textCoord = glm::fvec2( s / meridian, t / parallel );
+               vert.texCoord = glm::fvec2( s / meridian, t / parallel );
             else
-               vert.textCoord = glm::fvec2( s / meridian, 1.0 - t / parallel );
+               vert.texCoord = glm::fvec2( s / meridian, 1.0 - t / parallel );
             
              geometry->add( vert );
          }
@@ -51,9 +51,9 @@ Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblatene
          vert.vertex = point;
          vert.normal = point * (double)direction;
          if( flipNormals )
-            vert.textCoord = glm::fvec2( s / meridian, (t + 1) / parallel );
+            vert.texCoord = glm::fvec2( s / meridian, (t + 1) / parallel );
          else
-            vert.textCoord = glm::fvec2( s / meridian, 1.0 - (t + 1) / parallel );
+            vert.texCoord = glm::fvec2( s / meridian, 1.0 - (t + 1) / parallel );
          
          geometry->add( vert );
       }
@@ -69,24 +69,45 @@ void Spheroid::prepare( IRenderContext& context ) {
    renderCommand->setInstanceCount( 1 );
    renderCommand->setPrimitiveType( IRenderCommand::PrimitiveType::TriangleStrip );
    
-   spheroid = IDataBuffer::Create( context );
-   spheroid->set( geometry->get(), geometry->sizeBytes() );
-   spheroid->commit();
+   std::shared_ptr<IDataBuffer> spheroid = ObjectStore::instance().get(geometryId);
+   if (!spheroid) {
+       spheroid = IDataBuffer::Create(context);
+       spheroid->set(geometry->get(), geometry->sizeBytes());
+       spheroid->setStride(sizeof(Spheroid::SpheroidVertex));
+       spheroid->commit();
+       ObjectStore::instance().add(geometryId, spheroid);
+   }
    
+   {
+       IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::Position, 0, offsetof(Spheroid::SpheroidVertex, vertex) };
+       renderCommand->addVertexAttribute(attr);
+   }
+   {
+       IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::Normal, 1, offsetof(Spheroid::SpheroidVertex, normal) };
+       renderCommand->addVertexAttribute(attr);
+   }
+   {
+       IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::UV, 2, offsetof(Spheroid::SpheroidVertex, texCoord) };
+       renderCommand->addVertexAttribute(attr);
+   }
    renderCommand->add( spheroid );
+
+   // Effects the texture sampler value directy (not lighting)
+   setUniform("brightness", Uniform(UniformType(0.68f), UniformType(0.0f), UniformType(1.f)));
    
    IRenderable::prepare( context );
 }
 
 template<class Archive> void Spheroid::serialize(Archive& ar, unsigned int) {
-      boost::serialization::void_cast_register<Spheroid,IRenderable>();
-      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
-      ar & BOOST_SERIALIZATION_NVP(geometry);
+    std::cout << "Serializing Spheroid" << std::endl;
+    boost::serialization::void_cast_register<Spheroid,IRenderable>();
+    ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+    ar & BOOST_SERIALIZATION_NVP(geometry);
 }
    
 template<class Archive> void Spheroid::SpheroidVertex::serialize(Archive& ar, unsigned int) {
 	ar & BOOST_SERIALIZATION_NVP(vertex);
     ar & BOOST_SERIALIZATION_NVP(normal);
-    ar & BOOST_SERIALIZATION_NVP(textCoord);
+    ar & BOOST_SERIALIZATION_NVP(texCoord);
 }
 

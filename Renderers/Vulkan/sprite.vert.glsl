@@ -5,6 +5,7 @@
 /*  #version 450
     layout(binding = 0) uniform ConstUniforms {
         uvec2 viewport;
+        float scale;
     } uniforms;
 */
 
@@ -19,7 +20,7 @@ layout(location = 0) out VertexOut vertOut;
 
 void main() {
     vec4 pos = vec4(position, 1.0);
-    pos.xy = pos.xy / (vec2(uniforms.viewport) / 2.0) * 26.0;
+    pos.xy = pos.xy / (vec2(uniforms.viewport) / 2.0) * uniforms.scale;
     gl_Position = pos;
     gl_Position.y = -gl_Position.y;
 

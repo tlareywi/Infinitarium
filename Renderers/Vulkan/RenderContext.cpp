@@ -213,8 +213,8 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	swapchainCreateInfo.imageFormat = surfaceFormat.format;
 	swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 	swapchainCreateInfo.imageExtent = extent;
-	swapchainCreateInfo.imageArrayLayers = 1; // FYI: this in involved in setting up a VR pipeline
-	swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // TODO: see VK_IMAGE_USAGE_TRANSFER_DST_BIT for blit from texture to swapchain.
+	swapchainCreateInfo.imageArrayLayers = 1;
+	swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	// TODO: see comments in createDeviceGraphicsQueue. These need to change when that does.
 	swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	swapchainCreateInfo.queueFamilyIndexCount = 0;

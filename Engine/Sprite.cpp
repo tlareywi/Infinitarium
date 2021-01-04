@@ -7,6 +7,7 @@
 
 #include "Sprite.hpp"
 #include "DataPack.hpp"
+#include "UniformType.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -60,6 +61,8 @@ void Sprite::prepare( IRenderContext& context ) {
        renderCommand->addVertexAttribute(attr);
    }
    renderCommand->add( quad );
+
+   setUniform("scale", Uniform(UniformType(26.0f), UniformType(1.0f), UniformType(100.f)));
    
    IRenderable::prepare( context );
 }

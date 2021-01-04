@@ -8,10 +8,6 @@
 #include "Transform.hpp"
 #include "UniformType.hpp"
 
-//#define GLM_ENABLE_EXPERIMENTAL
-//#include <glm/gtx/string_cast.hpp>
-//#include <glm/ext.hpp>
-
 BOOST_CLASS_EXPORT_IMPLEMENT(Transform)
 
 Transform::Transform() : transform(glm::mat4(1.0)) {

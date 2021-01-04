@@ -8,7 +8,7 @@ add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand
   UniformMap.h 
   
   default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
-  sprite.vert.glsl sprite.frag.glsl
+  sprite.vert.glsl sprite.frag.glsl solarBody.vert.glsl solarBody.frag.glsl
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
@@ -52,5 +52,5 @@ include_directories(${RAPIDJSON_INCLUDE_DIR})
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 
 install(FILES default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
-        sprite.vert.glsl sprite.frag.glsl
+        sprite.vert.glsl sprite.frag.glsl solarBody.vert.glsl solarBody.frag.glsl
   DESTINATION share/Infinitarium/shaders/glsl)
