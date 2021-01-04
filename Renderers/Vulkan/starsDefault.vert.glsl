@@ -70,17 +70,19 @@ layout(location = 0) flat out VertexOut vertOut;
 ///
 
 void main() {
-    const vec3 eye = vec3(0, 0, 0);
-    vec3 position = vec3(pos[gl_InstanceIndex].x, pos[gl_InstanceIndex].y, pos[gl_InstanceIndex].z);
+    // TODO: Should prolly pass the inverse in as another uniform.
+    const vec3 eye = inverse(uniforms.modelViewMatrix)[3].xyz;
+
+    const vec3 position = vec3(pos[gl_InstanceIndex].x, pos[gl_InstanceIndex].y, pos[gl_InstanceIndex].z);
     gl_Position = uniforms.modelViewProjectionMatrix * vec4(position, 1.0);
     gl_Position.y = -gl_Position.y;
 
-    vec3 rgb = vec3(color[gl_InstanceIndex].r, color[gl_InstanceIndex].g, color[gl_InstanceIndex].b);
+    const vec3 rgb = vec3(color[gl_InstanceIndex].r, color[gl_InstanceIndex].g, color[gl_InstanceIndex].b);
     vertOut.color = vec4(rgb, 1.0);
 
     // This default star shader expects V[gl_InstanceIndex].m to contain 'absolute magnitude' for relative brightness calculation based on distance from eye.
-    float distParsecs = distance(position, eye);
-    float appMag = 5.0 * (log(distParsecs / 10.0) / log(10.0)) + V[gl_InstanceIndex].m;
+    const float distParsecs = distance(position, eye);
+    const float appMag = 5.0 * (log(distParsecs / 10.0) / log(10.0)) + V[gl_InstanceIndex].m;
 
     // vertOut.brightness = pow(2.512, (appMag - uniforms.saturationMagnitude) / (uniforms.saturationMagnitude+0.00001) );
     vertOut.brightness = pow(2.512, (appMag - -2.0) / (-2.0 + 0.00001));
@@ -88,14 +90,14 @@ void main() {
     vertOut.diskDensity = uniforms.diskDensity * uniforms.diskDensity;
     vertOut.haloDensity = uniforms.haloDensity * uniforms.haloDensity;
 
-    float diskRadius = -log(uniforms.epsilon / (uniforms.diskBrightness * vertOut.brightness)) * 2.0 * vertOut.diskDensity;
-    float blurRadius = -log(uniforms.epsilon / (uniforms.haloBrightness * vertOut.brightness)) * 2.0 * vertOut.haloDensity;
+    const float diskRadius = -log(uniforms.epsilon / (uniforms.diskBrightness * vertOut.brightness)) * 2.0 * vertOut.diskDensity;
+    const float blurRadius = -log(uniforms.epsilon / (uniforms.haloBrightness * vertOut.brightness)) * 2.0 * vertOut.haloDensity;
 
     gl_PointSize = vertOut.pointSize = 2.0 * sqrt(max(diskRadius, blurRadius));
     vertOut.diskBrightness = uniforms.diskBrightness;
     vertOut.haloBrightness = uniforms.haloBrightness;
 
-    vec3 ndcPosition = gl_Position.xyz / gl_Position.w;
+    const vec3 ndcPosition = gl_Position.xyz / gl_Position.w;
     vertOut.pointCenter = /* offset + */ (ndcPosition.xy * 0.5 + vec2(0.5, 0.5)) * vec2(uniforms.viewport);
 
     vertOut.id = gl_InstanceIndex;

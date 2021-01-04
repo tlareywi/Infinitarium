@@ -26,6 +26,7 @@ private:
 	std::chrono::high_resolution_clock::time_point mouseLeftTimer;
 	std::chrono::high_resolution_clock::time_point mouseRightTimer;
 	std::chrono::high_resolution_clock::time_point mouseMiddleTimer;
+	std::chrono::high_resolution_clock::time_point mouseDoubleTimer;
 
 	bool leftButtonDown;
 	bool rightButtonDown;
