@@ -30,8 +30,8 @@ void Orbit::updateAnimation(double msTick) {
         elapsed += msTick;
 
         // Acceleration curve for animation motion. 
-        double frameWeight = (duration * (1.0 / msTick));
-        rSum += 1.0 / (sigma * sqrt(glm::pi<double>() * 2.0)) * exp(-0.5 * pow((elapsed / duration - 0.5) / sigma, 2.0)) / frameWeight;
+        double frameWeight = msTick / duration;
+        rSum += 1.0 / (sigma * sqrt(glm::pi<double>() * 2.0)) * exp(-0.5 * pow((elapsed / duration - 0.5) / sigma, 2.0)) * frameWeight;
 
         glm::dquat q{ glm::slerp(sourceOrientation, destOrientation, rSum) };
         _yawPitchRoll = q;
