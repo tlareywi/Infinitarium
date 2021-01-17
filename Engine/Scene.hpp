@@ -21,6 +21,8 @@
 
 #include "../config.h"
 
+using ReferenceTime = std::chrono::duration<double, std::milli>;
+
 class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();
@@ -36,12 +38,18 @@ public:
    void loadLocal( const std::string& );
    void setLocalScenePath( const std::string& );
    void clear();
-   void update();
+   void update( const ReferenceTime& );
    void render();
    void add( const std::shared_ptr<Camera>& );
    void terminatePending();
    bool isTerminatePending();
    void waitOnIdle();
+   const ReferenceTime& referenceTime() const {
+       return _referenceTime;
+   }
+   const ReferenceTime& tickTime() const {
+       return _tickTime;
+   }
    
    // SceneObject ////////////////////////////////////
    void prepare(IRenderContext&) override {};
@@ -74,6 +82,9 @@ private:
    Scene& operator=( const Scene& ) = delete;
    
    std::string localScenePath;
+
+   ReferenceTime _referenceTime; // Cumulative time app has been running (ms)
+   ReferenceTime _tickTime; // Time since last update (ms)
 
 };
 

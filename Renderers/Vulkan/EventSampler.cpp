@@ -89,11 +89,32 @@ void WindowsEventSampler::onMouseButton(GLFWwindow* window, int button, int acti
 			eventSampler->push(mb);
 		}
 	}
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+		middleButtonDown = true;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE) {
+		middleButtonDown = false;
+	}
 }
 
 void WindowsEventSampler::onMouseMove(GLFWwindow* window, double xpos, double ypos) {
 	if (rightButtonDown) {
 		IEventSampler::MouseDrag mm;
+		mm.button = IEventSampler::Button::RIGHT;
+		mm.dx = static_cast<float>(xpos - lastX);
+		mm.dy = static_cast<float>(ypos - lastY);
+		eventSampler->push(mm);
+	}
+	else if (leftButtonDown) {
+		IEventSampler::MouseDrag mm;
+		mm.button = IEventSampler::Button::LEFT;
+		mm.dx = static_cast<float>(xpos - lastX);
+		mm.dy = static_cast<float>(ypos - lastY);
+		eventSampler->push(mm);
+	}
+	else if (middleButtonDown) {
+		IEventSampler::MouseDrag mm;
+		mm.button = IEventSampler::Button::MIDDLE;
 		mm.dx = static_cast<float>(xpos - lastX);
 		mm.dy = static_cast<float>(ypos - lastY);
 		eventSampler->push(mm);

@@ -11,6 +11,7 @@
 #include "../config.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 class Transform : public SceneObject {
 public:
@@ -36,9 +37,10 @@ public:
    
 private:
    glm::mat4x4 transform;
-   
+
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);
 };
 
 BOOST_CLASS_EXPORT_KEY(Transform)
+

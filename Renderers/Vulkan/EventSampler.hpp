@@ -13,7 +13,7 @@
 ///
 class WindowsEventSampler : public IEventSampler {
 public:
-	WindowsEventSampler() : leftButtonDown(false), rightButtonDown(false) {};
+	WindowsEventSampler() : leftButtonDown(false), rightButtonDown(false), middleButtonDown(false) {};
 
 	void setTargetWindow(GLFWwindow*, IRenderContext&);
 
@@ -25,11 +25,11 @@ private:
 
 	std::chrono::high_resolution_clock::time_point mouseLeftTimer;
 	std::chrono::high_resolution_clock::time_point mouseRightTimer;
-	std::chrono::high_resolution_clock::time_point mouseMiddleTimer;
 	std::chrono::high_resolution_clock::time_point mouseDoubleTimer;
 
 	bool leftButtonDown;
 	bool rightButtonDown;
+	bool middleButtonDown;
 	double lastX;
 	double lastY;
 	

@@ -54,9 +54,9 @@ public:
 
    // OpenXR integration ///
    virtual unsigned int getPerspectiveCount() { return 1; }
-   virtual void getPerspective(unsigned int, glm::mat4x4& proj, glm::mat4x4& view) { 
-       proj = glm::mat4x4(1.0);
-       view = glm::mat4x4(1.0); 
+   virtual void getPerspective(unsigned int, glm::dmat4& proj, glm::dmat4& view) {
+       proj = glm::dmat4(1.0);
+       view = glm::dmat4(1.0);
    }
    /////////////////////////
 

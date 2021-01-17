@@ -19,7 +19,7 @@ public:
    void setScene( std::shared_ptr<Scene>& s );
    
 protected:
-   void update();
+   void update(const ReferenceTime&);
    void render();
    
    void simLoop();

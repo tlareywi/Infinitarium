@@ -91,7 +91,11 @@ bool Scene::isTerminatePending() {
     return shouldExit;
 }
 
-void Scene::update() {
+void Scene::update(const ReferenceTime& rt) {
+   auto lastRefTime = _referenceTime;
+   _referenceTime = rt;
+   _tickTime = _referenceTime - lastRefTime;
+
    for (auto& context : renderContexts)
        context->beginFrame();
 
