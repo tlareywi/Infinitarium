@@ -206,6 +206,6 @@ VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
 }
 
 
-__declspec(dllexport) std::shared_ptr<IDataBuffer> CreateDataBuffer( IRenderContext& c ) {
+RENDERER_EXPORT std::shared_ptr<IDataBuffer> CreateDataBuffer( IRenderContext& c ) {
 	return std::make_shared<VulkanBuffer>( *dynamic_cast<VulkanRenderContext*>(&c) );
 }

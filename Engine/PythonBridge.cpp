@@ -16,7 +16,7 @@
 #include "Sprite.hpp"
 #include "Spheroid.hpp"
 #include "CoordinateSystem.hpp"
-#include "ImGui.hpp"
+#include "ImGUI.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>

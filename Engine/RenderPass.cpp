@@ -36,8 +36,6 @@ void IRenderPass::clearRegisteredObjs() {
 }
 
 template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned int version ) {
-   std::cout << "Serializing RenderPassProxy" << std::endl;
-
    ar >> _objId;
    ar >> loadOps;
 
@@ -51,10 +49,12 @@ template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned 
          targets.push_back( IRenderTarget::Clone(*t) );
       }
    }
+
+   std::cout << "Serializing RenderPassProxy " << _objId << std::endl;
 }
 
 template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned int version ) const {
-   std::cout << "Serializing RenderPassProxy" << std::endl;
+   std::cout << "Serializing RenderPassProxy " << _objId << std::endl;
    // We need to serialize a 'proxy' class in order to maintain platform independent
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.

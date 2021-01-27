@@ -9,15 +9,21 @@
 #include <vector>
 #include <functional>
 
+#if WIN32
 #include <windows.h>
+#endif
 
 #include <GLFW/glfw3.h>
 
+#if USE_OPENXR
 #define XR_USE_PLATFORM_WIN32
 #define XR_USE_GRAPHICS_API_VULKAN
-
 #include <openxr.h>
 #include <openxr_platform.h>
+#else
+	using XrInstance = VkInstance;
+	using XrSystemId = uint32_t;
+#endif
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities{};

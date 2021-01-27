@@ -2,7 +2,11 @@
 #include "../../Engine/Application.hpp"
 #include "imgui.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
+#if (WIN32)
+	#define GLFW_EXPOSE_NATIVE_WIN32
+#else
+	#define GLFW_EXPOSE_NATIVE_X11
+#endif
 #include <GLFW/glfw3native.h>
 
 static std::shared_ptr<IEventSampler> eventSampler = std::make_shared<WindowsEventSampler>();
@@ -117,7 +121,7 @@ void WindowsEventSampler::onFramebufferSize(GLFWwindow* window, int w, int h) {
 	}
 }
 
-__declspec(dllexport) std::shared_ptr<IEventSampler> CreateEventSampler() {
+RENDERER_EXPORT std::shared_ptr<IEventSampler> CreateEventSampler() {
 	return eventSampler;
 }
 

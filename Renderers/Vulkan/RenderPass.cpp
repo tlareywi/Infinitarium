@@ -165,11 +165,11 @@ void VulkanRenderPass::end(IRenderContext& context) {
 	vkContext.submit( currentTarget->getCmdBuffer(), currentTarget->getFence(), currentTarget->getSemaphore( *this ) );
 }
 
-__declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPass() {
+RENDERER_EXPORT std::shared_ptr<IRenderPass> CreateRenderPass() {
 	return std::make_shared<VulkanRenderPass>();
 }
 
-__declspec(dllexport) std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
+RENDERER_EXPORT std::shared_ptr<IRenderPass> CreateRenderPassCopy( const IRenderPass& rp ) {
 	return std::make_shared<VulkanRenderPass>( rp );
 }
 

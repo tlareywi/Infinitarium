@@ -2,12 +2,18 @@
 //
 //
 
-#include "RenderContext.hpp"
-#include "OpenXRContext.hpp"
 #include "../../Engine/Application.hpp"
 #include "../../Engine/ApplicationWindow.hpp"
 
+#include "RenderContext.hpp"
+
+#if USE_OPENXR
+#include "OpenXRContext.hpp"
+#endif
+
+#if(WIN32)
 #include <Windows.h>
+#endif
 
 #include <set>
 #include <thread>
@@ -501,23 +507,27 @@ void VulkanRenderContext::waitOnIdle() {
 		vkDeviceWaitIdle(logicalDevice);
 }
 
-__declspec(dllexport)
+RENDERER_EXPORT
 	std::shared_ptr<IRenderContext> CreateRenderContext(unsigned int x, unsigned int y, unsigned int w, unsigned int h, bool fs, bool headset) {
 	std::shared_ptr<IRenderContext> context{ nullptr };
+	#if USE_OPENXR
 	if (headset)
 		context = std::make_shared<OpenXRContext>(x, y, w, h, fs, headset);
 	else 
+	#endif
 		context = std::make_shared<VulkanRenderContext>(x, y, w, h, fs, headset);
 
 	return context;
 }
 
-__declspec(dllexport)
+RENDERER_EXPORT
 	std::shared_ptr<IRenderContext> CloneRenderContext(const IRenderContext& obj) {
 	std::shared_ptr<IRenderContext> context{ nullptr };
+	#if USE_OPENXR
 	if( dynamic_cast<const OpenXRContext*>(&obj) )
 		context = std::make_shared<OpenXRContext>(obj);
 	else
+	#endif
 		context = std::make_shared<VulkanRenderContext>(obj);
 		
 	return context;

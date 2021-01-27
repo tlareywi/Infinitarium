@@ -90,6 +90,6 @@ void VulkanImGUI::render(IRenderPass& renderPass) {
 	ImGui_ImplVulkan_RenderDrawData(draw_data, vkRenderPass.commandBuffer());
 }
 
-__declspec(dllexport) std::shared_ptr<IImGUI> CreateImGUI() {
+RENDERER_EXPORT std::shared_ptr<IImGUI> CreateImGUI() {
 	return std::make_shared<VulkanImGUI>();
 }

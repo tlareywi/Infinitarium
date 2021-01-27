@@ -124,7 +124,7 @@ std::vector<uint32_t> VulkanRenderProgram::compileToByteCode(const std::string& 
 	return { module.cbegin(), module.cend() };
 }
 
-__declspec(dllexport)
+RENDERER_EXPORT
 	std::shared_ptr<IRenderProgram> CreateRenderProgram() {
 		return std::make_shared<VulkanRenderProgram>();
 	}

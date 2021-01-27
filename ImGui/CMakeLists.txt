@@ -21,7 +21,7 @@ target_link_libraries(ImGUI ${VULKAN_LIB})
 
 find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h HINTS "C:\\Program Files (x86)\\GLFW\\include")
 include_directories(${GLFW_INCLUDE_DIR})
-find_library(GLFW_LIB glfw3 HINTS "C:\\Program Files (x86)\\GLFW\\lib")
+find_library(GLFW_LIB NAMES glfw3 glfw HINTS "C:\\Program Files (x86)\\GLFW\\lib")
 target_link_libraries(ImGUI ${GLFW_LIB})
 endif( APPLE )  
 

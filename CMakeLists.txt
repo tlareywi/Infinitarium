@@ -11,8 +11,6 @@ if( MSVC )
 
     find_path(GLM_INCLUDE_DIR glm/glm.hpp HINTS "C:\\Program Files (x86)\\glm\\include")
     include_directories(${GLM_INCLUDE_DIR})
-    find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
-    include_directories(${RAPIDJSON_INCLUDE_DIR})
 endif( MSVC )
 
 add_executable( Infinitarium main.cpp
@@ -21,7 +19,7 @@ add_executable( Infinitarium main.cpp
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD 17)
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD_REQUIRED ON)
 
-include_directories("./ImGUI")
+include_directories("./ImGui")
 
 # boost
 find_package(Boost REQUIRED)
@@ -30,21 +28,19 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(Python3 COMPONENTS Development)
 include_directories(${Python3_INCLUDE_DIRS})
 
-add_subdirectory( ImGUI )
+add_subdirectory( ImGui )
 
 if( APPLE )
     add_subdirectory( Renderers/Metal )
     add_subdirectory( Platforms/OSX )
-endif( APPLE )
-if( MSVC )
+else( APPLE )
     add_subdirectory( Renderers/Vulkan )
-endif( MSVC )
+endif( APPLE )
 
 add_subdirectory( Engine )
 target_link_libraries( Infinitarium InfinitariumEngine )
 
 add_subdirectory( data )
-add_subdirectory( UI )
 
 configure_file( config.in ${CMAKE_SOURCE_DIR}/config.h )
 

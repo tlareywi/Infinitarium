@@ -45,7 +45,6 @@ void IRenderContext::clearRegisteredObjs() {
 }
 
 template<class Archive> void RenderContextProxy::serialize(Archive& ar, const unsigned int version) {
-	std::cout << "Serializing RenderContextProxy" << std::endl;
 	ar & BOOST_SERIALIZATION_NVP(_x);
 	ar & BOOST_SERIALIZATION_NVP(_y);
 	ar & BOOST_SERIALIZATION_NVP(_width);
@@ -53,6 +52,8 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(_fullScreen);
 	ar & BOOST_SERIALIZATION_NVP(_headset);
 	ar & BOOST_SERIALIZATION_NVP(_objId);
+
+	std::cout << "Serializing RenderContextProxy " << _objId << std::endl;
 }
 
 

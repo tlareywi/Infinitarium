@@ -260,7 +260,6 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	vkUpdateDescriptorSets(vkState.getDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, NULL);
 }
 
-__declspec(dllexport)
-	std::shared_ptr<IRenderCommand> CreateRenderCommand() {
-		return std::make_shared<VulkanRenderCommand>();
-	}
+RENDERER_EXPORT std::shared_ptr<IRenderCommand> CreateRenderCommand() {
+	return std::make_shared<VulkanRenderCommand>();
+}

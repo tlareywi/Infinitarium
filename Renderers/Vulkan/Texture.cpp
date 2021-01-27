@@ -103,10 +103,10 @@ void VulkanTexture::prepare(IRenderContext& context) {
 		throw std::runtime_error("failed to create texture sampler!");
 };
 
-__declspec(dllexport) std::shared_ptr<ITexture> CreateTexture(const glm::uvec2& vec, ITexture::Format f) {
+RENDERER_EXPORT std::shared_ptr<ITexture> CreateTexture(const glm::uvec2& vec, ITexture::Format f) {
 	return std::make_shared<VulkanTexture>(vec, f);
 }
 
-__declspec(dllexport) std::shared_ptr<ITexture> CloneTexture(const ITexture& obj) {
+RENDERER_EXPORT std::shared_ptr<ITexture> CloneTexture(const ITexture& obj) {
 	return std::make_shared<VulkanTexture>(obj);
 }

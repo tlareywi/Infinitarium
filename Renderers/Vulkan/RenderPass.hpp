@@ -26,8 +26,8 @@ public:
 	VkCommandBuffer commandBuffer();
 
 private:
-	VkRenderPass renderPass;
-	VkDevice device;
+	VkRenderPass renderPass {nullptr};
+	VkDevice device {nullptr};
 
 	VulkanRenderTarget* currentTarget{ nullptr };
 };

@@ -1,3 +1,6 @@
+#include "../../config.h"
+#if USE_OPENXR
+
 #include "OpenXRContext.hpp"
 #include "xr_linear.h"
 
@@ -351,3 +354,5 @@ void OpenXRContext::HandleSessionStateChangedEvent(const XrEventDataSessionState
 		break;
 	}
 }
+
+#endif

@@ -14,7 +14,9 @@ add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD_REQUIRED ON)
 
-include_directories("../../ImGUI")
+OPTION(OPENXR "Experimental support for extended reality devices. Requires OpenXR SDK." OFF)
+
+include_directories("../../ImGui")
 target_link_libraries(IERenderer ImGUI)
 
 find_package(Boost REQUIRED)
@@ -31,6 +33,7 @@ target_link_libraries(IERenderer ${VULKAN_LIB})
 find_library(GLSL_LIB NAMES shaderc_shared HINTS "C:\\local\\VulkanSDK\\shaderc\\build\\install\\lib" "C:\\Program Files (x86)\\VulkanSDK\\lib")
 target_link_libraries(IERenderer ${GLSL_LIB})
 
+if( OPENXR )
 find_path(OPENXR_INCLUDE_DIR openxr.h HINTS "C:\\local\\include")
 include_directories(${OPENXR_INCLUDE_DIR})
 
@@ -39,15 +42,13 @@ target_link_libraries(IERenderer ${OPENXR_LIB})
 
 # Needed by openxr loader lib
 target_link_libraries(IERenderer "Pathcch.lib")
+endif( OPENXR ) 
 
 find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h HINTS "C:\\Program Files (x86)\\GLFW\\include")
 include_directories(${GLFW_INCLUDE_DIR})
 
 find_library(GLFW_LIB glfw3 HINTS "C:\\Program Files (x86)\\GLFW\\lib")
 target_link_libraries(IERenderer ${GLFW_LIB})
-
-find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
-include_directories(${RAPIDJSON_INCLUDE_DIR})
 
 install(TARGETS IERenderer LIBRARY DESTINATION lib)
 

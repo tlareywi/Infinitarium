@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <mutex>
+#include <memory>
 
 class IEventSampler {
 public:

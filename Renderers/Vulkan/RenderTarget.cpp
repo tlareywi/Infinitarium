@@ -99,10 +99,10 @@ void VulkanRenderTarget::attach(IRenderContext& context, IRenderPass& renderPass
 	}
 }
 
-__declspec(dllexport) std::shared_ptr<IRenderTarget> CreateRenderTarget(const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r) {
+RENDERER_EXPORT std::shared_ptr<IRenderTarget> CreateRenderTarget(const glm::uvec2& vec, ITexture::Format f, IRenderTarget::Type t, IRenderTarget::Resource r) {
 	return std::make_shared<VulkanRenderTarget>(vec, f, t, r);
 }
 
-__declspec(dllexport) std::shared_ptr<IRenderTarget> CloneRenderTarget(const IRenderTarget& obj) {
+RENDERER_EXPORT std::shared_ptr<IRenderTarget> CloneRenderTarget(const IRenderTarget& obj) {
 	return std::make_shared<VulkanRenderTarget>(obj);
 }

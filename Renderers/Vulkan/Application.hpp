@@ -2,23 +2,36 @@
 
 #include "../../Engine/Application.hpp"
 
-#define VK_USE_PLATFORM_WIN32_KHR 
+#include <atomic>
+
+#if (WIN32)
+	#define VK_USE_PLATFORM_WIN32_KHR 
+#else
+	#define VK_USE_PLATFORM_X11_KHR
+#endif
+
 #include "vulkan/vulkan.h"
 
-#define XR_USE_PLATFORM_WIN32
-#define XR_USE_GRAPHICS_API_VULKAN
-
-#include <openxr.h>
-#include <openxr_platform.h>
+#if (USE_OPENXR)
+	#define XR_USE_PLATFORM_WIN32
+	#define XR_USE_GRAPHICS_API_VULKAN
+	#include <openxr.h>
+	#include <openxr_platform.h>
+#else
+	using XrInstance = VkInstance;
+	using XrSystemId = uint32_t;
+#endif
 
 class WinApplication : public IApplication {
 public:
 	static std::shared_ptr<IApplication> Instance();
 	WinApplication();
 	virtual ~WinApplication() {
-		if (ext_xrDestroyDebugUtilsMessengerEXT) {
-			ext_xrDestroyDebugUtilsMessengerEXT(debugHook);
-		}
+		#if (USE_OPENXR)
+			if (ext_xrDestroyDebugUtilsMessengerEXT) {
+				ext_xrDestroyDebugUtilsMessengerEXT(debugHook);
+			}
+		#endif
 	}
 
 	void run() override;
@@ -46,13 +59,6 @@ private:
 		"VK_LAYER_KHRONOS_validation"
 	};
 
-
-	XrResult CreateVulkanInstanceKHR(XrInstance instance, const XrVulkanInstanceCreateInfoKHR* createInfo, VkInstance* vulkanInstance, VkResult* vulkanResult) {
-		PFN_xrCreateVulkanInstanceKHR pfnCreateVulkanInstanceKHR = nullptr;
-		xrGetInstanceProcAddr(instance, "xrCreateVulkanInstanceKHR", reinterpret_cast<PFN_xrVoidFunction*>(&pfnCreateVulkanInstanceKHR));
-		return pfnCreateVulkanInstanceKHR(instance, createInfo, vulkanInstance, vulkanResult);
-	}
-
 	bool initValidationLayers( VkInstanceCreateInfo& ); 
 	void registerValidationCallBack( VkInstance );
 	VkValidationFeaturesEXT enabledFeatures;
@@ -68,12 +74,19 @@ private:
 	VkDebugUtilsMessengerEXT debugMessenger;
 	bool enableValidation;
 
-	// OpenXR
 	XrInstance xrInstance;
 	XrSystemId xrSystemId;
+#if (USE_OPENXR)
+	// OpenXR
 	PFN_xrCreateDebugUtilsMessengerEXT ext_xrCreateDebugUtilsMessengerEXT = nullptr;
 	PFN_xrDestroyDebugUtilsMessengerEXT ext_xrDestroyDebugUtilsMessengerEXT = nullptr;
 	XrDebugUtilsMessengerEXT debugHook;
+	XrResult CreateVulkanInstanceKHR(XrInstance instance, const XrVulkanInstanceCreateInfoKHR* createInfo, VkInstance* vulkanInstance, VkResult* vulkanResult) {
+		PFN_xrCreateVulkanInstanceKHR pfnCreateVulkanInstanceKHR = nullptr;
+		xrGetInstanceProcAddr(instance, "xrCreateVulkanInstanceKHR", reinterpret_cast<PFN_xrVoidFunction*>(&pfnCreateVulkanInstanceKHR));
+		return pfnCreateVulkanInstanceKHR(instance, createInfo, vulkanInstance, vulkanResult);
+	}
+#endif
 
 	std::atomic<bool> running{true};
 	std::atomic<bool> terminatePending{false};

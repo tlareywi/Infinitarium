@@ -16,7 +16,7 @@ int main(int argc, const char * argv[]) {
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();
    try {
-	   s->load(app->getInstallationRoot() + "/share/Infinitarium/hip2.ieb");
+	   s->load(app->getInstallationRoot() + "/share/Infinitarium/sphere.ieb");
    }
    catch( std::exception& e ) {
 	   std::cout << e.what() << std::endl;

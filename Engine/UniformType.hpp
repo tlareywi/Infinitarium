@@ -21,13 +21,13 @@
 
 #include "ConsoleInterface.hpp"
 
-typedef std::variant<
+using UniformType = std::variant<
 float, int, unsigned int,
 glm::ivec2, glm::ivec3, glm::ivec4,
 glm::mat4x4,
 glm::uvec2, glm::uvec3, glm::uvec4,
 glm::vec2, glm::vec3, glm::vec4
-> UniformType;
+>;
 
 BOOST_SERIALIZATION_SPLIT_FREE(glm::uvec2)
 BOOST_SERIALIZATION_SPLIT_FREE(glm::uvec3)
@@ -60,12 +60,12 @@ namespace boost {
 struct Uniform {
     Uniform() {}
 
-    Uniform(UniformType& v) :
+    Uniform(const UniformType& v) :
         val(v),
         min(0u),
         max(0u) {
     }
-    Uniform(UniformType& v, UniformType& mn, UniformType& mx) :
+    Uniform(const UniformType& v, const UniformType& mn, const UniformType& mx) :
         val(v), 
         min(mn), 
         max(mx) {

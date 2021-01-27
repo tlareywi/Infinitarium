@@ -4,8 +4,10 @@
 
 #if defined(WIN32)
 static const char* libRenderer = "IERenderer.dll";
-#else
+#elif defined(__APPLE__)
 static const char* libRenderer = "libIERenderer.dylib";
+#else
+static const char* libRenderer = "libIERenderer.so";
 #endif
 
 static void* getSym(void* handle, const char* name) {
@@ -35,7 +37,7 @@ static std::map<std::string, std::string> symbolMap {
    {"CloneRenderTarget", "?CloneRenderTarget@@YA?AV?$shared_ptr@VIRenderTarget@@@std@@AEBVIRenderTarget@@@Z"},
    {"CreateImGUI", "?CreateImGUI@@YA?AV?$shared_ptr@VIImGUI@@@std@@XZ"}
 };
-#else
+#else 
 static std::map<std::string, std::string> symbolMap {
    {"CreateEventSampler", "_Z18CreateEventSamplerv"},
    {"CreateApplicationWindow", "_Z23CreateApplicationWindowv"},
@@ -46,12 +48,13 @@ static std::map<std::string, std::string> symbolMap {
    {"CreateRenderPassCopy", "_Z20CreateRenderPassCopyRK11IRenderPass"},
    {"CreateRenderProgram", "_Z19CreateRenderProgramv"},
    {"CreateDataBuffer", "_Z16CreateDataBufferR14IRenderContext"},
-   {"CreateRenderContext", "_Z19CreateRenderContextjjjjb"},
+   {"CreateRenderContext", "_Z19CreateRenderContextjjjjbb"},
    {"CloneRenderContext", "_Z18CloneRenderContextRK14IRenderContext"},
    {"CreateTexture", "_Z13CreateTextureRKN3glm3vecILi2EjLNS_9qualifierE0EEEN8ITexture6FormatE"},
    {"CloneTexture", "_Z12CloneTextureRK8ITexture"},
    {"CreateRenderTarget", "_Z18CreateRenderTargetRKN3glm3vecILi2EjLNS_9qualifierE0EEEN8ITexture6FormatEN13IRenderTarget4TypeENS7_8ResourceE"},
-   {"CloneRenderTarget", "_Z17CloneRenderTargetRK13IRenderTarget"}
+   {"CloneRenderTarget", "_Z17CloneRenderTargetRK13IRenderTarget"},
+   {"CreateImGUI", "_Z11CreateImGUIv"}
 };
 #endif
 

@@ -77,6 +77,7 @@ VkInstance WinApplication::getVkInstance() {
 }
 
 XrInstance WinApplication::getXrInstance() {
+#if USING_OPENXR
 	if (xrInstance) return xrInstance;
 
 	std::vector<const char*> useExtensions;
@@ -158,6 +159,9 @@ XrInstance WinApplication::getXrInstance() {
 		ext_xrCreateDebugUtilsMessengerEXT(xrInstance, &debugInfo, &debugHook);
 
 	return xrInstance;
+#else
+	return 0;
+#endif
 }
 
 void WinApplication::run() {
@@ -243,11 +247,13 @@ void WinApplication::registerValidationCallBack( VkInstance vkInstance ) {
 	}
 }
 
-__declspec(dllexport) std::shared_ptr<IApplication> CreateApplication() {
+RENDERER_EXPORT std::shared_ptr<IApplication> CreateApplication() {
 	return WinApplication::Instance();
 }
 
+#if (WIN32)
 BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID ) {
 	return TRUE;
 }
+#endif
 

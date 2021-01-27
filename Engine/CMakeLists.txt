@@ -27,7 +27,7 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD_REQUIRED ON)
 
-include_directories("../ImGUI")
+include_directories("../ImGui")
 target_link_libraries(InfinitariumEngine ImGUI)
 
 # boost

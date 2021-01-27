@@ -19,15 +19,18 @@ public:
 	virtual ~WinApplicationWindow();
 
 	void init(IRenderContext&) override;
+
 	void* getPlatformWindow() override {
 		return (void*)window;
 	}
-	void toggleFullScreen(IRenderContext&) override;
+
+	void toggleFullScreen(IRenderContext& renderContext) override;
+
 	void* getPlatformSurface() override {
 		return (void*)surface;
 	}
 
-private:
+protected:
 	GLFWwindow* window;
 	VkSurfaceKHR surface;
 	GLFWmonitor* monitor;

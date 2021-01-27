@@ -16,6 +16,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(IRenderable)
 BOOST_CLASS_EXPORT_IMPLEMENT(ClearScreen)
 
 IRenderable::IRenderable() : programName{"default"} {
+   UniformType t; // Need an explicit instance on gcc for some reason before we make more references to this type. Lazy template eval ???
+
    pipelineState = IRenderState::Create();
    renderCommand = IRenderCommand::Create();
    uniformData = nullptr;
@@ -35,7 +37,8 @@ void IRenderable::prepare( IRenderContext& context ) {
    uniformData->setUsage( IDataBuffer::Usage::Uniform );
    renderCommand->add( uniformData );
 
-   renderCommand->add( context.pickBuffer() );
+   std::shared_ptr<IDataBuffer> pick{ context.pickBuffer() };
+   renderCommand->add( pick );
 
    if( texture != nullptr ) {
       renderCommand->add( texture );

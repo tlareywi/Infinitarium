@@ -1,12 +1,18 @@
-#define VK_USE_PLATFORM_WIN32_KHR 
-
 #include "Application.hpp"
 #include "ApplicationWindow.hpp"
 #include "EventSampler.hpp"
-#include "../../Renderers/Vulkan/OpenXRContext.hpp"
+#include "RenderContext.hpp"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#if (USING_OPENXR)
+	#include "../../Renderers/Vulkan/OpenXRContext.hpp"
+#endif
+
+#if (WIN32)
+	#define GLFW_EXPOSE_NATIVE_WIN32
+#else
+	#define GLFW_EXPOSE_NATIVE_X11
+#endif
+#include <GLFW/glfw3native.h> // TODO: really need native level here? Try using non-native calls on both plats and see if we can get rid of this.
 
 std::shared_ptr<IEventSampler> CreateEventSampler();
 
@@ -28,16 +34,20 @@ WinApplicationWindow::~WinApplicationWindow() {
 // TODO We can drop reference to renderContext by passing necessary values. ApplicationWindow doesn't need to know about context. 
 // Don't have a problem with circular references yet but I see one on the horizon.
 void WinApplicationWindow::init( IRenderContext& renderContext ) {
-	bool headset = dynamic_cast<OpenXRContext*>(&renderContext) ? true : false;
 	WinApplication& instance = dynamic_cast<WinApplication&>(*WinApplication::Instance());
 
-	OpenXRContext::ContextParams params = { nullptr, nullptr, nullptr, 0 };
+	VulkanRenderContext::ContextParams params{};
+
+#if (USING_OPENXR)
+	bool headset = dynamic_cast<OpenXRContext*>(&renderContext) ? true : false;
 	// CLUDGE
 	if (headset) {
 		params.xrInstance = instance.getXrInstance();
 		params.xrSystemId = instance.getXrSystemId();
 	}
-	else {
+	else 
+#endif 
+	{
 		if (renderContext.fullScreen()) {
 			monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -53,14 +63,18 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 		else
 			window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Infinitarium", nullptr, nullptr);
 
+#if (WIN32)
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.hwnd = glfwGetWin32Window(window);
 		createInfo.hinstance = GetModuleHandle(nullptr);
 
-		if (vkCreateWin32SurfaceKHR(instance.getVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS) {
+		if (vkCreateWin32SurfaceKHR(instance.getVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create Vulkan window surface!");
-		}
+#else
+		if( glfwCreateWindowSurface( instance.getVkInstance(), window, nullptr, &surface ) != VK_SUCCESS )
+			throw std::runtime_error("Failed to create Vulkan window surface!");
+#endif
 
 		params.surface = surface;
 		std::shared_ptr<IEventSampler> eventSampler{ CreateEventSampler() };
@@ -94,7 +108,7 @@ void WinApplicationWindow::toggleFullScreen(IRenderContext& renderContext) {
 	}
 }
 
-__declspec(dllexport) std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
+RENDERER_EXPORT std::shared_ptr<IApplicationWindow> CreateApplicationWindow() {
 	std::shared_ptr<IApplicationWindow> window = std::make_shared<WinApplicationWindow>();
 	return window;
 }

@@ -1,4 +1,7 @@
+#define OFF 0
+#define ON 1
 #define INSTALL_ROOT "@CMAKE_INSTALL_PREFIX@"
+#define USE_OPENXR @OPENXR@
 
 #if (defined(__WIN32__) || defined(_WIN32)) && !defined(PLATFORM_BUILD)
 	#pragma warning( disable : 4251 ) // Disable 'bla' needs to have dll-interface to be used by clients of class 'bla bla' 
@@ -7,6 +10,8 @@
 	#else
 		#define IE_EXPORT __declspec(dllimport)
 	#endif
+	#define RENDERER_EXPORT __declspec(dllexport)
 #else
 	#define IE_EXPORT 
+	#define RENDERER_EXPORT
 #endif
