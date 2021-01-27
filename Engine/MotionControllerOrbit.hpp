@@ -14,18 +14,16 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 
-#define GLM_FORCE_RADIANS
-#include <glm/gtc/quaternion.hpp>
-
 class Orbit : public IMotionController {
 public:
-   Orbit() : yawPitchRoll{1.0,0.0,0.0,0.0}, distance{0.0}, rotation(1.0,0.0,0.0,0.0), center(0.0,0.0,0.0), sensitivity(1.0f) {}
+   Orbit() : _yawPitchRoll{1.0,0.0,0.0,0.0}, _distance{0.0}, _rotation(1.0,0.0,0.0,0.0), _center(0.0,0.0,0.0) {}
    virtual ~Orbit() {}
    
-   void getViewMatrix( glm::mat4& ) override;
+   void getCameraMatrix( glm::dmat4& ) override;
    
    void setAnchor( const std::shared_ptr<SceneObject>& obj );
-   void animatePath();
+
+   void animate(const glm::vec3&, const glm::quat&, double ) override;
       
 protected:
    void onKeyDown( const IEventSampler::Key& ) override;
@@ -33,18 +31,19 @@ protected:
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
    void onMouseButtonClick( const IEventSampler::MouseButton& ) override;
    void onMouseDoubleClick( const IEventSampler::MouseButton& ) override;
+   void updateAnimation( double ) override;
    
 private:
-   inline float project( float r, float x, float y );
+   void setViewComponents(const glm::dvec3&, const glm::dvec3&, const glm::dvec3&);
+   void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&) const;
+   void resetCenter(const glm::dvec3& pos);
    void calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&, const glm::vec2& );
    void rotateAboutAnchor( const glm::vec2&, const glm::vec2& );
    
-   glm::dquat yawPitchRoll;
-   double distance;
-   glm::dquat rotation;
-   glm::dvec3 center;
-   
-   float sensitivity;
+   glm::dquat _yawPitchRoll;
+   double _distance;
+   glm::dquat _rotation;
+   glm::dvec3 _center;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive& ar, const unsigned int version);

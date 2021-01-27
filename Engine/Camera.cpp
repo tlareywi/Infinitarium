@@ -39,11 +39,14 @@ std::shared_ptr<IRenderContext> Camera::getContext() {
 }
 
 void Camera::update( UpdateParams& params ) {
-   if( motionController )
-      motionController->processEvents();
-   
    if( dirty )
        Transform::prepare( *renderContext );
+
+   if (motionController) {
+       motionController->processEvents( params );
+   }
+
+   Transform::update( params );
 
    updateParams = std::make_unique<UpdateParams>(params);
 }
@@ -55,16 +58,16 @@ void Camera::render( IRenderPass& ) {
    }
  
    for (unsigned int i = 0; i < renderContext->getPerspectiveCount(); ++i ) {
-       glm::mat4 eye{ 1.0 };
+       glm::dmat4 eye{ 1.0 };
        if (motionController)
            motionController->getViewMatrix(eye);
 
-       glm::mat4x4 proj, view;
+       glm::dmat4 proj, view;
        renderContext->getPerspective(i, proj, view);
-       if (proj == glm::mat4(1.0))
+       if (proj == glm::dmat4(1.0))
            proj = projection;
 
-       UpdateParams params(*updateParams, proj, eye * view, glm::mat4(1.0));
+       UpdateParams params(*updateParams, proj, eye * view, glm::dmat4(1.0));
        Transform::update(params);
 
        renderPass->begin( *renderContext );

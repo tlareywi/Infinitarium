@@ -223,7 +223,7 @@ unsigned int OpenXRContext::getPerspectiveCount() {
 	return viewCountOut;
 }
 
-void OpenXRContext::getPerspective( unsigned int indx, glm::mat4x4& proj, glm::mat4x4& view ) {
+void OpenXRContext::getPerspective( unsigned int indx, glm::dmat4& proj, glm::dmat4& view ) {
 	activeSwapchain = indx;
 
 	XrMatrix4x4f projection_matrix;

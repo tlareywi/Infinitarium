@@ -23,9 +23,9 @@ void Simulation::setScene( std::shared_ptr<Scene>& s ) {
    scene = s;
 }
 
-void Simulation::update() {
+void Simulation::update(const ReferenceTime& rt) {
    if( scene )
-      scene->update();
+      scene->update(rt);
 }
 
 void Simulation::render() {
@@ -42,8 +42,12 @@ void Simulation::simLoop() {
    unsigned short sampleIndx = { 0 };
    Stats& stats = Stats::Instance();
 
+   auto appStart = std::chrono::high_resolution_clock::now();
+
    while( 1 ) {
-      update();
+      ReferenceTime referenceTime(std::chrono::high_resolution_clock::now() - appStart);
+
+      update(referenceTime);
       render();
       
       if(scene && scene->isTerminatePending())

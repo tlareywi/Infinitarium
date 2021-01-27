@@ -19,7 +19,7 @@ public:
     void beginFrame() override;
     void endFrame() override;
     unsigned int getPerspectiveCount() override;
-    void getPerspective(unsigned int, glm::mat4x4& proj, glm::mat4x4& view) override;
+    void getPerspective(unsigned int, glm::dmat4& proj, glm::dmat4& view) override;
     void toggleFullScreen() override {};
    
     // VulkanRenderContext ////////////////////////////

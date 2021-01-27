@@ -42,8 +42,9 @@ public:
        selectedObject = nullptr;
    }
    
-   void processEvents();
-   virtual void getViewMatrix( glm::mat4& );
+   void processEvents( UpdateParams& );
+   virtual void getCameraMatrix( glm::dmat4& );
+   void getViewMatrix(glm::dmat4&);
    
    void pushHome( const UniversalPoint& p );
    void popHome();
@@ -52,6 +53,8 @@ public:
    }
    
    void select( const std::shared_ptr<SceneObject>& );
+
+   virtual void animate(const glm::vec3& destPos, const glm::quat& destOrient, double ms);
    
 protected:
    virtual void onKeyDown( const IEventSampler::Key& ) {}
@@ -62,13 +65,21 @@ protected:
    virtual void onMouseScroll( const IEventSampler::MouseMove& ) {}
    virtual void onMouseDrag( const IEventSampler::MouseDrag& ) {}
    virtual void onMouseDoubleClick( const IEventSampler::MouseButton& ) {}
-   virtual void onMouseButtonClick( const IEventSampler::MouseButton& ) {}
+   virtual void onMouseButtonClick( const IEventSampler::MouseButton& ) {} 
+   virtual void updateAnimation(double);
    
-   glm::dmat4 view;
+   glm::dmat4 cameraTransform;
    std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;
    std::shared_ptr<SceneObject> selectedObject;
+
+   glm::dvec3 sourcePosition;
+   glm::dquat sourceOrientation;
+   glm::dvec3 destPosition;
+   glm::dquat destOrientation;
+   double duration{ 0.0 };
+   double elapsed{ 0.0 };
    
 private:
    friend class boost::serialization::access;
