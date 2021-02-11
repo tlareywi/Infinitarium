@@ -7,6 +7,7 @@
 
 #include "MotionController.hpp"
 #include "Scene.hpp"
+#include "Stats.hpp"
 
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -60,6 +61,12 @@ void IMotionController::updateAnimation( double msTick ) {
     }
 }
 
+void IMotionController::getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up) const {
+    center = glm::dvec3(0,0,-1);
+    eye = cameraTransform * glm::dvec4(0, 0, 0, 1);
+    up = glm::dvec3(0, 1, 0);
+}
+
 void IMotionController::processEvents( UpdateParams& params ) {
    std::lock_guard<std::mutex> lock(eventSampler->eventMutex);
    
@@ -90,6 +97,9 @@ void IMotionController::processEvents( UpdateParams& params ) {
    eventSampler->clear();
 
    updateAnimation( params.getScene().tickTime().count() );
+
+   Stats& stats{ Stats::Instance() };
+   getViewComponents( stats.eye, stats.center, stats.up );
 }
 
 void IMotionController::pushHome( const UniversalPoint& p ) {

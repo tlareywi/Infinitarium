@@ -24,6 +24,7 @@ public:
    void setAnchor( const std::shared_ptr<SceneObject>& obj );
 
    void animate(const glm::vec3&, const glm::quat&, double ) override;
+   void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&) const override;
       
 protected:
    void onKeyDown( const IEventSampler::Key& ) override;
@@ -35,7 +36,6 @@ protected:
    
 private:
    void setViewComponents(const glm::dvec3&, const glm::dvec3&, const glm::dvec3&);
-   void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&) const;
    void resetCenter(const glm::dvec3& pos);
    void calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&, const glm::vec2& );
    void rotateAboutAnchor( const glm::vec2&, const glm::vec2& );

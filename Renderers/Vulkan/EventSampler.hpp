@@ -13,7 +13,8 @@
 ///
 class WindowsEventSampler : public IEventSampler {
 public:
-	WindowsEventSampler() : leftButtonDown(false), rightButtonDown(false), middleButtonDown(false) {};
+	WindowsEventSampler() : leftButtonDown(false), rightButtonDown(false), middleButtonDown(false), lastX(0), lastY(0) {};
+	virtual ~WindowsEventSampler() {}
 
 	void setTargetWindow(GLFWwindow*, IRenderContext&);
 
@@ -34,7 +35,7 @@ private:
 	double lastY;
 	
 	// TODO: Janky, fix.
-	IRenderContext* context;
+	IRenderContext* context{nullptr};
 };
 
 

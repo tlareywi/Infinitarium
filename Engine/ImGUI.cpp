@@ -92,7 +92,7 @@ void ImGUI::update(UpdateParams& params) {
 void ImGUI::render(IRenderPass& renderPass) {
 	if (!_showMainMenuBar)
 		return;
-
+	 
 	if (dirty) {
 		// Currently, there's no case under which ImGUI needs to be re-initialized. A framebuffer/swapchain resize 'just works'. How nice. 
 		dirty = false;
@@ -289,7 +289,11 @@ void ImGUI::showStats() {
 		"FPS is a 60 frame rolling average.\n"
 	);
 
-	ImGui::Text("FPS: %u", stats.fps);
+	ImGui::Text("FPS   : %u", stats.fps);
+
+	ImGui::Text("Eye   : (%f, %f, %f)", stats.eye.x, stats.eye.y, stats.eye.z);
+	ImGui::Text("Center: (%f, %f, %f)", stats.center.x, stats.center.y, stats.center.z);
+	ImGui::Text("Up    : (%f, %f, %f)", stats.up.x, stats.up.y, stats.up.z);
 
 	ImGui::End();
 }
