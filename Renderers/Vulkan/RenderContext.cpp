@@ -434,8 +434,10 @@ void VulkanRenderContext::reAllocSwapchain() {
 }
 
 void VulkanRenderContext::resizePickBuffer() {
-	_pickBuffer->reserve(_width * _height * sizeof(PickUnit));
-	_pickBuffer->commit();
+	if( _pickBuffer ) {
+		_pickBuffer->reserve(_width * _height * sizeof(PickUnit));
+		_pickBuffer->commit();
+	}
 }
 
 void VulkanRenderContext::setSurface(void* params) {

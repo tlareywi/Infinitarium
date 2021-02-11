@@ -59,15 +59,19 @@ void VulkanBuffer::set(DataPackContainer& container) {
 }
 
 void VulkanBuffer::reserve(unsigned int sizeBytes) {
-    if (!cpu || bufferSize < sizeBytes) {
-        vkDestroyBuffer(context.getVulkanDevice(), cpu, nullptr);
-        vkFreeMemory(context.getVulkanDevice(), stagingBufferMemory, nullptr);
+    if (bufferSize < sizeBytes) {
+    	if( cpu ) {
+	        vkDestroyBuffer(context.getVulkanDevice(), cpu, nullptr);
+	        vkFreeMemory(context.getVulkanDevice(), stagingBufferMemory, nullptr);
+    	}
         createBuffer(sizeBytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, cpu, stagingBufferMemory);
     }
 
-    if (!gpu || bufferSize < sizeBytes) {
-        vkDestroyBuffer(context.getVulkanDevice(), gpu, nullptr);
-        vkFreeMemory(context.getVulkanDevice(), gpuBufferMemory, nullptr);
+    if (bufferSize < sizeBytes) {
+    	if( gpu ) {
+	        vkDestroyBuffer(context.getVulkanDevice(), gpu, nullptr);
+	        vkFreeMemory(context.getVulkanDevice(), gpuBufferMemory, nullptr);
+    	}
         createBuffer(sizeBytes, VK_BUFFER_USAGE_TRANSFER_DST_BIT | translateUsage(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gpu, gpuBufferMemory);
     }
 

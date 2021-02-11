@@ -11,7 +11,9 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(BlendState)
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderTargetProxy)
+BOOST_CLASS_TRACKING(RenderTargetProxy, boost::serialization::track_never)
 BOOST_CLASS_EXPORT_IMPLEMENT(TextureProxy)
+BOOST_CLASS_TRACKING(TextureProxy, boost::serialization::track_never)
 
 template<class Archive> void BlendState::serialize(Archive& ar, unsigned int version) {
 	std::cout<<"Serializing BlendState"<<std::endl;

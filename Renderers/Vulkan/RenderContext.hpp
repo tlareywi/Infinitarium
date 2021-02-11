@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <functional>
+#include <atomic>
 
 #if WIN32
 #include <windows.h>

@@ -25,9 +25,14 @@
 
 exec(open('./import_common.py').read())
 
+dataRoot = '/media/trystan/DATA/HipTyc/'
+
+if platform.system() == 'Windows':
+    dataRoot = 'E:/HipTyc/'
+
 print('\nReading Hipparcos2 Catalog ...')
-t = Table.read("E:/HipTyc/hip2.dat",
-        readme="E:/HipTyc/readme.hip2",
+t = Table.read(dataRoot + "hip2.dat",
+        readme=dataRoot + "readme.hip2",
         format="ascii.cds")
 
 t['Plx'].fill_value = 0
@@ -58,13 +63,6 @@ renderTarget = engine.IRenderTarget.create( 1920, 1080,
 renderTarget.setClearColor(0,0,0,1)
 renderTarget.setBlendState( engine.BlendState(engine.Op.Add, engine.Op.Add, engine.Factor.One, engine.Factor.One, engine.Factor.SourceAlpha, engine.Factor.OneMinusSourceAlpha) )
 renderPass.addRenderTarget( renderTarget, engine.LoadOp.Clear )
-
-# Pick buffer
-pickTarget = engine.IRenderTarget.create( 1920, 1080,
-    engine.Format.RF32, engine.Type.Color,
-    engine.Resource.Offscreen)
-pickTarget.setClearColor(0,0,0,0)
-renderPass.addRenderTarget( pickTarget, engine.LoadOp.Clear )
 
 hip2Cloud = engine.PointCloud()
 hip2Cloud.setName('Hip2 PointCloud')

@@ -74,6 +74,8 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 #else
 		if( glfwCreateWindowSurface( instance.getVkInstance(), window, nullptr, &surface ) != VK_SUCCESS )
 			throw std::runtime_error("Failed to create Vulkan window surface!");
+		
+		sleep(1);
 #endif
 
 		params.surface = surface;

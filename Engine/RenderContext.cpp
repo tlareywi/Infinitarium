@@ -10,6 +10,7 @@
 #include "ApplicationWindow.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderContextProxy)
+BOOST_CLASS_TRACKING(RenderContextProxy, boost::serialization::track_never)
 
 static std::map<unsigned long long, std::shared_ptr<IRenderContext>> registeredObjs = std::map<unsigned long long, std::shared_ptr<IRenderContext>>();
 
@@ -33,7 +34,7 @@ void IRenderContext::init() {
       window->init( *this );
 
 	  // Pick buffer at context scope. Many renderables will use this.
-	  _pickBuffer = IDataBuffer::Create(*this);
+      _pickBuffer = IDataBuffer::Create(*this);
 	  _pickBuffer->setUsage(IDataBuffer::Usage::Pick);
 	  _pickBuffer->reserve(_width * _height * sizeof(PickUnit)); // Each pixel for pick buffer is a float + uint, so 8 bytes. 4K res uses ~66MB.
 	  _pickBuffer->commit();
@@ -53,6 +54,7 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(_headset);
 	ar & BOOST_SERIALIZATION_NVP(_objId);
 
+	_fullScreen = true;
 	std::cout << "Serializing RenderContextProxy " << _objId << std::endl;
 }
 

@@ -82,61 +82,59 @@ void Camera::render( IRenderPass& ) {
 // SERIALIZATION
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Archive> void Camera::load( Archive& ar ) {
-   ar >> boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
-   
-   ar >> BOOST_SERIALIZATION_NVP(motionController);
-   
-   if( motionController.get() ) {
-      // The assumption here is if we set a motion controller then we're the main navigational eye/camera.
-      // Make responder to runtime add node events. Should refactor at some point.
-      auto fun = [this]( const std::shared_ptr<SceneObject>& n ) {
-         addChild( n );
-      };
-      std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const std::shared_ptr<SceneObject>&>>( fun );
-      IApplication::Create()->subscribe("addSubgraph", delegate);
-   }
-   
-   // TODO: This strategy ends up circumventing boost::serialization object tracking. We'll
-   // need to do it manually for platform specific instances such as this.
-   std::shared_ptr<RenderPassProxy> rp;
-   ar >> BOOST_SERIALIZATION_NVP(rp);
-   renderPass = IRenderPass::Clone( *rp );
-   
-   std::shared_ptr<RenderContextProxy> rc;
-   ar >> BOOST_SERIALIZATION_NVP(rc);
-   renderContext = IRenderContext::Clone( *rc );
+	ar >> boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
 
-   // Subscribe to events from the platform layer that notify of the need to dirty and re-init camera's subgraph (e.g window size or restore).
-   auto fun = [this](const IRenderContext& renderContext) {
-       if (this->renderContext.get() != &renderContext)
-           return;
+	ar >> BOOST_SERIALIZATION_NVP(motionController);
 
-       std::function<bool(SceneObject&)> f{ [](SceneObject& obj) {
-           obj.setDirty(); 
-           return true; 
-       }};
-       visit( Visitor(f) );
-   };
-   std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const IRenderContext&>>(fun);
-   IApplication::Create()->subscribe("resetScene", delegate);
+	if( motionController.get() ) {
+		// The assumption here is if we set a motion controller then we're the main navigational eye/camera.
+	    // Make responder to runtime add node events. Should refactor at some point.
+	    auto fun = [this]( const std::shared_ptr<SceneObject>& n ) {
+	       addChild( n );
+	    };
+	    std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const std::shared_ptr<SceneObject>&>>( fun );
+	    IApplication::Create()->subscribe("addSubgraph", delegate);
+	 }
+
+	 std::shared_ptr<RenderPassProxy> rp;
+	 ar >> BOOST_SERIALIZATION_NVP(rp);
+	 renderPass = IRenderPass::Clone( *rp );
+
+	 std::shared_ptr<RenderContextProxy> rc;
+	 ar >> BOOST_SERIALIZATION_NVP(rc);
+	 renderContext = IRenderContext::Clone( *rc );
+
+	 // Subscribe to events from the platform layer that notify of the need to dirty and re-init camera's subgraph (e.g window size or restore).
+	 auto fun = [this](const IRenderContext& renderContext) {
+	     if (this->renderContext.get() != &renderContext)
+	         return;
+
+	     std::function<bool(SceneObject&)> f{ [](SceneObject& obj) {
+	         obj.setDirty();
+	         return true;
+	     }};
+	     visit( Visitor(f) );
+	 };
+	 std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), const IRenderContext&>>(fun);
+	 IApplication::Create()->subscribe("resetScene", delegate);
 }
 
 template<class Archive> void Camera::save( Archive& ar ) const {
-   if (!renderPass)
-      throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderPass");
-   if (!renderContext)
-      throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderContext");
+	 if (!renderPass)
+	    throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderPass");
+	 if (!renderContext)
+	    throw std::runtime_error("Fatal: Attempted to serialize Camera with no RenderContext");
 
-   ar << boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
+	 ar << boost::serialization::make_nvp("Transform", boost::serialization::base_object<Transform>(*this));
 
-   ar << BOOST_SERIALIZATION_NVP(motionController);
+	 ar << BOOST_SERIALIZATION_NVP(motionController);
 
-   // Force renderPass to be serialized as base class to maintain scene file platform independence.
-   std::shared_ptr<RenderPassProxy> rp = std::make_shared<RenderPassProxy>(*renderPass);
-   ar << BOOST_SERIALIZATION_NVP(rp);
+	 // Force renderPass to be serialized as base class to maintain scene file platform independence.
+	 std::unique_ptr<RenderPassProxy> rp = std::make_unique<RenderPassProxy>(*renderPass);
+	 ar << BOOST_SERIALIZATION_NVP(rp);
 
-   std::shared_ptr<RenderContextProxy> rc = std::make_shared<RenderContextProxy>(*renderContext);
-   ar << BOOST_SERIALIZATION_NVP(rc);
+	 std::unique_ptr<RenderContextProxy> rc = std::make_unique<RenderContextProxy>(*renderContext);
+	 ar << BOOST_SERIALIZATION_NVP(rc);
 }
 
 namespace boost { namespace serialization {

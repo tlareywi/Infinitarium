@@ -8,9 +8,14 @@
 
 exec(open('./import_common.py').read())
 
+dataRoot = '/media/trystan/DATA/HipTyc/'
+
+if platform.system() == 'Windows':
+    dataRoot = 'E:/HipTyc/'
+
 print('\nReading Tycho 2 Catalog ...')
-t = Table.read("E:/HipTyc/tyc2.dat",
-readme="E:/HipTyc/readme.tyc2",
+t = Table.read(dataRoot + "tyc2.dat",
+readme=dataRoot + "readme.tyc2",
 format="ascii.cds")
 
 t['BTmag'].fill_value = 0

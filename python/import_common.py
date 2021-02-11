@@ -11,7 +11,10 @@ if platform.system() == 'Windows':
     exportPath = '../data/Windows/'
     sys.path.append('''C:\\Program Files (x86)\\Infinitarium\\bin''')
     os.add_dll_directory('C:\\Program Files (x86)\\Infinitarium\\bin')
-else:
+elif platform.system() == 'Linux':
+    sys.path.append('/usr/local/lib')
+    exportPath = '../data/Linux/'  
+else: # Apple/OSX
     sys.path.append('/usr/local/lib')
     exportPath = '../data/OSX/'
 

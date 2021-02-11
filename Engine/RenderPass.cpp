@@ -15,6 +15,7 @@
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_IMPLEMENT(RenderPassProxy)
+BOOST_CLASS_TRACKING(RenderPassProxy, boost::serialization::track_never)
 
 static std::map<unsigned long long, std::shared_ptr<IRenderPass>> registeredObjs = std::map<unsigned long long, std::shared_ptr<IRenderPass>>();
 
