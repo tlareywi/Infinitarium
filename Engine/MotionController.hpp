@@ -55,6 +55,7 @@ public:
    void select( const std::shared_ptr<SceneObject>& );
 
    virtual void animate(const glm::vec3& destPos, const glm::quat& destOrient, double ms);
+   virtual void getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up) const;
    
 protected:
    virtual void onKeyDown( const IEventSampler::Key& ) {}

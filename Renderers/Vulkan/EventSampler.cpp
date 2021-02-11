@@ -56,6 +56,12 @@ void WindowsEventSampler::onMouseButton(GLFWwindow* window, int button, int acti
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 
+	if( action == GLFW_PRESS )
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	else if (action == GLFW_RELEASE) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		mouseLeftTimer = std::chrono::high_resolution_clock::now();
 		leftButtonDown = true;
