@@ -49,6 +49,11 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 #endif 
 	{
 		if (renderContext.fullScreen()) {
+			wndPos[0] = renderContext.x();
+			wndPos[1] = renderContext.y();
+			wndSize[0] = renderContext.width();
+			wndSize[1] = renderContext.height();
+
 			monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			glfwWindowHint(GLFW_RED_BITS, mode->redBits);
