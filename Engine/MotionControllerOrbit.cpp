@@ -206,6 +206,10 @@ void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {
     }
 }
 
+void Orbit::onMouseScroll(const IEventSampler::MouseMove& evt) {
+    cameraFOV -= evt.dz;
+}
+
 void Orbit::getCameraMatrix( glm::dmat4& out ) {
    glm::dmat4 identity(1.0);
  

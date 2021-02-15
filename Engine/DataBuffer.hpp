@@ -25,7 +25,8 @@ public:
 	   VertexAttribute,
 	   Uniform,
 	   Storage,
-	   Pick
+	   Pick,
+	   PostProcess
    };
    
    virtual void commit() = 0;
@@ -52,4 +53,8 @@ private:
 struct PickUnit {
 	alignas(4) float brightness;
 	alignas(4) uint32_t objId;
+};
+
+struct PostProcessUnit {
+	alignas(4) float intensity;
 };

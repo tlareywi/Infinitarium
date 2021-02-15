@@ -38,6 +38,12 @@ void IRenderContext::init() {
 	  _pickBuffer->setUsage(IDataBuffer::Usage::Pick);
 	  _pickBuffer->reserve(_width * _height * sizeof(PickUnit)); // Each pixel for pick buffer is a float + uint, so 8 bytes. 4K res uses ~66MB.
 	  _pickBuffer->commit();
+
+	  // Light map
+	  _postProcBuffer = IDataBuffer::Create(*this);
+	  _postProcBuffer->setUsage(IDataBuffer::Usage::PostProcess);
+	  _postProcBuffer->reserve(_width * _height * sizeof(PostProcessUnit));
+	  _postProcBuffer->commit();
    }
 }
 
@@ -54,7 +60,7 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(_headset);
 	ar & BOOST_SERIALIZATION_NVP(_objId);
 
-	_fullScreen = true;
+	//_fullScreen = true;
 	std::cout << "Serializing RenderContextProxy " << _objId << std::endl;
 }
 

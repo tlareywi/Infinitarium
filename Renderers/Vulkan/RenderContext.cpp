@@ -438,6 +438,10 @@ void VulkanRenderContext::resizePickBuffer() {
 		_pickBuffer->reserve(_width * _height * sizeof(PickUnit));
 		_pickBuffer->commit();
 	}
+	if (_postProcBuffer) {
+		_postProcBuffer->reserve(_width * _height * sizeof(PostProcessUnit));
+		_postProcBuffer->commit();
+	}
 }
 
 void VulkanRenderContext::setSurface(void* params) {

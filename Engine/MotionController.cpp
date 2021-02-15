@@ -88,8 +88,12 @@ void IMotionController::processEvents( UpdateParams& params ) {
          onMouseDoubleClick( evt );
    }
    
-   for( auto& evt : eventSampler->mmove )
-      onMouseMove( evt );
+   for (auto& evt : eventSampler->mmove) {
+       if (fabs(evt.dz) > 0)
+           onMouseScroll(evt);
+       else
+           onMouseMove(evt);
+   }
    
    for( auto& evt : eventSampler->mdrag )
       onMouseDrag( evt );

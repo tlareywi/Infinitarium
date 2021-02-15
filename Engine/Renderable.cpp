@@ -9,6 +9,7 @@
 #include "PyUtil.hpp"
 #include "Application.hpp"
 #include "Delegate.hpp"
+#include "Scene.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -33,12 +34,17 @@ IRenderable::IRenderable() : programName{"default"} {
 }
 
 void IRenderable::prepare( IRenderContext& context ) {
+   // Time delta for shader level animations/effects
+   setUniform("referenceTime", Uniform(UniformType(0.0f), UniformType(0.0f), UniformType(10000000000000.f)));
+
    uniformData = IDataBuffer::Create( context );
    uniformData->setUsage( IDataBuffer::Usage::Uniform );
    renderCommand->add( uniformData );
 
    std::shared_ptr<IDataBuffer> pick{ context.pickBuffer() };
    renderCommand->add( pick );
+   std::shared_ptr<IDataBuffer> postProc{ context.postProcBuffer() };
+   renderCommand->add( postProc );
 
    if( texture != nullptr ) {
       renderCommand->add( texture );
@@ -70,6 +76,8 @@ void IRenderable::prepare( IRenderContext& context ) {
    shader->injectUniformStruct( allUniforms );
    shader->compile( programName, context );
    pipelineState->setProgram( shader );
+
+   pipelineState->setCullMode( cullMode );
    
    pipelineState->prepare( context, *renderCommand );
 }
@@ -78,6 +86,9 @@ void IRenderable::update(UpdateParams& params) {
     if (!uniformData) return;
 
     uint32_t offset{ 0 };
+
+    UniformType seconds{ (float)(params.getScene().referenceTime().count() / 1000.0) };
+    setUniform("referenceTime", Uniform(UniformType(seconds), UniformType(0.0f), UniformType(10000000000000.f)));
 
     // Built-ins
     glm::fmat4x4 mvp = params.getMVP();
@@ -158,6 +169,7 @@ template<class Archive> void IRenderable::save( Archive& ar ) const {
 
    ar << BOOST_SERIALIZATION_NVP(uniforms);
    ar << BOOST_SERIALIZATION_NVP(programName);
+   ar << BOOST_SERIALIZATION_NVP(cullMode);
 
    bool hasTextureResource{ false };
   
@@ -173,8 +185,10 @@ template<class Archive> void IRenderable::save( Archive& ar ) const {
 
 template<class Archive> void IRenderable::load( Archive& ar ) {
    ar >> boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+
    ar >> BOOST_SERIALIZATION_NVP(uniforms);
    ar >> BOOST_SERIALIZATION_NVP(programName); 
+   ar >> BOOST_SERIALIZATION_NVP(cullMode);
    
    bool hasTextureResource{ false };
    ar >> BOOST_SERIALIZATION_NVP(hasTextureResource);

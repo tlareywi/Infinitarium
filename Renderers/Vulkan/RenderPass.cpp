@@ -145,10 +145,17 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS )
 		throw std::runtime_error("failed to begin recording command buffer!");
 
-	if (vkContext.isNewFrame()) { // Need to zero the pick buffer on the first pass on a new frame.
-		auto pickBuf = context.pickBuffer();
-		VulkanBuffer& vkBuffer = dynamic_cast<VulkanBuffer&>(*pickBuf);
-		vkCmdFillBuffer(currentTarget->getCmdBuffer(), vkBuffer.getVkBuffer(), 0, (VkDeviceSize)context.width() * (VkDeviceSize)context.height() * sizeof(PickUnit), 0);
+	if (vkContext.isNewFrame()) { // Need to zero engine buffers on the first pass on a new frame.
+		{
+			auto buf = context.pickBuffer();
+			VulkanBuffer& vkBuffer = dynamic_cast<VulkanBuffer&>(*buf);
+			vkCmdFillBuffer(currentTarget->getCmdBuffer(), vkBuffer.getVkBuffer(), 0, (VkDeviceSize)context.width() * (VkDeviceSize)context.height() * sizeof(PickUnit), 0); 
+		}
+		{
+			auto buf = context.postProcBuffer();
+			VulkanBuffer& vkBuffer = dynamic_cast<VulkanBuffer&>(*buf);
+			vkCmdFillBuffer(currentTarget->getCmdBuffer(), vkBuffer.getVkBuffer(), 0, (VkDeviceSize)context.width() * (VkDeviceSize)context.height() * sizeof(PostProcessUnit), 0); 
+		}
 	}
 
 	vkCmdBeginRenderPass(currentTarget->getCmdBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

@@ -122,7 +122,7 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 	for (auto& buffer : dataBuffers) {
 		VkDescriptorSetLayoutBinding layoutBinding;
-		layoutBinding.binding = (uint32_t)layoutBindings.size() + 2; // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
+		layoutBinding.binding = (uint32_t)layoutBindings.size() + 3; // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer, 2 for Light/Post Process
 		layoutBinding.descriptorCount = 1;
 		layoutBinding.pImmutableSamplers = nullptr;
 
@@ -134,8 +134,13 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 			break;
 		case  IDataBuffer::Usage::Pick:
 			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+			layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			layoutBinding.binding = 1;
+			break;
+		case  IDataBuffer::Usage::PostProcess:
+			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			layoutBinding.binding = 2;
 			break;
 		case IDataBuffer::Usage::Storage:
 			layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -197,7 +202,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	std::vector<VkDescriptorBufferInfo> bufferDescriptors;
 	bufferDescriptors.reserve(dataBuffers.size());
 	writeDescriptorSets.reserve(dataBuffers.size() + textures.size());
-	unsigned int binding{ 2 };  // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
+	unsigned int binding{ 3 };  // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
 
 	for (auto& buffer : dataBuffers) {
 		VkWriteDescriptorSet descriptorWrite{};
@@ -215,7 +220,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		bufferInfo.range = vulkanBuffer->length();
 		bufferDescriptors.emplace_back(std::move(bufferInfo));
 
-		descriptorWrite.pBufferInfo = &(bufferDescriptors[binding - 2]);
+		descriptorWrite.pBufferInfo = &(bufferDescriptors[binding - 3]);
 		descriptorWrite.dstBinding = binding++;
 
 		switch (buffer->getUsage()) {
@@ -225,6 +230,10 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 			break;
 		case  IDataBuffer::Usage::Pick:
 			descriptorWrite.dstBinding = 1;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			break;
+		case  IDataBuffer::Usage::PostProcess:
+			descriptorWrite.dstBinding = 2;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			break;
 		case IDataBuffer::Usage::Storage:

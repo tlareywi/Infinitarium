@@ -10,8 +10,10 @@ public:
 	VulkanRenderState();
 	virtual ~VulkanRenderState();
 
-	virtual void prepareImpl(IRenderContext& context, IRenderCommand& commmand);
-	virtual void applyImpl(IRenderPass&);
+	void prepareImpl(IRenderContext& context, IRenderCommand& commmand) override;
+	void applyImpl(IRenderPass&) override;
+
+	void setCullMode(IRenderState::CullMode) override;
 
 	VkGraphicsPipelineCreateInfo& getPipelineState();
 	VkPipelineLayoutCreateInfo& getPipelineLayoutState();
@@ -34,6 +36,8 @@ private:
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 	VkPipelineColorBlendStateCreateInfo colorBlending{};
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+
+	VkCullModeFlags cullMode{ VK_CULL_MODE_NONE };
 
 	bool newPipeline;
 };

@@ -59,13 +59,19 @@ void Camera::render( IRenderPass& ) {
  
    for (unsigned int i = 0; i < renderContext->getPerspectiveCount(); ++i ) {
        glm::dmat4 eye{ 1.0 };
-       if (motionController)
-           motionController->getViewMatrix(eye);
+	   if (motionController) {
+		   static double fov{ 60.0 };
+		   motionController->getViewMatrix(eye);
+		   if (motionController->getFOV() != fov) {
+			   fov = motionController->getFOV();
+			   projection = glm::infinitePerspective(glm::radians(fov), 16.0 / 9.0, 0.0001);
+		   }
+	   }
 
        glm::dmat4 proj, view;
        renderContext->getPerspective(i, proj, view);
        if (proj == glm::dmat4(1.0))
-           proj = projection;
+           proj = projection; // Non-VR case
 
        UpdateParams params(*updateParams, proj, eye * view, glm::dmat4(1.0));
        Transform::update(params);

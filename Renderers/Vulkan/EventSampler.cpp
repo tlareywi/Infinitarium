@@ -12,10 +12,10 @@
 static std::shared_ptr<IEventSampler> eventSampler = std::make_shared<WindowsEventSampler>();
 std::shared_ptr<IApplication> CreateApplication();
 
-void WindowsEventSampler::setTargetWindow( GLFWwindow* window, IRenderContext& c ) {
+void WindowsEventSampler::setTargetWindow(GLFWwindow* window, IRenderContext& c) {
 	glfwSetWindowUserPointer(window, this);
 
-	glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) { 
+	glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
 		WindowsEventSampler* sampler = static_cast<WindowsEventSampler*>(glfwGetWindowUserPointer(window));
 		sampler->onMouseButton(window, button, action, mods);
 	});
@@ -33,6 +33,11 @@ void WindowsEventSampler::setTargetWindow( GLFWwindow* window, IRenderContext& c
 	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		WindowsEventSampler* sampler = static_cast<WindowsEventSampler*>(glfwGetWindowUserPointer(window));
 		sampler->onKeyDown(window, key, scancode, action, mods);
+	});
+
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+		WindowsEventSampler* sampler = static_cast<WindowsEventSampler*>(glfwGetWindowUserPointer(window));
+		sampler->onScroll(window, xoffset, yoffset);
 	});
 
 	context = &c;
@@ -132,6 +137,13 @@ void WindowsEventSampler::onMouseMove(GLFWwindow* window, double xpos, double yp
 
 	lastX = xpos;
 	lastY = ypos;
+}
+
+void WindowsEventSampler::onScroll(GLFWwindow* window, double xoffset, double yoffset) {
+	// For scroll wheel events yoffset is just either 1 or -1.
+	IEventSampler::MouseMove mm;
+	mm.dz = static_cast<float>(yoffset);
+	eventSampler->push(mm);
 }
 
 void WindowsEventSampler::onFramebufferSize(GLFWwindow* window, int w, int h) {

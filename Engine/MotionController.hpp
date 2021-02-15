@@ -45,6 +45,9 @@ public:
    void processEvents( UpdateParams& );
    virtual void getCameraMatrix( glm::dmat4& );
    void getViewMatrix(glm::dmat4&);
+   double getFOV() const {
+       return cameraFOV;
+   }
    
    void pushHome( const UniversalPoint& p );
    void popHome();
@@ -70,6 +73,7 @@ protected:
    virtual void updateAnimation(double);
    
    glm::dmat4 cameraTransform;
+   double cameraFOV{ 60.0 };
    std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;

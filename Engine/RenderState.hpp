@@ -16,6 +16,12 @@ class IRenderCommand;
 
 class IRenderState {
 public:
+   enum class CullMode {
+       None,
+       Front,
+       Back
+   };
+
    IRenderState() {}
    virtual ~IRenderState() {
        renderProgram = nullptr;
@@ -30,8 +36,11 @@ public:
    
    void prepare( IRenderContext& context, IRenderCommand& commmand );
    void apply( IRenderPass& );
+
    virtual void prepareImpl( IRenderContext& context, IRenderCommand& commmand ) = 0;
    virtual void applyImpl( IRenderPass& ) = 0;
+
+   virtual void setCullMode( IRenderState::CullMode ) = 0;
 
 private:
    std::shared_ptr<IRenderProgram> renderProgram;

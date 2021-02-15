@@ -23,6 +23,7 @@ private:
 	void onMouseMove(GLFWwindow* window, double xpos, double ypos);
 	void onFramebufferSize(GLFWwindow* window, int w, int h);
 	void onKeyDown(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void onScroll(GLFWwindow* window, double xoffset, double yoffset);
 
 	std::chrono::high_resolution_clock::time_point mouseLeftTimer;
 	std::chrono::high_resolution_clock::time_point mouseRightTimer;

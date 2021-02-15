@@ -210,6 +210,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("removeUniform", &IRenderable::removeUniform)
       .def("setTexture", &IRenderable::setTexture)
       .def("setName", &SceneObject::setName)
+      .def("setCullMode", &IRenderable::setCullMode)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
       .def("setName", &SceneObject::setName)

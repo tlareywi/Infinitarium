@@ -14,8 +14,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Spheroid::SpheroidVertex)
 
 boost::uuids::uuid Spheroid::geometryId{ boost::uuids::random_generator()() };
 
-Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblateness, bool flipNormals ) {
-   
+Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblateness, bool flipNormals ) { 
    geometry = std::make_shared<DataPack<SpheroidVertex>>( meridian * parallel );
    
    glm::dvec4 start = glm::dvec4(0, 0, 1, 1);
@@ -62,6 +61,8 @@ Spheroid::Spheroid( unsigned int meridian, unsigned int parallel, float oblatene
 
 void Spheroid::prepare( IRenderContext& context ) {
    if( !dirty ) return;
+
+   setCullMode(IRenderState::CullMode::Back);
    
    renderCommand = IRenderCommand::Create();
    
@@ -91,9 +92,6 @@ void Spheroid::prepare( IRenderContext& context ) {
        renderCommand->addVertexAttribute(attr);
    }
    renderCommand->add( spheroid );
-
-   // Effects the texture sampler value directy (not lighting)
-   setUniform("brightness", Uniform(UniformType(0.68f), UniformType(0.0f), UniformType(1.f)));
    
    IRenderable::prepare( context );
 }

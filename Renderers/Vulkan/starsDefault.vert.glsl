@@ -36,17 +36,17 @@ layout(std430, binding = 1) buffer Pick
     PickData pick[];
 };
 
-layout(std430, binding = 2) buffer ColorRGB
+layout(std430, binding = 3) buffer ColorRGB
 {
    ColorData color[];
 };
 
-layout(std430, binding = 3) buffer Magnitude
+layout(std430, binding = 4) buffer Magnitude
 {
    MagnitudeData V[];
 };
 
-layout(std430, binding = 4) buffer CartesianPosition
+layout(std430, binding = 5) buffer CartesianPosition
 {
    PositionData pos[];
 };

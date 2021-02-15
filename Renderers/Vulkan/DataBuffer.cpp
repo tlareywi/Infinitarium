@@ -203,6 +203,8 @@ VkBufferUsageFlagBits VulkanBuffer::translateUsage() {
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     case IDataBuffer::Usage::Pick: // Pick buffer requires readback from GPU so set transfer src bit.
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    case IDataBuffer::Usage::PostProcess:
+        return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     case IDataBuffer::Usage::VertexAttribute:
     default:
         return static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);

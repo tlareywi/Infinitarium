@@ -46,8 +46,8 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_NONE;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.cullMode = cullMode;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f;
 	rasterizer.depthBiasClamp = 0.0f;
@@ -144,6 +144,21 @@ void VulkanRenderState::applyImpl(IRenderPass& renderPass) {
 	}
 
 	newPipeline = false;
+}
+
+void VulkanRenderState::setCullMode(IRenderState::CullMode mode) {
+	switch (mode) {
+	case IRenderState::CullMode::Front:
+		cullMode = VK_CULL_MODE_FRONT_BIT;
+		break;
+	case IRenderState::CullMode::Back:
+		cullMode = VK_CULL_MODE_BACK_BIT;
+		break;
+	case IRenderState::CullMode::None:
+	default:
+		cullMode = VK_CULL_MODE_NONE;
+		break;
+	}
 }
 
 VkGraphicsPipelineCreateInfo& VulkanRenderState::getPipelineState() {

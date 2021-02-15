@@ -30,6 +30,7 @@ protected:
    void onKeyDown( const IEventSampler::Key& ) override;
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
+   void onMouseScroll(const IEventSampler::MouseMove&) override;
    void onMouseButtonClick( const IEventSampler::MouseButton& ) override;
    void onMouseDoubleClick( const IEventSampler::MouseButton& ) override;
    void updateAnimation( double ) override;

@@ -62,6 +62,7 @@ public:
 
    void unInit() {
        _pickBuffer = nullptr;
+       _postProcBuffer = nullptr;
    }
    
    unsigned int x() noexcept {
@@ -88,6 +89,10 @@ public:
        return _pickBuffer;
    }
 
+   std::shared_ptr<IDataBuffer> postProcBuffer() noexcept {
+       return _postProcBuffer;
+   }
+
    bool headset() noexcept {
        return _headset;
    }
@@ -102,6 +107,7 @@ protected:
    IRenderContext() : _x(0), _y(0), _width(0), _height(0), _fullScreen(false), _headset(false), _objId(0) {}
    std::shared_ptr<IApplicationWindow> window{ nullptr };
    std::shared_ptr<IDataBuffer> _pickBuffer{ nullptr };
+   std::shared_ptr<IDataBuffer> _postProcBuffer{ nullptr };
    
    unsigned int _x;
    unsigned int _y;
