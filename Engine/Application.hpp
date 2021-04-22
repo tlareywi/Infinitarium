@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+class Scene;
+
 class IApplication {
 public:
    virtual ~IApplication() {
@@ -54,8 +56,11 @@ public:
       }
    }
    
-   virtual void run() = 0;
+   IE_EXPORT void run( Scene& scene );
+   virtual void platformRun() = 0;
+
    virtual void stop() = 0;
+   virtual void destroy() = 0;
    virtual void addManipulator( const std::string& id, float, float, float ) = 0;
    virtual void* platformInstance() = 0;
 
@@ -65,6 +70,9 @@ protected:
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
     }
+
+    std::atomic<bool> running{ true };
+    std::atomic<bool> terminatePending{ false };
    
 private:
    std::shared_ptr<IPythonInterpreter> pyInterp;

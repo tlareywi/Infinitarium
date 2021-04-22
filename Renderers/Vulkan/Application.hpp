@@ -26,16 +26,13 @@ class WinApplication : public IApplication {
 public:
 	static std::shared_ptr<IApplication> Instance();
 	WinApplication();
-	virtual ~WinApplication() {
-		#if (USE_OPENXR)
-			if (ext_xrDestroyDebugUtilsMessengerEXT) {
-				ext_xrDestroyDebugUtilsMessengerEXT(debugHook);
-			}
-		#endif
-	}
+	virtual ~WinApplication();
 
-	void run() override;
+	void platformRun() override;
 	void stop() override;
+	void destroy() override {
+		instance = nullptr;
+	}
 	void addManipulator(const std::string& id, float, float, float) override;
 
 	void* platformInstance() override {
@@ -88,7 +85,5 @@ private:
 	}
 #endif
 
-	std::atomic<bool> running{true};
-	std::atomic<bool> terminatePending{false};
 };
 

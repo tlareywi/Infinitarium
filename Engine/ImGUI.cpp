@@ -1,4 +1,5 @@
 #include "ImGUI.hpp"
+#include "ImGuiFileDialog.h"
 #include "Scene.hpp"
 #include "ConsoleInterface.hpp"
 #include "Delegate.hpp"
@@ -84,6 +85,9 @@ void ImGUI::update(UpdateParams& params) {
 		setExit = [&scene]() {
 			scene.terminatePending();
 		};
+		loadScene = [&scene]( const std::string& path ) {
+			scene.prepareLoadScene( path );
+		};
 
 		platformGUI->update();
 	}
@@ -114,6 +118,8 @@ void ImGUI::render(IRenderPass& renderPass) {
 		showHelp();
 	if (_showAbout)
 		showAbout();
+	if (_showLoad)
+		showLoad();
 
 	// Really nice for debugging and design ideas. 
 	//	bool show_demo_window{ true };
@@ -150,10 +156,15 @@ void ImGUI::showHelp() {
 }
 
 void ImGUI::showMainMenuBar() {
+
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
+			if (ImGui::MenuItem("Load", "")) {
+				_showLoad = true;
+				ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Load Scene", ".ieb", IApplication::Create()->getInstallationRoot() + "/share/Infinitarium/");
+			}
 			if (ImGui::MenuItem("Quit", ""))
 				setExit();
 
@@ -183,6 +194,24 @@ void ImGUI::showMainMenuBar() {
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
+	}
+}
+
+void ImGUI::showLoad() {
+	// https://github.com/aiekick/ImGuiFileDialog/tree/Lib_Only
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+	{
+		// action if OK
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			//std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			loadScene( filePathName );
+		}
+
+		ImGuiFileDialog::Instance()->Close();
 	}
 }
 

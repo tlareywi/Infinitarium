@@ -8,7 +8,6 @@
 #include "Simulation.hpp"
 #include "Application.hpp"
 #include "Stats.hpp"
-#include "ObjectStore.hpp"
 
 Simulation::Simulation() {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
@@ -33,7 +32,15 @@ void Simulation::render() {
       scene->render();
 }
 
+void Simulation::wait() {
+    while (simLoopRunning) {
+        std::this_thread::yield();
+    }
+}
+
 void Simulation::simLoop() {
+   simLoopRunning = true;
+
    const unsigned short sampleSize{ 60 };
    auto frameStart = std::chrono::high_resolution_clock::now();
    std::chrono::duration<double, std::milli> duration(std::chrono::high_resolution_clock::now() - frameStart);
@@ -69,21 +76,14 @@ void Simulation::simLoop() {
       frameStart = std::chrono::high_resolution_clock::now();
    }
 
+   // Signal main thread exit
+   IApplication::Create()->stop();
+
    // Wait for all contexts to finish execution before tearing down resources
-   scene->waitOnIdle();
+   //scene->waitOnIdle();
 
    // Dealloc scenegraph
    scene = nullptr;
 
-   // Dealloc static instance tracking caches
-   ITexture::clearRegisteredObjs();
-   IRenderTarget::clearRegisteredObjs();
-   IRenderPass::clearRegisteredObjs();
-   ObjectStore::instance().clear();
-
-   // Deleting the context(s) will destroy the graphics device. Do this after cleaning up other graphics resources.
-   IRenderContext::clearRegisteredObjs();
-
-   // Signal main thread exit
-   IApplication::Create()->stop();
+   simLoopRunning = false;
 }

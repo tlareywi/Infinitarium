@@ -64,6 +64,17 @@ WinApplication::WinApplication() : vkInstance(nullptr), xrInstance(nullptr) {
 	createInfo.ppEnabledExtensionNames = extensions.data();
 }
 
+WinApplication::~WinApplication() {
+#if (USE_OPENXR)
+	if (ext_xrDestroyDebugUtilsMessengerEXT) {
+		ext_xrDestroyDebugUtilsMessengerEXT(debugHook);
+	}
+#endif
+
+	glfwTerminate();
+	vkDestroyInstance(vkInstance, nullptr);
+}
+
 VkInstance WinApplication::getVkInstance() {
 	if (!vkInstance) {
 		if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)
@@ -164,13 +175,9 @@ XrInstance WinApplication::getXrInstance() {
 #endif
 }
 
-void WinApplication::run() {
-	while( running ) {
-		if( !terminatePending )
-			glfwPollEvents();
-
-		std::this_thread::yield();
-	}
+void WinApplication::platformRun() {
+	if( !terminatePending )
+		glfwPollEvents();
 }
 
 void WinApplication::stop() {
@@ -182,10 +189,6 @@ void WinApplication::stop() {
 			func(vkInstance, debugMessenger, nullptr);
 		}
 	}
-
-	vkDestroyInstance( vkInstance, nullptr );
-
-	glfwTerminate();
 
 	running = false;
 }

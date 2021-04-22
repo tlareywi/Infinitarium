@@ -7,9 +7,20 @@
 
 #include "Application.hpp"
 #include "Module.hpp"
+#include "Scene.hpp"
 
 std::shared_ptr<IApplication> IApplication::Create() {
    return ModuleFactory<RendererFactory>::Instance()->createApplication();
+}
+
+void IApplication::run( Scene& scene ) {
+    while (running) {
+        if (!terminatePending)
+            scene.mainThread();
+
+        platformRun();
+        std::this_thread::yield();
+    }
 }
 
 void IApplication::setPythonInterpreter( std::shared_ptr<IPythonInterpreter>& interp ) {

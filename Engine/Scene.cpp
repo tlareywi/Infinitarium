@@ -6,6 +6,7 @@
 //
 
 #include "Scene.hpp"
+#include "ObjectStore.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -15,25 +16,46 @@
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Scene);
 
-Scene::Scene() {
+Scene::Scene() : _referenceTime{ 0 }, _tickTime{ 0 } {
+}
+
+Scene::~Scene() {
+    clear();
 }
 
 void Scene::clear() {
-   std::lock_guard<std::mutex> lock( loadLock );
+   waitOnIdle();
+
+   for (auto& ctx : renderContexts)
+        ctx->unInit(); // Tear down non-static resources that the device still needs to be alive for.
+
    for( auto& camera : cameras )
       camera = nullptr;
    
    cameras.clear();
+   renderContexts.clear();
+
+   // Dealloc static instance tracking caches
+   ITexture::clearRegisteredObjs();
+   IRenderTarget::clearRegisteredObjs();
+   IRenderPass::clearRegisteredObjs();
+   ObjectStore::instance().clear();
+
+   // Deleting the context(s) will destroy the graphics device. Do this after cleaning up other graphics resources.
+   IRenderContext::clearRegisteredObjs();
 }
 
 void Scene::add( const std::shared_ptr<Camera>& camera ) {
-   std::lock_guard<std::mutex> lock( loadLock );
    cameras.push_back( camera );
 }
 
+void Scene::prepareLoadScene( const std::string& filePath ) {
+    loadPendingFilename = filePath;
+    loadPending = true;
+}
+
 void Scene::load( const std::string& filename ) {
-   clear();
-   
+
    std::ifstream ifs( filename, std::fstream::binary );
    if( !ifs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have read permissions?"<<std::endl;
@@ -41,8 +63,6 @@ void Scene::load( const std::string& filename ) {
    }
    
    {
-      std::lock_guard<std::mutex> lock( loadLock );
-
       boost::archive::binary_iarchive ia( ifs );
       ia >> boost::serialization::make_nvp( "Scene", *this );
       
@@ -59,10 +79,6 @@ void Scene::load( const std::string& filename ) {
    }
    
    ifs.close();
-}
-
-void Scene::loadLocal( const std::string& sceneName ) {
-   load( localScenePath + sceneName );
 }
 
 void Scene::setLocalScenePath( const std::string& path ) {
@@ -91,15 +107,26 @@ bool Scene::isTerminatePending() {
     return shouldExit;
 }
 
+void Scene::mainThread() {
+    if (loadPending && canLoad) {
+        std::lock_guard guard(loadSceneMutex);
+        canLoad = false;
+        loadPending = false;
+        clear();
+        load(loadPendingFilename);
+    }
+}
+
 void Scene::update(const ReferenceTime& rt) {
    auto lastRefTime = _referenceTime;
    _referenceTime = rt;
    _tickTime = _referenceTime - lastRefTime;
 
+   canLoad = false;
+   std::lock_guard guard(loadSceneMutex);
+
    for (auto& context : renderContexts)
        context->beginFrame();
-
-   std::lock_guard<std::mutex> lock( loadLock );
 
    for( auto& camera : cameras ) {
       UpdateParams ident( *camera, *this );
@@ -108,8 +135,9 @@ void Scene::update(const ReferenceTime& rt) {
 }
 
 void Scene::render() {
+    std::lock_guard guard(loadSceneMutex);
+
     {
-        std::lock_guard<std::mutex> lock(loadLock);
         RenderPassProxy stub;
 
         for (auto& camera : cameras)
@@ -118,6 +146,8 @@ void Scene::render() {
 
     for (auto& context : renderContexts)
         context->endFrame();
+
+    canLoad = true;
 }
 
 void Scene::visit(const Visitor& v) {

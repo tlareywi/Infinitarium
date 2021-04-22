@@ -49,10 +49,11 @@ pixelData = None
 img = None
 
 #
-# Create spheroid and add to scene.
+# Create spheroid and add to scene. Sphereoid is z-axis aligned for VSOP-87 but we can rotate for y up.
 #
 transform = engine.Transform()
-transform.rotate( 90.0, -1.0, 0.0, 0.0 ) 
+transform.rotate( 90.0, 1.0, 0.0, 0.0 ) 
+transform.rotate( 180.0, 0.0, 1.0, 0.0 )
 transform.translate( 0.0, 0.0, -4.0 )
 
 sphere = engine.Spheroid(40, 40, 0.0, False) # meridians, parellels, oblateness (always unit size)

@@ -24,6 +24,7 @@ private:
     void showSceneGraph();
     void showRenderNodeProps( IRenderable* const );
     std::function<void()> doVisit;
+    std::function<void(const std::string&)> loadScene;
     std::function<bool(SceneObject&)> accumulatorPush;
     std::function<void(SceneObject&)> accumulatorPop;
 
@@ -35,6 +36,9 @@ private:
 
     bool _showMainMenuBar{ true };
     void showMainMenuBar();
+
+    bool _showLoad{ false };
+    void showLoad();
 
     bool _showStats{ false };
     void showStats();

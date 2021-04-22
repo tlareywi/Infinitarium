@@ -232,11 +232,9 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////
    class_<Scene, boost::noncopyable>("Scene", init<>())
-      .def("load", &Scene::load)
-      .def("loadLocal", &Scene::loadLocal)
+      .def("prepareLoadScene", &Scene::prepareLoadScene)
       .def("save", &Scene::save)
       .def("add", &Scene::add)
-      .def("clear", &Scene::clear)
       .def("propList", &Scene::propList)
       .def("setName", &SceneObject::setName)
    ;

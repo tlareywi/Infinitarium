@@ -26,24 +26,19 @@ using ReferenceTime = std::chrono::duration<double, std::milli>;
 class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();
-   virtual ~Scene() {
-       for (auto& ctx : renderContexts)
-           ctx->unInit(); // Tear down non-static resources that the device still needs to be alive for.
+   virtual ~Scene();
 
-       cameras.clear();
-       renderContexts.clear();
-   }
    void save( const std::string& ) const;
-   void load( const std::string& );
-   void loadLocal( const std::string& );
+   void prepareLoadScene(const std::string&);
    void setLocalScenePath( const std::string& );
-   void clear();
+   void load(const std::string&);
    void update( const ReferenceTime& );
    void render();
    void add( const std::shared_ptr<Camera>& );
    void terminatePending();
    bool isTerminatePending();
    void waitOnIdle();
+   void mainThread();
    const ReferenceTime& referenceTime() const {
        return _referenceTime;
    }
@@ -61,21 +56,26 @@ public:
    auto reflect() {  // IConsole /////////////////////
       static auto tup = make_tuple(
          REFLECT_METHOD(&Scene::save, save),
-         REFLECT_METHOD(&Scene::load, load),
-         REFLECT_METHOD(&Scene::clear, clear)
+         REFLECT_METHOD(&Scene::prepareLoadScene, prepareLoadScene)
       );
       return tup;
    }
    
 private:
+   void clear();
+
    std::vector<std::shared_ptr<Camera>> cameras;
    std::vector<std::shared_ptr<IRenderContext>> renderContexts; // Owned by cameras but we need runtime references to notify begin/end frame
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version);
    
-   std::mutex loadLock;
-   std::atomic<bool> shouldExit{false};
+   std::atomic<bool> shouldExit{ false };
+   std::atomic<bool> canLoad{ true };
+
+   std::atomic<bool> loadPending{ false };
+   std::string loadPendingFilename;
+   std::mutex loadSceneMutex;
    
    // This object is non-copyable. Can be indirectly copied easilly by saving/loading new instance. 
    Scene( const Scene& ) = delete;

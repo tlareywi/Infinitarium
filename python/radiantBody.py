@@ -52,7 +52,7 @@ img = None
 # Create spheroid and add to scene.
 #
 transform = engine.Transform()
-transform.rotate( 90.0, -1.0, 0.0, 0.0 ) 
+transform.rotate( 90.0, 1.0, 0.0, 0.0 ) 
 transform.translate( 0.0, 0.0, -4.0 )
 
 sphere = engine.Spheroid(40, 40, 0.0, False) # meridians, parellels, oblateness (always unit size)

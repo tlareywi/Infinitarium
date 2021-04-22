@@ -6,12 +6,14 @@ add_library( ImGUI SHARED
   imgui.cpp imgui_widgets.cpp imgui_draw.cpp imgui_demo.cpp
   examples/imgui_impl_metal.mm
   examples/imgui_impl_osx.mm
+  ImGuiFileDialog.cpp
 )
 else( APPLE )
 add_library( ImGUI SHARED 
-  imgui.cpp imgui_widgets.cpp imgui_draw.cpp imgui_demo.cpp
+  imgui.cpp imgui_widgets.cpp imgui_tables.cpp imgui_draw.cpp imgui_demo.cpp
   examples/imgui_impl_vulkan.cpp 
   examples/imgui_impl_glfw.cpp
+  ImGuiFileDialog.cpp
 )
 
 find_path(VULKAN_INCLUDE_DIR vulkan/vulkan.h HINTS "C:\\Program Files (x86)\\VulkanSDK\\include" "C:\\local\\VulkanSDK\\include")

@@ -16,7 +16,7 @@ int main(int argc, const char * argv[]) {
    
    std::shared_ptr<Scene> s = std::make_shared<Scene>();
    try {
-	   s->load(app->getInstallationRoot() + "/share/Infinitarium/hip2.ieb");
+	   s->load(app->getInstallationRoot() + "/share/Infinitarium/imgui.ieb");
    }
    catch( std::exception& e ) {
 	   std::cout << e.what() << std::endl;
@@ -31,7 +31,12 @@ int main(int argc, const char * argv[]) {
    simulation->setScene( s );
   
    // Don't hang on to references here. Prevents clean exit.
+   Scene* scene_ptr = s.get();
    s = nullptr;
    
-   app->run();
+   app->run( *scene_ptr );
+
+   simulation->wait();
+   app->destroy();
+   app = nullptr; 
 }

@@ -17,6 +17,7 @@ public:
    ~Simulation();
    
    void setScene( std::shared_ptr<Scene>& s );
+   void wait();
    
 protected:
    void update(const ReferenceTime&);
@@ -28,4 +29,5 @@ protected:
    
 private:
    std::unique_ptr<std::thread> simulation;
+   std::atomic<bool> simLoopRunning{false};
 };
