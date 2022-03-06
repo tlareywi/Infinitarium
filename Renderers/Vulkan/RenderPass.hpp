@@ -23,12 +23,20 @@ public:
 		return renderPass;
 	}
 
+	const std::vector<VkImageView>& getFramebufferAttachments() const {
+		return framebufferAttachments;
+	}
+
 	VkCommandBuffer commandBuffer();
 
 private:
 	VkRenderPass renderPass {nullptr};
 	VkDevice device {nullptr};
+	bool targetsSwapchain{ false };
 
+	std::vector<VkImageView> framebufferAttachments;
+
+	//std::unordered_map<std::shared_ptr<VulkanRenderTarget>, std::unique_ptr<RenderTargetStack>> renderTargetStacks;
 	VulkanRenderTarget* currentTarget{ nullptr };
 };
 

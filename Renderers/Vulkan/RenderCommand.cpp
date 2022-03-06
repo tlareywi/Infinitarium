@@ -152,8 +152,19 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 
 		layoutBindings.push_back(layoutBinding);
 	}
-
+ 
 	for (auto& texture : textures) {
+		VkDescriptorSetLayoutBinding layoutBinding;
+		layoutBinding.binding = (uint32_t)layoutBindings.size();
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.pImmutableSamplers = nullptr;
+		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		layoutBindings.push_back(layoutBinding);
+	}
+
+	for (auto& sampler : samplers) {
 		VkDescriptorSetLayoutBinding layoutBinding;
 		layoutBinding.binding = (uint32_t)layoutBindings.size();
 		layoutBinding.descriptorCount = 1;
@@ -201,7 +212,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	std::vector<VkWriteDescriptorSet> writeDescriptorSets;
 	std::vector<VkDescriptorBufferInfo> bufferDescriptors;
 	bufferDescriptors.reserve(dataBuffers.size());
-	writeDescriptorSets.reserve(dataBuffers.size() + textures.size());
+	writeDescriptorSets.reserve(dataBuffers.size() + textures.size() + samplers.size());
 	unsigned int binding{ 3 };  // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer
 
 	for (auto& buffer : dataBuffers) {
@@ -261,7 +272,27 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pImageInfo = &imageInfo;
+		descriptorWrite.pImageInfo = &(textureDescriptors.back());
+
+		writeDescriptorSets.emplace_back(std::move(descriptorWrite));
+	}
+
+	std::vector<VkDescriptorImageInfo> samplerDescriptors;
+	samplerDescriptors.reserve(samplers.size());
+	for (auto& sampler : samplers) {
+		VulkanRenderTarget* vkTarget{ dynamic_cast<VulkanRenderTarget*>(sampler.get()) };
+		VkDescriptorImageInfo imageInfo{};
+		vkTarget->descriptor(imageInfo, vkContext);
+		samplerDescriptors.emplace_back(imageInfo);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSet;
+		descriptorWrite.dstBinding = writeDescriptorSets.size();
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pImageInfo = &(samplerDescriptors.back());
 
 		writeDescriptorSets.emplace_back(std::move(descriptorWrite));
 	}

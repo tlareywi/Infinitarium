@@ -104,7 +104,7 @@ public:
    };
 
    ITexture( const glm::uvec2& d, Format f) : dim(d), format(f), _objId(reinterpret_cast<unsigned long long>(this)) {}
-   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image), _objId(obj._objId) {}
+   ITexture( const ITexture& obj ) : dim(obj.dim), format(obj.format), image(obj.image), _objId(obj._objId), name(obj.name) {}
    virtual ~ITexture() {}
    
    virtual void prepare( IRenderContext& ) = 0;
@@ -117,9 +117,17 @@ public:
          image = std::move(i);
    }
 
+   void setName( const std::string& n ) {
+       name = n;
+   }
+
    void setExtent(unsigned int width, unsigned int height) {
        dim.x = width;
        dim.y = height;
+   }
+
+   glm::uvec2 getExtent() {
+        return dim;
    }
    
 protected:
@@ -129,95 +137,30 @@ protected:
    DataPackContainer image;
 
    unsigned long long _objId;
-};
-
-class IRenderTarget : public ITexture {
-public:
-   IRenderTarget( const IRenderTarget& obj ) :  ITexture(obj), type(obj.type), resource(obj.resource), clearColor(obj.clearColor), blending(obj.blending) {}
-   
-   enum Type {
-      Color,
-      Depth,
-      Stencil
-   };
-   
-   enum Resource {
-      Swapchain,
-      Offscreen
-   };
-   
-   virtual ~IRenderTarget() {}
-   
-   static std::shared_ptr<IRenderTarget> Create( unsigned int, unsigned int, Format, Type, Resource );
-   static std::shared_ptr<IRenderTarget> Clone( const IRenderTarget& );
-   static void clearRegisteredObjs();
-   
-   Resource getResource() { return resource; }
-   glm::vec4 getClearColor() { return clearColor; }
-   void setClearColor( float r, float g, float b, float a ) { clearColor = glm::vec4(r,g,b,a); }
-   const BlendState& getBlendState() const {
-      return blending;
-   }
-   void setBlendState( const BlendState& blendState ) {
-      blending = blendState;
-   }
-   virtual void getData( const glm::uvec4&, void* ) = 0;
-   
-protected:
-   IRenderTarget() : ITexture(), clearColor(glm::vec4(0.0,0,0.0,1.0)) {};
-   IRenderTarget( const glm::uvec2& d, Format f, Type t, Resource r ) : ITexture(d, f), type(t), resource(r), clearColor(glm::vec4(0.1,0,0.25,1.0)) {}
-   Type type;
-   Resource resource;
-   glm::vec4 clearColor;
-   BlendState blending;
-};
-
-//
-// Proxy Classes for serialization ///////////////////////////////////////////////////////////////////////////
-//
-
-// TODO: Move to separate header to cleanup if defs
-
-class RenderTargetProxy : public IRenderTarget {
-public:
-   RenderTargetProxy() {}
-   RenderTargetProxy(const IRenderTarget& obj) : IRenderTarget(obj) {}
-   
-   void prepare( IRenderContext& ) override {};
-   void getData( const glm::uvec4&, void* ) override {};
-   
-   template<class Archive> void load( Archive& ar );
-   template<class Archive> void save( Archive& ar ) const;
-   
-private:
-#if defined ENGINE_BUILD
-   friend class boost::serialization::access;
-   template<class Archive> void serialize( Archive &,  unsigned int );
-#endif
+   std::string name;
 };
 
 class TextureProxy : public ITexture {
 public:
-   TextureProxy() {}
-   TextureProxy(const ITexture& obj) : ITexture(obj) {}
-   
-   void prepare( IRenderContext& ) override {};
-   
-   template<class Archive> void load( Archive& ar );
-   template<class Archive> void save( Archive& ar ) const;
-   
+    TextureProxy() {}
+    TextureProxy(const ITexture& obj) : ITexture(obj) {}
+
+    void prepare(IRenderContext&) override {};
+
+    template<class Archive> void load(Archive& ar);
+    template<class Archive> void save(Archive& ar) const;
+
 private:
 #if defined ENGINE_BUILD
-   friend class boost::serialization::access;
-   template<class Archive> void serialize( Archive &, unsigned int );
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive&, unsigned int);
 #endif
 };
 
+// TODO: We can get rid of these ifdefs by moving proxy classes to a separate header.
 #if defined ENGINE_BUILD
 	#include <boost/serialization/export.hpp>
    BOOST_SERIALIZATION_ASSUME_ABSTRACT(ITexture)
-   BOOST_SERIALIZATION_ASSUME_ABSTRACT(IRenderTarget)
    BOOST_CLASS_EXPORT_KEY(BlendState)
-   BOOST_CLASS_EXPORT_KEY(RenderTargetProxy)
    BOOST_CLASS_EXPORT_KEY(TextureProxy)
 #endif

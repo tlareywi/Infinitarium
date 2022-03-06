@@ -1,8 +1,9 @@
 # Introduction
 This 'star catalog viewer' is more or less a sandbox for me to fuss with modern graphics APIs such as Metal and Vulkan. It's not yet particularly usable, but it does some cool stuff such as ...
+* ImGUI integration
 * OpenXR integration for stereoscopic headset rendering
     * Tested on Valve Index. Theoretically works on other stero headsets (not phone adaptors)
-* Vulkan and Metal backends for cross-platform rendering (Windows, Linux, OSX)
+* Vulkan backend under continuous development. Metal abondoned. OSX support via Molten planned. 
 * Astropy and Python integration
     * See the python folder for scripts that pull data from VizieR
 * Highly customizable and distributable scene files
@@ -14,48 +15,29 @@ This 'star catalog viewer' is more or less a sandbox for me to fuss with modern 
 ![ImGUI Integration](screen_captures/ImGUI.png)
 
 # Current Efforts
-* ImGUI integration to build out features needed to make this a tool some folks may actually want to use 
+* More features; bloom/blur effects, 3D stars, navigation, more elaborate scenes, etc.
 * General stabilization of existing feautres and cross-platform builds     
 
 ### Supported Platforms
-Windows (Vulkan) and OSX (Metal). Vulkan work is currently, as of Dec. 2020, running ahead of Metal so only Windows/Vulkan will currently build on the mainline. OSX/Metal works on older tags. 
+Windows and Linux (Vulkan). OSX (Molten). Windows is currently under active development and will be the most stable and likely to build off the mainline.
 
 ### Build Dependencies
 I'll get around to documenting this once things stabilize a bit. It's a Cmake build system, so it will let you know what's missing ;) But you at least need the following.
-* Boost 1.74 (or other boost versions that are on boost_python 3.8)
-* Python 3.8
-* GLFW (Windows)
+* Boost 1.78 (or other boost versions that are on boost_python 3.10)
+* Python 3.10.x (where the x matches the whater version boost_python was validated against)
+* GLFW
 * GLM
-* OpenXR (Windows)
-* VulkanSDK (Windows)
-* RapidJSON
+* VulkanSDK
+* OpenXR (optional)
 
 ### Required Runtime Dependencies
-brew install python
+Python 3.10.x
+Boost Serialization
+Boost_Python
 
-### Optional Runtime Dependencies  
+### Runtime Dependencies for building scenes (python)
 pip3 install astropy  
-pip3 install Pillow  
+pip3 install pillow  
 
 ### Usage
-A start-up scene file is hardcoded in main.cpp. Scenes are built using python on the command line using the scene files in the python folder. Some prebuilt scenes including Hipparcos and Tycho2 are included in the source tree under the data folder. More interactive ways to load and build scenes are forthcoming. 
-
-## Tagged OSX releases only
-Feaures below this line are on prior tagged OSX builds only. Soon on Windows. 
-
-#### Loading pre-built scenes
-In the application's python console run activeScene.loadLocal('[scenefile]'). There are currently two scenes distrubuted, hip2.ieb and tyco2.ieb. 
-
-#### Exploring the scenegraph
-Cameras and renderable objects in the scene support the method propList() which prints the public methods and members of the object to the console. This serves as a form of interactive documentation, albiet a little obtuse at present.  
-
-#### Manipulating shader uniforms
-Shader uniforms can be manipulated in real-time during the simulation. An example is provided below. Invoking a monipulator will add a small slider control to the console window which is used to change the values of the uniform. Many manipulators can be active simulatainiously.  
-  
-camera = activeScene.getCamera( 0 )  
-stars = camera.getRenderable( 0 )  
-stars.listUniforms()  
-stars.manipulateUniform('[name]')  
-
-#### Saving changes
-activeScene.save('[filename]') will serialize out the current scene including all shader uniforms, camera configuration, etc. to the given filename.  
+Startup scene has a minimal ImGui interface that allows loading of sample scenes such as Hipparcos and Tyco2 catalogs. The Scenegraph window allows exploration of the current scene nodes and interactive manipulation of shader uniforms. Various aspects of rendering such as star appearance can be adjusted this way. 

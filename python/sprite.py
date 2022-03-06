@@ -58,4 +58,5 @@ initImGUI( scene, context, renderTarget )
 exportPath = exportPath + 'sprite.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
+print('Success!')
 

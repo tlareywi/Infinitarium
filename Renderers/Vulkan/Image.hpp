@@ -1,6 +1,8 @@
 #pragma once
 
 #include "DataBuffer.hpp"
+#include "RenderContext.hpp"
+#include "vulkan/vulkan.h"
 
 class VulkanImage {
 public:

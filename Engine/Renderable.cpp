@@ -50,6 +50,9 @@ void IRenderable::prepare( IRenderContext& context ) {
       renderCommand->add( texture );
       texture->prepare( context );
    }
+
+   for( auto& sampler : samplers )
+       renderCommand->add(sampler);
    
    viewport = glm::uvec2(context.width(), context.height());
    
@@ -114,6 +117,10 @@ void IRenderable::render( IRenderPass& renderPass ) {
    uniformData->commit(); // Copy to GPU
    pipelineState->apply( renderPass );
    renderCommand->encode( renderPass, *pipelineState );
+}
+
+void IRenderable::addSampler(const std::shared_ptr<IRenderTarget>& samplerSource) {
+    samplers.push_back(samplerSource);
 }
 
 void IRenderable::setTexture( const std::shared_ptr<ITexture>& t ) {
@@ -181,6 +188,15 @@ template<class Archive> void IRenderable::save( Archive& ar ) const {
       std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
       ar << BOOST_SERIALIZATION_NVP(t);
    }
+
+   size_t szSamplers{ samplers.size() };
+   ar << BOOST_SERIALIZATION_NVP(szSamplers);
+
+   // Memory leak but we don't care. This will ensure we get a unique address for each proxy object so
+   // boost doesn't try to skip serializing the object. If we create the proxy on the stack, it's the 
+   // same address every time (at at least often) so boost thinks it's the same object.
+   for (auto& s : samplers)
+       ar << *(new RenderTargetProxy(*s));
 }
 
 template<class Archive> void IRenderable::load( Archive& ar ) {
@@ -196,6 +212,16 @@ template<class Archive> void IRenderable::load( Archive& ar ) {
       std::unique_ptr<TextureProxy> t;
       ar >> BOOST_SERIALIZATION_NVP(t);
       texture = ITexture::Clone( *t ); 
+   }
+
+   size_t szSamplers;
+   ar >> BOOST_SERIALIZATION_NVP(szSamplers);
+
+   samplers.reserve(szSamplers);
+   for (unsigned int i = 0; i < szSamplers; ++i) {
+       RenderTargetProxy proxy;
+       ar >> proxy;
+       samplers.emplace_back(IRenderTarget::Clone(proxy));
    }
 }
 

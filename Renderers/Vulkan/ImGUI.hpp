@@ -8,7 +8,9 @@
 
 class VulkanImGUI : public IImGUI {
 public:
-	VulkanImGUI() {}
+	VulkanImGUI() {
+		std::cout << "CreateImGUI Constructor" << std::endl;
+	}
 	virtual ~VulkanImGUI();
 
 	void prepare(IRenderContext&) override;

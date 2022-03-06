@@ -9,7 +9,7 @@
 
 #include "DataPack.hpp"
 #include "RenderContext.hpp"
-#include "Texture.hpp"
+//#include "RenderTarget.hpp"
 
 class IRenderTarget;
 

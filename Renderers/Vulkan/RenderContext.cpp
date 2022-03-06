@@ -68,11 +68,8 @@ VkCommandBuffer VulkanRenderContext::allocTransientBuffer() {
 	return commandBuffer;
 }
 
-void VulkanRenderContext::attachTargets(IRenderPass& renderPass) {
-	for (auto& target : swapchainTargets) {
-		target.setExtent(swapchainCreateInfo.imageExtent.width, swapchainCreateInfo.imageExtent.height);
-		target.attach(*this, renderPass);
-	}
+void VulkanRenderContext::attachSwapchain(IRenderPass& renderPass) {
+	swapchainTargets->attach(*this, renderPass, swapchainCreateInfo.imageExtent.width, swapchainCreateInfo.imageExtent.height);
 }
 
 void VulkanRenderContext::beginFrame() {
@@ -81,11 +78,11 @@ void VulkanRenderContext::beginFrame() {
 }
 
 void VulkanRenderContext::deAllocSwapchain() {
-	for (size_t i = 0; i < swapchainTargets.size(); i++) {
+	for (size_t i = 0; i < swapchainTargets->size(); i++) {
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore[i], nullptr);
 	}
 
-	swapchainTargets.clear(); // Must be done before device destruction
+	swapchainTargets = nullptr; // Must be done before device destruction
 
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 }
@@ -170,7 +167,7 @@ void VulkanRenderContext::createDescriptorPool() {
 	{
 		VkDescriptorPoolSize poolSize;
 		poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSize.descriptorCount = 4; // Arbitrary
+		poolSize.descriptorCount = 16; // Arbitrary
 		poolSizes.push_back(poolSize);
 	}
 
@@ -242,8 +239,9 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 	swapChainImages.resize(imageCount);
 	CheckVkResult(vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data()));
 
-	// Render targets (image + imageview + framebuffer)
-	swapchainTargets.reserve(imageCount);
+	std::vector<VkImageViewCreateInfo> createInfos;
+	createInfos.reserve(imageCount);
+
 	for (size_t i = 0; i < imageCount; i++) {
 		VkImageViewCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -260,9 +258,11 @@ void VulkanRenderContext::createSwapChain( const VkSurfaceKHR& surface ) {
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		VulkanRenderTarget target( logicalDevice, createInfo );
-		swapchainTargets.emplace_back(std::move(target));
+		createInfos.emplace_back( std::move(createInfo) );
 	}
+
+	// Render targets (image + imageview + framebuffer)
+	swapchainTargets = std::make_unique<RenderTargetStack>(*this, createInfos);
 
 	size_t swapChainSize{ imageCount };
 	imageAvailableSemaphore.resize( swapChainSize );
@@ -299,7 +299,7 @@ void VulkanRenderContext::endFrame() {
 
 	renderFinishedSemaphores.clear();
 
-	targetInFlight = (targetInFlight + 1) % swapchainTargets.size();
+	targetInFlight = (targetInFlight + 1) % swapchainTargets->size();
 
 	if (toggleFullscreen) {
 		toggleFullscreen = false;
@@ -316,7 +316,7 @@ void* VulkanRenderContext::getSurface() {
 }
 
 VulkanRenderTarget& VulkanRenderContext::getSwapchainTarget() {
-	return swapchainTargets[targetInFlight];
+	return (*swapchainTargets)[targetInFlight];
 }
 
 void VulkanRenderContext::initializeGraphicsDevice(const VkSurfaceKHR& surface, const VkInstance& instance) {
@@ -468,35 +468,36 @@ void VulkanRenderContext::submitTransientBuffer(VkCommandBuffer commandBuffer) {
 	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
 }
 
-void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSemaphore renderFinished ) {
+void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, std::vector<VkSemaphore>& waitSemaphores, std::vector<VkSemaphore>& signalSemaphores ) {
 	newFrame = false;
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	VkSemaphore waitSemaphores[1];
 	submitInfo.pWaitDstStageMask = waitStages;
-	submitInfo.waitSemaphoreCount = 1;
 
 	if (renderFinishedSemaphores.empty()) { // Wait for swapchain image acquire
-		waitSemaphores[0] = imageAvailableSemaphore[targetInFlight];
+	//	waitSemaphores[0] = imageAvailableSemaphore[targetInFlight];
+		waitSemaphores.emplace_back(imageAvailableSemaphore[targetInFlight]);
 	}
 	else { // Wait for last submission to complete
 		// TODO: Could pass additional params to allow parallel execution when appropriate. Serial is sometimes desired though (e.g. UI overlay)
-		waitSemaphores[0] = renderFinishedSemaphores.back();
+	//	waitSemaphores[0] = renderFinishedSemaphores.back();
+		waitSemaphores.emplace_back(renderFinishedSemaphores.back());
 	}
-	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitSemaphores = waitSemaphores.data();
+	submitInfo.waitSemaphoreCount = waitSemaphores.size();
 
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &buffer;
 
-	VkSemaphore signalSemaphores[] = { renderFinished };
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
+	//VkSemaphore signalSemaphores[] = { signalSemaphore };
+	submitInfo.signalSemaphoreCount = signalSemaphores.size();
+	submitInfo.pSignalSemaphores = signalSemaphores.data();
 
 	// endFrame will wait the last of these semaphores to ensure all render ops are finished prior to present.
-	renderFinishedSemaphores.push_back(renderFinished);
+	renderFinishedSemaphores.insert( renderFinishedSemaphores.end(), signalSemaphores.begin(), signalSemaphores.end() );
 
 	vkResetFences(logicalDevice, 1, &vkFence);
 
@@ -506,7 +507,7 @@ void VulkanRenderContext::submit( VkCommandBuffer buffer, VkFence vkFence, VkSem
 
 void VulkanRenderContext::toggleFullScreen() {
 	toggleFullscreen = true;
-};
+}
 
 void VulkanRenderContext::waitOnIdle() {
 	if(logicalDevice)

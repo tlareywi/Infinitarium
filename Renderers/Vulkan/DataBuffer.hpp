@@ -3,6 +3,10 @@
 #include "../../Engine/DataBuffer.hpp"
 #include "RenderContext.hpp"
 
+#include "vulkan/vulkan.h"
+
+class VulkanRenderContext;
+
 class VulkanBuffer : public IDataBuffer {
 public:
 	VulkanBuffer(VulkanRenderContext& c);

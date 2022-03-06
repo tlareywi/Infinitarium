@@ -155,12 +155,14 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    class_<IRenderPass, boost::noncopyable>("IRenderPass", no_init)
       .def("create", &IRenderPass::Create)
       .def("addRenderTarget", &IRenderPass::addRenderTarget)
+      .def("addInputAttachment", &IRenderPass::addInputAttachment)
    ;
    
    // Textures ////////////////////////////////////////////////////////////////////////////////////////////////
    class_<ITexture, boost::noncopyable>("ITexture", no_init)
       .def("create", &ITexture::Create)
       .def("set", &ITexture::set)
+      .def("setName", &ITexture::setName)
    ;
    class_<IRenderTarget, bases<ITexture>, boost::noncopyable>("IRenderTarget", no_init)
       .def("create", &IRenderTarget::Create)
@@ -209,6 +211,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setDirty", &IRenderable::setDirty)
       .def("removeUniform", &IRenderable::removeUniform)
       .def("setTexture", &IRenderable::setTexture)
+      .def("addSampler", &IRenderable::addSampler)
       .def("setName", &SceneObject::setName)
       .def("setCullMode", &IRenderable::setCullMode)
    ;

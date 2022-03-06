@@ -23,6 +23,10 @@
 
 using ReferenceTime = std::chrono::duration<double, std::milli>;
 
+/// <summary>
+/// Scene is the top level node for the engine. It may have many Cameras, each of which are traversed for each frame. The render method of this class 
+/// calls endFrame on the Camera(s) render context, after interating through all cameras, ultimately invoking a 'present' for the current frame.    
+/// </summary>
 class IE_EXPORT Scene : public SceneObject, public Reflection::IConsole<Scene> {
 public:
    Scene();

@@ -54,6 +54,10 @@ public:
        textures.push_back(t);
    }
 
+   virtual void add(std::shared_ptr<IRenderTarget>& t) {
+       samplers.push_back(t);
+   }
+
    void addVertexAttribute( const VertexAttribute& attr ) {
        attributes.push_back(attr);
    }
@@ -78,6 +82,7 @@ public:
 protected:
    std::vector<std::shared_ptr<IDataBuffer>> dataBuffers;
    std::vector<std::shared_ptr<ITexture>> textures;
+   std::vector<std::shared_ptr<IRenderTarget>> samplers;
    std::vector<VertexAttribute> attributes;
    uint32_t instanceCount;
    uint32_t vertexCount;

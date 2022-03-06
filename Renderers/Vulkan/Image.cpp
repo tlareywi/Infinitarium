@@ -3,23 +3,23 @@
 VulkanImage::VulkanImage(const VulkanRenderContext& vkContext, const VkImageCreateInfo& imageInfo) {
 	vkDevice = vkContext.getVulkanDevice();
 
-	if (vkCreateImage(vkContext.getVulkanDevice(), &imageInfo, nullptr, &vkImage) != VK_SUCCESS) {
+	if (vkCreateImage(vkDevice, &imageInfo, nullptr, &vkImage) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements{};
-	vkGetImageMemoryRequirements(vkContext.getVulkanDevice(), vkImage, &memRequirements);
+	vkGetImageMemoryRequirements(vkDevice, vkImage, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = VulkanBuffer::findMemoryType(vkContext, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	if (vkAllocateMemory(vkContext.getVulkanDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(vkDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(vkContext.getVulkanDevice(), vkImage, imageMemory, 0);
+	vkBindImageMemory(vkDevice, vkImage, imageMemory, 0);
 }
 
 VulkanImage::~VulkanImage() {

@@ -114,3 +114,4 @@ initImGUI( scene, context, renderTarget )
 exportPath = exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
+print('Success!')

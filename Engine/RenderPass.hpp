@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "RenderContext.hpp"
-#include "Texture.hpp"
+#include "RenderTarget.hpp"
 
 #include "../config.h"
 
@@ -26,9 +26,11 @@ public:
 
    virtual ~IRenderPass() {
        targets.clear();
+       attachments.clear();
    }
    IRenderPass(const IRenderPass& rp) : _objId(rp._objId) {
        std::copy(rp.targets.begin(), rp.targets.end(), std::back_inserter(targets));
+       std::copy(rp.attachments.begin(), rp.attachments.end(), std::back_inserter(attachments));
        std::copy(rp.loadOps.begin(), rp.loadOps.end(), std::back_inserter(loadOps));
    }
    
@@ -39,6 +41,10 @@ public:
    void addRenderTarget( const std::shared_ptr<IRenderTarget>& t, LoadOp op ) {
       targets.push_back( t );
       loadOps.push_back( op );
+   }
+
+   void addInputAttachment( const std::shared_ptr<IRenderTarget>& t ) {
+       attachments.push_back( t );
    }
    
    virtual void prepare( IRenderContext& ) = 0;
@@ -66,7 +72,8 @@ public:
 
 protected:
    IRenderPass() : _objId(reinterpret_cast<unsigned long long>(this)) {};
-   std::vector<std::shared_ptr<IRenderTarget>> targets;
+   std::vector<std::shared_ptr<IRenderTarget>> targets;     // Output
+   std::vector<std::shared_ptr<IRenderTarget>> attachments; // Input
    std::vector<LoadOp> loadOps;
    unsigned long long _objId;
    

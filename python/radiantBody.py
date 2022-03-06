@@ -2,31 +2,105 @@ exec(open('./import_common.py').read())
 import io
 import numpy
 
+X_EXT = 1920
+Y_EXT = 1080
+
 #
 # Basic scene/rendering setup
 #
 scene = engine.Scene()
+context = engine.IRenderContext.create(0, 0, X_EXT, Y_EXT, False, False)
 
-camera = engine.Camera()
-camera.setName('radiantBody test')
-scene.add( camera )
+# Main Scene --------------------------------------------------------------------------------------
+mainCamera = engine.Camera()
+mainCamera.setName('MainCamera')
+mainCamera.setRenderContext( context )
+mainCamera.setMotionController( engine.Orbit() )
+mainRenderPass = engine.IRenderPass.create()
+mainCamera.setRenderPass( mainRenderPass )
+mainRenderTarget = engine.IRenderTarget.create( X_EXT, Y_EXT,
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+mainRenderTarget.setName('MainTarget')
+mainRenderTarget.setClearColor(0,0,0,0)
+mainRenderPass.addRenderTarget( mainRenderTarget, engine.LoadOp.Clear )
+scene.add( mainCamera )
 
-context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
-camera.setRenderContext( context )
+# Horizontal Blur ---------------------------------------------------------------------------------
+horzBlurCamera = engine.Camera()
+horzBlurCamera.setName('HorzBlurCamera')
+horzBlurCamera.setRenderContext( context )
+horzBlurPass = engine.IRenderPass.create()
+horzBlurCamera.setRenderPass( horzBlurPass )
+horzBlurTarget = engine.IRenderTarget.create( int(X_EXT / 2), int(Y_EXT / 2),
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+horzBlurTarget.setName('HorzBlurTarget')
+horzBlurTarget.setClearColor(0,0,0,0)
+horzBlurPass.addRenderTarget( horzBlurTarget, engine.LoadOp.Clear )
+scene.add( horzBlurCamera )
 
+horzQuad = engine.Sprite()
+horzQuad.addSampler( mainRenderTarget )
+horzQuad.setProgram( 'horzBlur' )
+horzBlurCamera.addChild( horzQuad )
+
+# Vertical Blur -----------------------------------------------------------------------------------
+vertBlurCamera = engine.Camera()
+vertBlurCamera.setName('VertBlurCamera')
+vertBlurCamera.setRenderContext( context )
+vertBlurPass = engine.IRenderPass.create()
+vertBlurCamera.setRenderPass( vertBlurPass )
+vertBlurTarget = engine.IRenderTarget.create( int(X_EXT / 2), int(Y_EXT / 2),
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+vertBlurTarget.setName('VertBlurTarget')
+vertBlurTarget.setClearColor(0,0,0,0)
+vertBlurPass.addRenderTarget( vertBlurTarget, engine.LoadOp.Clear )
+scene.add( vertBlurCamera )
+
+vertQuad = engine.Sprite()
+vertQuad.addSampler( horzBlurTarget )
+vertQuad.setProgram( 'vertBlur' )
+vertBlurCamera.addChild( vertQuad )
+
+# Bloom pass --------------------------------------------------------------------------------------
+#bloomCamera = engine.Camera()
+#bloomCamera.setName('BloomCamera')
+#bloomCamera.setRenderContext( context )
+#bloomPass = engine.IRenderPass.create()
+#bloomCamera.setRenderPass( bloomPass )
+#bloomTarget = engine.IRenderTarget.create( X_EXT, Y_EXT,
+#    engine.Format.BRGA8, engine.Type.Color,
+#    engine.Resource.Offscreen)
+#bloomPass.addRenderInput( mainRenderTarget )
+#bloomPass.addRenderTarget( bloomTarget, engine.LoadOp.Undefined )
+# TODO subpass to composite the bloom with original? Or just composite as part of the bloom shader? 
+#scene.add( bloomCamera )
+
+# Swapchain pass ----------------------------------------------------------------------------------
+fbCamera = engine.Camera()
+fbCamera.setName('Swapchain')
+fbCamera.setRenderContext( context )
 renderPass = engine.IRenderPass.create()
-camera.setRenderPass( renderPass )
-camera.setMotionController( engine.Orbit() )
-
-renderTarget = engine.IRenderTarget.create( 1920, 1080,
+fbCamera.setRenderPass( renderPass )
+swapChainTarget = engine.IRenderTarget.create( X_EXT, Y_EXT,
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.Swapchain)
-renderTarget.setClearColor(0,0,0,1)
-renderPass.addRenderTarget( renderTarget, engine.LoadOp.Clear )
+swapChainTarget.setClearColor(0,0,0,1)
+renderPass.addRenderTarget( swapChainTarget, engine.LoadOp.Clear )
+scene.add( fbCamera )
 
-#
-# Read image and store as engine texture.
-#
+quad = engine.Sprite()
+quad.addSampler( mainRenderTarget )
+quad.addSampler( vertBlurTarget )
+quad.setProgram( 'bounce' ) # Blt mainRenderTarget to framebufer
+fbCamera.addChild( quad )
+
+# Add GUI support (draw directly to swapchain target) ---------------------------------------------
+initImGUI( scene, context, swapChainTarget )
+
+# Read image and store as engine texture. ---------------------------------------------------------
 from PIL import Image # Must have Pillow (pip3 install Pillow)
 img = Image.open('../resources/textures/2k_sun.jpg', mode='r')
 
@@ -48,9 +122,7 @@ linearData = None # Cleanup
 pixelData = None
 img = None
 
-#
-# Create spheroid and add to scene.
-#
+# Create spheroid and add to scene ----------------------------------------------------------------
 transform = engine.Transform()
 transform.rotate( 90.0, 1.0, 0.0, 0.0 ) 
 transform.translate( 0.0, 0.0, -4.0 )
@@ -65,15 +137,12 @@ sphere.setUniform( 'speed', engine.Uniform(engine.UniformType(31.63), engine.Uni
 sphere.setTexture( texture )
 
 transform.addChild( sphere )
-camera.addChild( transform )
+mainCamera.addChild( transform )
 
-# Add GUI support
-initImGUI( scene, context, renderTarget )
-
-#
-# Write scene file.
-#
+# Write scene file --------------------------------------------------------------------------------
 exportPath = exportPath + 'radiantBody.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
+
+print( 'Success!' )
 

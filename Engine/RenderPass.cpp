@@ -40,38 +40,51 @@ template<class Archive> void RenderPassProxy::load( Archive& ar, const unsigned 
    ar >> _objId;
    ar >> loadOps;
 
-   size_t sz;
-   ar >> BOOST_SERIALIZATION_NVP(sz);
-   if( sz > 0 ) {
-      std::vector<std::shared_ptr<RenderTargetProxy>> baseTargets;
-      ar >> BOOST_SERIALIZATION_NVP(baseTargets);
-      targets.reserve(baseTargets.size());
-      for( auto& t : baseTargets ) {
-         targets.push_back( IRenderTarget::Clone(*t) );
-      }
+   size_t szTargets;
+   ar >> szTargets ;
+   size_t szAttachments;
+   ar >> szAttachments ;
+
+   targets.reserve(szTargets);
+   for (unsigned int i = 0; i < szTargets; ++i) {
+       RenderTargetProxy obj;
+       ar >> obj;
+       targets.emplace_back(IRenderTarget::Clone(obj));
+   }
+
+   targets.reserve(szAttachments);
+   for (unsigned int i = 0; i < szAttachments; ++i) {
+       RenderTargetProxy obj;
+       ar >> obj;
+       attachments.emplace_back(IRenderTarget::Clone(obj));
    }
 
    std::cout << "Serializing RenderPassProxy " << _objId << std::endl;
 }
 
 template<class Archive> void RenderPassProxy::save( Archive& ar, const unsigned int version ) const {
-   std::cout << "Serializing RenderPassProxy " << _objId << std::endl;
+   std::cout << "Serializing RenderPassProxy " << _objId << " with " << targets.size() << " targets" << std::endl;
    // We need to serialize a 'proxy' class in order to maintain platform independent
    // scene files. When we desrialize the proxy class, we use the factory method
    // to re-instantiate a platform specific implementation.
    ar << _objId;
    ar << loadOps;
 
-   size_t sz {targets.size()};
-   ar << BOOST_SERIALIZATION_NVP(sz);
+   size_t szTargets {targets.size()};
+   ar << szTargets;
+   size_t szAttachments{ attachments.size() };
+   ar << szAttachments;
    
-   std::vector<std::shared_ptr<RenderTargetProxy>> baseTargets;
-   baseTargets.reserve( sz );
-   for( auto& t : targets )
-      baseTargets.push_back( std::make_shared<RenderTargetProxy>(*t) );
-   
-   if( sz )
-      ar << BOOST_SERIALIZATION_NVP(baseTargets);
+   // Memory leak but we don't care. This will ensure we get a unique address for each proxy object so
+   // boost doesn't try to skip serializing the object. If we create the proxy on the stack, it's the 
+   // same address every time (at at least often) so boost thinks it's the same object.
+   for (auto& t : targets) {
+       ar << *(new RenderTargetProxy(*t));
+   }
+
+   for (auto& t : attachments) {
+       ar << *(new RenderTargetProxy(*t));
+   }
 }
 
 

@@ -102,13 +102,13 @@ template<class Archive> void Camera::load( Archive& ar ) {
 	    IApplication::Create()->subscribe("addSubgraph", delegate);
 	 }
 
-	 std::shared_ptr<RenderPassProxy> rp;
-	 ar >> BOOST_SERIALIZATION_NVP(rp);
-	 renderPass = IRenderPass::Clone( *rp );
+	 RenderPassProxy rp;
+	 ar >> rp;
+	 renderPass = IRenderPass::Clone( rp );
 
-	 std::shared_ptr<RenderContextProxy> rc;
-	 ar >> BOOST_SERIALIZATION_NVP(rc);
-	 renderContext = IRenderContext::Clone( *rc );
+	 RenderContextProxy rc;
+	 ar >> rc;
+	 renderContext = IRenderContext::Clone( rc );
 
 	 // Subscribe to events from the platform layer that notify of the need to dirty and re-init camera's subgraph (e.g window size or restore).
 	 auto fun = [this](const IRenderContext& renderContext) {
@@ -136,21 +136,23 @@ template<class Archive> void Camera::save( Archive& ar ) const {
 	 ar << BOOST_SERIALIZATION_NVP(motionController);
 
 	 // Force renderPass to be serialized as base class to maintain scene file platform independence.
-	 std::unique_ptr<RenderPassProxy> rp = std::make_unique<RenderPassProxy>(*renderPass);
-	 ar << BOOST_SERIALIZATION_NVP(rp);
 
-	 std::unique_ptr<RenderContextProxy> rc = std::make_unique<RenderContextProxy>(*renderContext);
-	 ar << BOOST_SERIALIZATION_NVP(rc);
+     // Memory leak but we don't care. This will ensure we get a unique address for each proxy object so
+     // boost doesn't try to skip serializing the object. If we create the proxy on the stack, it's the 
+     // same address every time (at at least often) so boost thinks it's the same object.
+	 ar << *(new RenderPassProxy(*renderPass));
+	 ar << *(new RenderContextProxy(*renderContext));
 }
 
 namespace boost { namespace serialization {
    template<class Archive> inline void load(Archive& ar, Camera& t, unsigned int version) {
-      std::cout<<"Loading Camera"<<std::endl;
       t.load( ar );
+	  std::cout << "Loading Camera" << t.getName() << std::endl;
    }
    template<class Archive> inline void save(Archive& ar, const Camera& t, const unsigned int version) {
-      std::cout<<"Saving Camera"<<std::endl;
+      std::cout<<"Saving Camera "<< t.getName() << std::endl;
       t.save( ar );
+	  std::cout << "=================================================================================" << std::endl;
    }
 }}
 

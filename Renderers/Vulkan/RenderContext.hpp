@@ -64,13 +64,13 @@ public:
 		return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	}
 	virtual VulkanRenderTarget& getSwapchainTarget();
-	virtual void attachTargets(IRenderPass& renderPass);
-	virtual void submit(VkCommandBuffer, VkFence, VkSemaphore);
+	virtual void attachSwapchain(IRenderPass& renderPass);
+	virtual void submit(VkCommandBuffer, VkFence, std::vector<VkSemaphore>&, std::vector<VkSemaphore>&);
 	virtual GLFWwindow* getWindow() {
 		return static_cast<GLFWwindow*>(window->getPlatformWindow());
 	}
 	virtual size_t numImages() {
-		return swapchainTargets.size();
+		return swapchainTargets->size();
 	}
 
 	VkCommandBuffer allocTransientBuffer();
@@ -99,6 +99,9 @@ public:
 	}
 	bool isNewFrame() {
 		return newFrame;
+	}
+	uint32_t getTargetInFlight() const {
+		return targetInFlight;
 	}
 
 protected:
@@ -131,8 +134,7 @@ private:
 	// Swapchain
 	SwapChainSupportDetails swapChainCaps{};
 	VkSwapchainKHR swapChain;
-	std::vector<VulkanRenderTarget> swapchainTargets;
-	std::vector<VkCommandBuffer> commandQ;
+	std::unique_ptr<RenderTargetStack> swapchainTargets;
 
 	const std::vector<const char*> deviceExtensions = { 
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,

@@ -51,6 +51,8 @@ public:
    }
    
    void setTexture( const std::shared_ptr<ITexture>& );
+
+   void addSampler( const std::shared_ptr<IRenderTarget>& );
    
    void setUniform( const std::string&, const Uniform& );
    void listUniforms();
@@ -83,6 +85,7 @@ private:
    std::vector<std::pair<std::string, Uniform>> uniforms;
    std::shared_ptr<IDataBuffer> uniformData;
    std::shared_ptr<ITexture> texture;  
+   std::vector<std::shared_ptr<IRenderTarget>> samplers;
    
    // TODO: At some point there needs to be a pre-processing step at startup where
    // renderables with compatible state share the same RenderState instance, and thus share render pipelines. 

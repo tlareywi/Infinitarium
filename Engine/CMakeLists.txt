@@ -21,7 +21,7 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   PyUtil.hpp UniformType.hpp Delegate.hpp Camera.hpp Texture.hpp Pipeline.hpp
   Sprite.hpp SceneObject.hpp Transform.hpp Spheroid.hpp CoordinateSystem.hpp
   MotionController.cpp MotionController.hpp ImGUI.hpp ImGUI.cpp IImGUI.hpp IImGUI.cpp
-  ObjectStore.cpp ObjectStore.hpp
+  ObjectStore.cpp ObjectStore.hpp RenderTarget.cpp RenderTarget.hpp
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)
@@ -31,8 +31,8 @@ include_directories("../ImGui")
 target_link_libraries(InfinitariumEngine ImGUI)
 
 # boost
-find_package(Boost COMPONENTS serialization python38 REQUIRED)
-target_link_libraries(InfinitariumEngine ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON38_LIBRARY})
+find_package(Boost COMPONENTS serialization python310 REQUIRED)
+target_link_libraries(InfinitariumEngine ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON310_LIBRARY})
 include_directories(${Boost_INCLUDE_DIR})
 
 # python3
@@ -53,8 +53,6 @@ if( MSVC )
   add_compile_definitions(BOOST_ALL_NO_LIB) 
   find_path(GLM_INCLUDE_DIR glm/glm.hpp HINTS "C:\\Program Files (x86)\\glm\\include")
   include_directories(${GLM_INCLUDE_DIR})
-  find_path(RAPIDJSON_INCLUDE_DIR rapidjson/reader.h HINTS "C:\\Program Files (x86)\\rapidjson\\include")
-  include_directories(${RAPIDJSON_INCLUDE_DIR})
 endif( MSVC )
 
 install(TARGETS InfinitariumEngine LIBRARY DESTINATION lib)
