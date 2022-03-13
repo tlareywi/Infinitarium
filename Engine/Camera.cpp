@@ -1,8 +1,5 @@
 //
-//  Camera.cpp
-//  IEPlatform
-//
-//  Created by Trystan (Home) on 2/20/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Camera.hpp"
@@ -42,13 +39,22 @@ void Camera::update( UpdateParams& params ) {
    if( dirty )
        Transform::prepare( *renderContext );
 
+   glm::dmat4 view{ 1.0 };
    if (motionController) {
        motionController->processEvents( params );
+
+	   static double fov{ 60.0 };
+	   motionController->getViewMatrix(view);
+	   if (motionController->getFOV() != fov) {
+		   fov = motionController->getFOV();
+		   projection = glm::infinitePerspective(glm::radians(fov), 16.0 / 9.0, 0.0001);
+	   }
    }
 
-   Transform::update( params );
+   UpdateParams updateParams(params, projection, view, glm::dmat4(1.0));
+   Transform::update(updateParams);
 
-   updateParams = std::make_unique<UpdateParams>(params);
+   //updateParams = std::make_unique<UpdateParams>(params);
 }
 
 void Camera::render( IRenderPass& ) {
@@ -57,7 +63,11 @@ void Camera::render( IRenderPass& ) {
       renderPass->prepare( *renderContext );
    }
  
-   for (unsigned int i = 0; i < renderContext->getPerspectiveCount(); ++i ) {
+   //
+   // This was for VR integration but broke other things. Find another way that doesn't require
+   // traversing the update path multiple times. That makes no sense.
+   //
+   /* for (unsigned int i = 0; i < renderContext->getPerspectiveCount(); ++i) {
        glm::dmat4 eye{ 1.0 };
 	   if (motionController) {
 		   static double fov{ 60.0 };
@@ -79,7 +89,11 @@ void Camera::render( IRenderPass& ) {
        renderPass->begin( *renderContext );
        Transform::render( *renderPass );
        renderPass->end( *renderContext );
-   }
+   } */
+
+   renderPass->begin(*renderContext);
+   Transform::render(*renderPass);
+   renderPass->end(*renderContext);
 
    renderPass->runPostRenderOperations();
 }

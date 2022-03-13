@@ -1,8 +1,5 @@
 //
-//  Pipeline.hpp
-//  InfinitariumEngine
-//
-//  Created by Trystan (Home) on 2/25/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once

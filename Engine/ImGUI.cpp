@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "ImGUI.hpp"
 #include "ImGuiFileDialog.h"
 #include "Scene.hpp"
@@ -245,16 +249,24 @@ void ImGUI::showRenderNodeProps(IRenderable* const renderable) {
 			[&uniform](glm::mat4x4 v) {
 			},
 			[&uniform](glm::uvec2 v) {
+				glm::uvec2 vec{ std::get<glm::uvec2>(uniform.second.val) };
+				ImGui::Text("x: %u, y: %u", vec.x, vec.y);
 			},
 			[&uniform](glm::uvec3 v) {
 			},
 		    [&uniform](glm::uvec4 v) {
 			},
 			[&uniform](glm::vec2 v) {
+				glm::vec2 vec{ std::get<glm::vec2>(uniform.second.val) };
+				ImGui::Text("x: %f, y: %f", vec.x, vec.y);
 			},
 			[&uniform](glm::vec3 v) {
+				glm::vec3 vec{ std::get<glm::vec3>(uniform.second.val) };
+				ImGui::Text("x: %f, y: %f, z: %f", vec.x, vec.y, vec.z );
 			},
 		    [&uniform](glm::vec4 v) {
+				glm::vec4 vec{ std::get<glm::vec4>(uniform.second.val) };
+				ImGui::Text("x: %f, y: %f, z: %f, w: %f", vec.x, vec.y, vec.z, vec.w );
 			}
 		}, uniform.second.val);
 

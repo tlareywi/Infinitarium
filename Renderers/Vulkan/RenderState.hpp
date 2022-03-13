@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #pragma once
 
 #include "../../Engine/RenderState.hpp"
@@ -38,6 +42,12 @@ private:
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 
 	VkCullModeFlags cullMode{ VK_CULL_MODE_NONE };
+
+	// TODO: For convinience currently. Could revisit for perf tuning.
+	VkDynamicState dynamicStates[1] = {
+		VK_DYNAMIC_STATE_VIEWPORT
+	};
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
 
 	bool newPipeline;
 };

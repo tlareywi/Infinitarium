@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #define NOMINMAX // TODO: move to cmakelists
 
 #pragma warning(push)
@@ -238,6 +242,13 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	}
 
 	vkCmdBeginRenderPass(currentTarget->getCmdBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport;
+	viewport.x = 0; viewport.y = 0;
+	viewport.width = static_cast<float>(fbResource->getInfo().width);
+	viewport.height = static_cast<float>(fbResource->getInfo().height);
+	viewport.minDepth = 0.0f; viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(currentTarget->getCmdBuffer(), 0, 1, &viewport);
 }
 
 void VulkanRenderPass::end(IRenderContext& context) {

@@ -1,8 +1,5 @@
 //
-//  PointCloud.cpp
-//  Infinitarium
-//
-//  Created by Trystan Larey-Williams on 10/6/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "PointCloud.hpp"
@@ -82,9 +79,7 @@ void PointCloud::definePickOp() {
 #pragma warning( pop )
 
 void PointCloud::prepare( IRenderContext& context ) {
-   static bool init{ false };
-   
-   if (!init) {
+   if (dirty) {
        renderCommand = IRenderCommand::Create();
 
        renderCommand->setVertexCount(1);
@@ -99,8 +94,6 @@ void PointCloud::prepare( IRenderContext& context ) {
            std::cout << "Adding data buffer " << dataBuf.first << std::endl;
            renderCommand->add(buf);
        }
-
-       init = true;
    }
    
    IRenderable::prepare( context );

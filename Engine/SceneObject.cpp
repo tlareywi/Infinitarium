@@ -1,8 +1,5 @@
 //
-//  SceneObject.cpp
-//  InfinitariumEngine
-//
-//  Created by Trystan (Home) on 3/18/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "SceneObject.hpp"

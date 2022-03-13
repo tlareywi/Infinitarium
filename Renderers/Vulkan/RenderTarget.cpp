@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "RenderTarget.hpp"
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
@@ -55,7 +59,7 @@ void VulkanRenderTarget::initOffScreen( VulkanRenderContext& vkContext, const Vu
 	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.samples = static_cast<VkSampleCountFlagBits>(multisampleLevel);
 	imageInfo.flags = 0;
 	backingImage = std::make_shared<VulkanImage>(vkContext, imageInfo);
 
@@ -81,9 +85,9 @@ void VulkanRenderTarget::initOffScreen( VulkanRenderContext& vkContext, const Vu
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
 	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 	samplerInfo.anisotropyEnable = VK_FALSE;
 	samplerInfo.maxAnisotropy = 1.0; // TODO: Need to query device caps for this.
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -112,6 +116,8 @@ void VulkanRenderTarget::initOffScreen( VulkanRenderContext& vkContext, const Vu
 }
 
 VulkanRenderTarget::~VulkanRenderTarget() {
+	framebufferAttachments.clear();
+
 	if (device) {
 		vkDestroySemaphore(device, renderFinished, nullptr);
 		if( sampler )
@@ -195,7 +201,7 @@ void VulkanRenderTarget::attach(VulkanRenderContext& ctx, VulkanRenderPass& pass
 	VkFramebufferCreateInfo framebufferInfo = {};
 	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	framebufferInfo.renderPass = pass.getVulkanRenderPass();
-	framebufferInfo.attachmentCount = compositeAttachments.size();
+	framebufferInfo.attachmentCount = static_cast<uint32_t>(compositeAttachments.size());
 	framebufferInfo.pAttachments = compositeAttachments.data();
 	framebufferInfo.width = dim.x;
 	framebufferInfo.height = dim.y;

@@ -1,13 +1,11 @@
 //
-//  Sprite.cpp
-//  InfinitariumEngine
-//
-//  Created by Trystan Larey-Williams on 3/13/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Sprite.hpp"
 #include "DataPack.hpp"
 #include "UniformType.hpp"
+#include "Application.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -33,7 +31,6 @@ static const SpriteVertex quadVerts[] =
 };
 
 Sprite::Sprite( float nativeAspect ) {
-   setProgram("sprite");
 }
 
 void Sprite::prepare( IRenderContext& context ) {   
@@ -61,8 +58,6 @@ void Sprite::prepare( IRenderContext& context ) {
        renderCommand->addVertexAttribute(attr);
    }
    renderCommand->add( quad );
-
-   setUniform("scale", Uniform(UniformType(26.0f), UniformType(1.0f), UniformType(100.f)));
    
    IRenderable::prepare( context );
 }
@@ -70,8 +65,33 @@ void Sprite::prepare( IRenderContext& context ) {
 template<class Archive> void Sprite::serialize(Archive& ar, unsigned int version) {
       std::cout<<"Serializing Sprite"<<std::endl;
       boost::serialization::void_cast_register<Sprite,IRenderable>();
-      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+      ar & boost::serialization::base_object<IRenderable>(*this);
 }
+
+///
+/// BloomSprite: Subscribes to bloomCenter event published by SpheroidEmitter for radial blur (bloom) effect and passes uniform to shader
+/// 
+
+BOOST_CLASS_EXPORT_IMPLEMENT(BloomSprite)
+
+void BloomSprite::prepare(IRenderContext& context) {
+    setUniform( "bloomCenter", Uniform(UniformType(glm::vec2(0.0, 0.0))) );
+
+    auto fun = [this](glm::vec2 pos) {
+        updateUniform( "bloomCenter", Uniform(UniformType(pos)) );
+    };
+    std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(fun), glm::vec2>>(fun);
+    IApplication::Create()->subscribe("BloomCenter", delegate);
+
+    Sprite::prepare(context);
+}
+
+template<class Archive> void BloomSprite::serialize(Archive& ar, unsigned int version) {
+    std::cout << "Serializing BloomSprite" << std::endl;
+    boost::serialization::void_cast_register<BloomSprite, Sprite>();
+    ar& boost::serialization::base_object<Sprite>(*this);
+}
+
 
 
 

@@ -1,8 +1,5 @@
 //
-//  UniformType.hpp
-//  Infinitarium
-//
-//  Created by Trystan Larey-Williams on 12/9/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -17,6 +14,7 @@
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/binary_object.hpp>
 
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 
 #include "ConsoleInterface.hpp"
@@ -73,6 +71,7 @@ struct Uniform {
     UniformType val;
     UniformType min;
     UniformType max;
+    size_t offset;
 };
 
 namespace boost {

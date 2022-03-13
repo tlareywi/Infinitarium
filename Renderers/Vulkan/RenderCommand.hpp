@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #pragma once
 
 #include "../../Engine/RenderCommand.hpp"
@@ -16,10 +20,7 @@ public:
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 	}
-	virtual ~VulkanRenderCommand() {
-		if(descriptorSetLayout)
-			vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-	}
+	virtual ~VulkanRenderCommand();
 
 	void add(std::shared_ptr<IDataBuffer>&) override;
 
@@ -36,7 +37,7 @@ private:
 	bool init{ false };
 
 	VkDevice device{nullptr};
-	VkDescriptorSet descriptorSet;
+	VkDescriptorSet descriptorSet{nullptr};
 	VkDescriptorSetLayout descriptorSetLayout{nullptr};
 	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
 

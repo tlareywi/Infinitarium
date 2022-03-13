@@ -1,5 +1,5 @@
 //
-//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "../../Engine/Application.hpp"
@@ -42,7 +42,8 @@ VulkanRenderContext::~VulkanRenderContext() {
 	deAllocSwapchain();
 
 	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
-	vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
+	if( descriptorPool )
+		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 	vkDestroyDevice(logicalDevice, nullptr);
 }
 
@@ -148,6 +149,11 @@ void VulkanRenderContext::createDeviceGraphicsQueue(const VkPhysicalDevice& devi
 }
 
 void VulkanRenderContext::createDescriptorPool() {
+	if (descriptorPool) {
+		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
+		descriptorPool = nullptr;
+	}
+
 	std::vector<VkDescriptorPoolSize> poolSizes;
 	
 	{
@@ -182,6 +188,8 @@ void VulkanRenderContext::createDescriptorPool() {
 	if (vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
+
+	resetDescriptors = true;
 }
 
 bool VulkanRenderContext::checkDeviceExtensionSupport(const VkPhysicalDevice& device) {
@@ -300,6 +308,8 @@ void VulkanRenderContext::endFrame() {
 	renderFinishedSemaphores.clear();
 
 	targetInFlight = (targetInFlight + 1) % swapchainTargets->size();
+
+	resetDescriptors = false;
 
 	if (toggleFullscreen) {
 		toggleFullscreen = false;
@@ -431,6 +441,8 @@ void VulkanRenderContext::reAllocSwapchain() {
 	recreateSwapchain(surface);
 
 	targetInFlight = 0;
+
+	createDescriptorPool();
 }
 
 void VulkanRenderContext::resizePickBuffer() {

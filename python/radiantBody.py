@@ -5,6 +5,8 @@ import numpy
 X_EXT = 1920
 Y_EXT = 1080
 
+BLUR_DIV = 4
+
 #
 # Basic scene/rendering setup
 #
@@ -26,13 +28,32 @@ mainRenderTarget.setClearColor(0,0,0,0)
 mainRenderPass.addRenderTarget( mainRenderTarget, engine.LoadOp.Clear )
 scene.add( mainCamera )
 
+# DownSample --------------------------------------------------------------------------------------
+downSampleCamera = engine.Camera()
+downSampleCamera.setName('DownSampleCamera')
+downSampleCamera.setRenderContext( context )
+downSamplePass = engine.IRenderPass.create()
+downSampleCamera.setRenderPass( downSamplePass )
+downSampleTarget = engine.IRenderTarget.create( int(X_EXT / BLUR_DIV), int(Y_EXT / BLUR_DIV),
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+downSampleTarget.setName('DownSampleTarget')
+downSampleTarget.setClearColor(0,0,0,0)
+downSamplePass.addRenderTarget( downSampleTarget, engine.LoadOp.Clear )
+scene.add( downSampleCamera )
+
+downSampleQuad = engine.Sprite()
+downSampleQuad.addSampler( mainRenderTarget )
+downSampleQuad.setProgram( 'bounce' )
+downSampleCamera.addChild( downSampleQuad )
+
 # Horizontal Blur ---------------------------------------------------------------------------------
 horzBlurCamera = engine.Camera()
 horzBlurCamera.setName('HorzBlurCamera')
 horzBlurCamera.setRenderContext( context )
 horzBlurPass = engine.IRenderPass.create()
 horzBlurCamera.setRenderPass( horzBlurPass )
-horzBlurTarget = engine.IRenderTarget.create( int(X_EXT / 2), int(Y_EXT / 2),
+horzBlurTarget = engine.IRenderTarget.create( int(X_EXT / BLUR_DIV), int(Y_EXT / BLUR_DIV),
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.Offscreen)
 horzBlurTarget.setName('HorzBlurTarget')
@@ -41,8 +62,10 @@ horzBlurPass.addRenderTarget( horzBlurTarget, engine.LoadOp.Clear )
 scene.add( horzBlurCamera )
 
 horzQuad = engine.Sprite()
-horzQuad.addSampler( mainRenderTarget )
+horzQuad.addSampler( downSampleTarget )
 horzQuad.setProgram( 'horzBlur' )
+horzQuad.setUniform( 'radius', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.1), engine.UniformType(10.0)) )
+horzQuad.setUniform( 'power', engine.Uniform(engine.UniformType(0.25), engine.UniformType(0.1), engine.UniformType(1.0)) )
 horzBlurCamera.addChild( horzQuad )
 
 # Vertical Blur -----------------------------------------------------------------------------------
@@ -51,7 +74,7 @@ vertBlurCamera.setName('VertBlurCamera')
 vertBlurCamera.setRenderContext( context )
 vertBlurPass = engine.IRenderPass.create()
 vertBlurCamera.setRenderPass( vertBlurPass )
-vertBlurTarget = engine.IRenderTarget.create( int(X_EXT / 2), int(Y_EXT / 2),
+vertBlurTarget = engine.IRenderTarget.create( int(X_EXT / BLUR_DIV), int(Y_EXT / BLUR_DIV),
     engine.Format.BRGA8, engine.Type.Color,
     engine.Resource.Offscreen)
 vertBlurTarget.setName('VertBlurTarget')
@@ -62,21 +85,54 @@ scene.add( vertBlurCamera )
 vertQuad = engine.Sprite()
 vertQuad.addSampler( horzBlurTarget )
 vertQuad.setProgram( 'vertBlur' )
+vertQuad.setUniform( 'radius', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.1), engine.UniformType(10.0)) )
+vertQuad.setUniform( 'power', engine.Uniform(engine.UniformType(0.25), engine.UniformType(0.1), engine.UniformType(1.0)) )
 vertBlurCamera.addChild( vertQuad )
 
-# Bloom pass --------------------------------------------------------------------------------------
-#bloomCamera = engine.Camera()
-#bloomCamera.setName('BloomCamera')
-#bloomCamera.setRenderContext( context )
-#bloomPass = engine.IRenderPass.create()
-#bloomCamera.setRenderPass( bloomPass )
-#bloomTarget = engine.IRenderTarget.create( X_EXT, Y_EXT,
-#    engine.Format.BRGA8, engine.Type.Color,
-#    engine.Resource.Offscreen)
-#bloomPass.addRenderInput( mainRenderTarget )
-#bloomPass.addRenderTarget( bloomTarget, engine.LoadOp.Undefined )
-# TODO subpass to composite the bloom with original? Or just composite as part of the bloom shader? 
-#scene.add( bloomCamera )
+# Radial Blur --------------------------------------------------------------------------------------
+radialBlurCamera = engine.Camera()
+radialBlurCamera.setName('RadialBlurCamera')
+radialBlurCamera.setRenderContext( context )
+radialBlurPass = engine.IRenderPass.create()
+radialBlurCamera.setRenderPass( radialBlurPass )
+radialBlurTarget = engine.IRenderTarget.create( int(X_EXT / BLUR_DIV), int(Y_EXT / BLUR_DIV),
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+radialBlurTarget.setName('RadialBlurTarget')
+radialBlurTarget.setClearColor(0,0,0,0)
+radialBlurPass.addRenderTarget( radialBlurTarget, engine.LoadOp.Clear )
+scene.add( radialBlurCamera )
+
+radialBlurQuad = engine.BloomSprite()
+radialBlurQuad.addSampler( vertBlurTarget )
+radialBlurQuad.setProgram( 'radialBlur' )
+radialBlurQuad.setUniform( 'density', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.1), engine.UniformType(1.0)) )
+radialBlurQuad.setUniform( 'weight', engine.Uniform(engine.UniformType(0.186), engine.UniformType(0.001), engine.UniformType(0.4)) )
+radialBlurQuad.setUniform( 'decay', engine.Uniform(engine.UniformType(0.997684), engine.UniformType(0.7), engine.UniformType(1.1)) )
+radialBlurQuad.setUniform( 'exposure', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.1), engine.UniformType(1.0)) )
+radialBlurQuad.setUniform( 'saturation', engine.Uniform(engine.UniformType(2.253), engine.UniformType(1.0), engine.UniformType(5.0)) )
+
+radialBlurCamera.addChild( radialBlurQuad )
+
+# Composite pass -----------------------------------------------------------------------------------
+compositeCamera = engine.Camera()
+compositeCamera.setName('CompositeCamera')
+compositeCamera.setRenderContext( context )
+compositePass = engine.IRenderPass.create()
+compositeCamera.setRenderPass( compositePass )
+compositeTarget = engine.IRenderTarget.create( X_EXT, Y_EXT,
+    engine.Format.BRGA8, engine.Type.Color,
+    engine.Resource.Offscreen)
+compositeTarget.setName('CompositeTarget')
+compositeTarget.setClearColor(0,0,0,0)
+compositePass.addRenderTarget( compositeTarget, engine.LoadOp.Clear )
+scene.add( compositeCamera )
+
+combineQuad = engine.Sprite()
+combineQuad.addSampler( mainRenderTarget )
+combineQuad.addSampler( radialBlurTarget )
+combineQuad.setProgram( 'combine' ) 
+compositeCamera.addChild( combineQuad )
 
 # Swapchain pass ----------------------------------------------------------------------------------
 fbCamera = engine.Camera()
@@ -92,9 +148,8 @@ renderPass.addRenderTarget( swapChainTarget, engine.LoadOp.Clear )
 scene.add( fbCamera )
 
 quad = engine.Sprite()
-quad.addSampler( mainRenderTarget )
-quad.addSampler( vertBlurTarget )
-quad.setProgram( 'bounce' ) # Blt mainRenderTarget to framebufer
+quad.addSampler( compositeTarget )
+quad.setProgram( 'FXAA' ) 
 fbCamera.addChild( quad )
 
 # Add GUI support (draw directly to swapchain target) ---------------------------------------------
@@ -127,7 +182,7 @@ transform = engine.Transform()
 transform.rotate( 90.0, 1.0, 0.0, 0.0 ) 
 transform.translate( 0.0, 0.0, -4.0 )
 
-sphere = engine.Spheroid(40, 40, 0.0, False) # meridians, parellels, oblateness (always unit size)
+sphere = engine.SpheroidEmitter(40, 40, 0.0, False) # meridians, parellels, oblateness (always unit size)
 
 sphere.setProgram('radiantBody')
 sphere.setUniform( 'frequency', engine.Uniform(engine.UniformType(296.40), engine.UniformType(1.0), engine.UniformType(400.0)) )

@@ -1,8 +1,5 @@
 //
-//  Transform.hpp
-//  InfinitariumEngine
-//
-//  Created by Trystan (Home) on 3/18/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -10,6 +7,7 @@
 #include "SceneObject.hpp"
 #include "../config.h"
 
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 

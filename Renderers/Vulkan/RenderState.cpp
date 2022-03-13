@@ -1,8 +1,5 @@
 //
-//  RenderState.m
-//  IERenderer
-//
-//  Created by Trystan Larey-Williams on 12/31/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "RenderState.hpp"
@@ -80,17 +77,9 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 	colorBlending.blendConstants[2] = 0.0f; // Optional
 	colorBlending.blendConstants[3] = 0.0f; // Optional
 
-	// To change state dynamically without recreating pipleine, see stucture below ...
-
-	/* VkDynamicState dynamicStates[] = {
-	VK_DYNAMIC_STATE_VIEWPORT,
-	VK_DYNAMIC_STATE_LINE_WIDTH
-	};
-
-	VkPipelineDynamicStateCreateInfo dynamicState = {};
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicState.dynamicStateCount = 2;
-	dynamicState.pDynamicStates = dynamicStates; */
+	dynamicState.dynamicStateCount = ((int)(sizeof(dynamicStates) / sizeof(*(dynamicStates))));
+	dynamicState.pDynamicStates = dynamicStates;
 
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.pNext = nullptr;
@@ -106,7 +95,7 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 	pipelineInfo.pMultisampleState = &multisampling;
 	pipelineInfo.pDepthStencilState = nullptr; // Optional
 	pipelineInfo.pColorBlendState = &colorBlending;
-	pipelineInfo.pDynamicState = nullptr; // Optional
+	pipelineInfo.pDynamicState = &dynamicState; // Optional
 
 	// Future use; create new pipeline derived on current (faster)
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional

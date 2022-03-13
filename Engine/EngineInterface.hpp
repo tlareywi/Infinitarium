@@ -1,8 +1,5 @@
 //
-//  PythonInterp.h
-//  Infinitarium
-//
-//  Created by Trystan Larey-Williams on 11/18/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once

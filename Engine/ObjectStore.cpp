@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "ObjectStore.hpp"
 
 std::unique_ptr<ObjectStore> ObjectStore::_instance{nullptr};

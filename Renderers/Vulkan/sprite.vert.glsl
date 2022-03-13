@@ -22,7 +22,6 @@ void main() {
     vec4 pos = vec4(position, 1.0);
     pos.xy = pos.xy / (vec2(uniforms.viewport) / 2.0) * uniforms.scale;
     gl_Position = pos;
-    gl_Position.y = -gl_Position.y;
 
     vertOut.uv = uv;
 }

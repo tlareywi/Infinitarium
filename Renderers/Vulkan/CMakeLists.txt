@@ -10,6 +10,7 @@ add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand
   default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
   sprite.vert.glsl sprite.frag.glsl solarBody.vert.glsl solarBody.frag.glsl radiantBody.vert.glsl radiantBody.frag.glsl 
   bounce.vert.glsl bounce.frag.glsl horzBlur.vert.glsl horzBlur.frag.glsl vertBlur.vert.glsl vertBlur.frag.glsl
+  combine.vert.glsl combine.frag.glsl radialBlur.vert.glsl radialBlur.frag.glsl FXAA.vert.glsl FXAA.frag.glsl
 )
 
 set_property(TARGET IERenderer PROPERTY CXX_STANDARD 17)
@@ -56,4 +57,5 @@ install(TARGETS IERenderer LIBRARY DESTINATION lib)
 install(FILES default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
         sprite.vert.glsl sprite.frag.glsl solarBody.vert.glsl solarBody.frag.glsl radiantBody.vert.glsl radiantBody.frag.glsl
         bounce.vert.glsl bounce.frag.glsl horzBlur.vert.glsl horzBlur.frag.glsl vertBlur.vert.glsl vertBlur.frag.glsl
+        combine.vert.glsl combine.frag.glsl radialBlur.vert.glsl radialBlur.frag.glsl FXAA.vert.glsl FXAA.frag.glsl
   DESTINATION share/Infinitarium/shaders/glsl)

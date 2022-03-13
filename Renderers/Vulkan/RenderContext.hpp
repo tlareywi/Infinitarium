@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #pragma once
 
 #include "../../Engine/ApplicationWindow.hpp"
@@ -88,6 +92,9 @@ public:
 	VkDescriptorPool const getDescriptorPool() {
 		return descriptorPool;
 	}
+	bool invalidDescriptorPool() {
+		return resetDescriptors;
+	}
 	void getVulkanSwapchainInfo(VkSwapchainCreateInfoKHR& info) {
 		memcpy(&info, &swapchainCreateInfo, sizeof(info));
 	}
@@ -125,8 +132,8 @@ private:
 	void reAllocSwapchain();
 	
 	// Device resources
-	VkCommandPool commandPool;
-	VkDescriptorPool descriptorPool;
+	VkCommandPool commandPool = nullptr;
+	VkDescriptorPool descriptorPool = nullptr;
 	VkDeviceQueueCreateInfo queueCreateInfo = {};
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	VkDeviceCreateInfo deviceCreateInfo = {};
@@ -152,5 +159,6 @@ private:
 	void deAllocSwapchain();
 
 	bool newFrame{ false };
+	bool resetDescriptors{ true };
 };
 

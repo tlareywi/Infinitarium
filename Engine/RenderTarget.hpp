@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #pragma once
 
 #include "Texture.hpp"
@@ -7,7 +11,7 @@
 /// </summary>
 class IRenderTarget : public ITexture {
 public:
-    IRenderTarget(const IRenderTarget& obj) : ITexture(obj), type(obj.type), resource(obj.resource), clearColor(obj.clearColor), blending(obj.blending) {}
+    IRenderTarget(const IRenderTarget& obj) : ITexture(obj), type(obj.type), resource(obj.resource), clearColor(obj.clearColor), blending(obj.blending), multisampleLevel(1) {}
 
     enum Type {
         Color,
@@ -35,15 +39,23 @@ public:
     void setBlendState(const BlendState& blendState) {
         blending = blendState;
     }
+    virtual void setMultisample(unsigned short level) {
+        multisampleLevel = level;
+    }
+    unsigned short getMultisample() {
+        return multisampleLevel;
+    }
+
     virtual void getData(const glm::uvec4&, void*) = 0;
 
 protected:
     IRenderTarget() : ITexture(), clearColor(glm::vec4(0.0, 0, 0.0, 1.0)) {};
-    IRenderTarget(const glm::uvec2& d, Format f, Type t, Resource r) : ITexture(d, f), type(t), resource(r), clearColor(glm::vec4(0.1, 0, 0.25, 1.0)) {}
+    IRenderTarget(const glm::uvec2& d, Format f, Type t, Resource r) : ITexture(d, f), type(t), resource(r), clearColor(glm::vec4(0.1, 0, 0.25, 1.0)), multisampleLevel(1) {}
     Type type;
     Resource resource;
     glm::vec4 clearColor;
     BlendState blending;
+    unsigned short multisampleLevel;
 };
 
 /// <summary>
@@ -61,9 +73,6 @@ private:
 #if defined ENGINE_BUILD
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive&, unsigned int);
-  //  template<class Archive> void load(Archive&, const unsigned int);
-  //  template<class Archive> void save(Archive&, const unsigned int) const;
-  //  BOOST_SERIALIZATION_SPLIT_MEMBER()
 #endif
 };
 

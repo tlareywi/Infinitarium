@@ -1,40 +1,44 @@
 //
 //  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved.
 //
-//  Uncomment below for glslangValidator.exe  .\[name].[type].glsl - o .\[name].[type].spirv - V
-//  #version 450
-
-
-// Adapted from the work of Daniel Rakos
-// http://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
-
 
 struct FragmmentIn {
     vec2 uv;
 };
 
-struct Viewport {
-    float w;
-    float h;
+struct FragmentInFlat {
+    float vp_w;
+    float vp_h;
+    float radius;
+    float power;
 };
 
 layout(location = 0) in FragmmentIn fragment;
-layout(location = 1) flat in Viewport viewport;
+layout(location = 1) flat in FragmentInFlat fragmentFlat;
 
 layout(binding = 3) uniform sampler2D source;
 
 layout(location = 0) out vec4 outColor;
 
-float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
-float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);
+float blur = fragmentFlat.radius / fragmentFlat.vp_h;
+
+float weight[51] = float[](0.02399512956189812, 0.02395197717748382, 0.023822985092804654, 0.023609540169873884, 0.023313926242438228,
+    0.022939283437433577, 0.022489552652749496, 0.021969406563963394, 0.021384168848652317, 0.02073972357977694, 0.020042416942007504,
+    0.01929895356156662, 0.018516289808477363, 0.01770152642979625, 0.01686180280566922, 0.01600419499133071, 0.015135619523936824,
+    0.01426274474153326, 0.01339191109195666, 0.01252906161238027, 0.011679683446305716, 0.010848760944838982, 0.010040740583429103,
+    0.009259507623470173, 0.008508374168754612, 0.007790078016853502, 0.007106791490701872, 0.0064601392599693734, 0.0058512240275339035,
+    0.005280658864270812, 0.004748604924642423, 0.004254813264094107, 0.003798669503760443, 0.003379240144266695, 0.0029953194136116564,
+    0.0026454756389484523, 0.002328096253065423, 0.002041430678074716, 0.0017836304660419726, 0.001552786214241139, 0.0013469609071314619,
+    0.0011642194643962695, 0.0010026543915083819, 0.0008604075340580612, 0.0007356880279607291, 0.0006267866137842108, 0.0005320865445385454,
+    0.00045007136263070207, 0.0003793298540269242, 0.00031855850707180597, 0.0002665618112378018);
 
 void main() {
     vec3 tc;
     tc = texture(source, fragment.uv).rgb * weight[0];
 
-    for (int i = 1; i < 3; i++) {
-        tc += texture(source, fragment.uv + vec2(0.0, offset[i] / viewport.h)).rgb * weight[i];
-        tc += texture(source, fragment.uv - vec2(0.0, offset[i] / viewport.h)).rgb * weight[i];
+    for (int i = 1; i < 51; i++) {
+        tc += texture(source, fragment.uv + vec2(0.0, i*blur)).rgb * weight[i] * fragmentFlat.power;
+        tc += texture(source, fragment.uv - vec2(0.0, i*blur)).rgb * weight[i] * fragmentFlat.power;
     }
 
     outColor = vec4(tc, 1.0);

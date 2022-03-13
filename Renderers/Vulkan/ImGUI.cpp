@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "ImGUI.hpp"
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
@@ -23,8 +27,8 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 		if( window )
 			ImGui_ImplGlfw_InitForVulkan(window, true);
 		else {
-			io.DisplaySize.x = fbWidth; 
-			io.DisplaySize.y = fbHeight;
+			io.DisplaySize.x = static_cast<float>(fbWidth);
+			io.DisplaySize.y = static_cast<float>(fbHeight);
 		}
 
 		init_info.CheckVkResultFn = [](VkResult result) {
@@ -54,7 +58,7 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 	init_info.PipelineCache = nullptr;
 	init_info.Allocator = nullptr;
 	init_info.MinImageCount = swapchainInfo.minImageCount;
-	init_info.ImageCount = vkContext.numImages();
+	init_info.ImageCount = static_cast<uint32_t>(vkContext.numImages());
 
 	initializeFonts = [&vkContext, this]() {
 		VkCommandBuffer commandBuffer = vkContext.allocTransientBuffer();
@@ -66,6 +70,7 @@ void VulkanImGUI::prepare(IRenderContext& context) {
 	window = vkContext.getWindow();
 	fbWidth = context.width();
 	fbHeight = context.height();
+	dirty = true;
 }
 
 void VulkanImGUI::apply(IRenderPass& renderPass) {

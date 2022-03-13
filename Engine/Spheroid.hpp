@@ -1,8 +1,5 @@
 //
-//  Spheroid.hpp
-//  InfinitariumEngine
-//
-//  Created by Trystan Larey-Williams on 4/17/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -26,9 +23,10 @@ public:
        template<class Archive> void serialize( Archive &, unsigned int );
    };
    
-private:
+protected:
    Spheroid() {}
-   
+
+private:
    // TODO: Avoid replication here for duplicate sphere geometry
    std::shared_ptr<DataPack<SpheroidVertex>> geometry;
 
@@ -40,3 +38,19 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Spheroid);
 BOOST_CLASS_EXPORT_KEY(Spheroid::SpheroidVertex);
+
+class SpheroidEmitter : public Spheroid {
+public:
+    SpheroidEmitter(unsigned int m, unsigned int p, float o, bool f = false) :
+        Spheroid(m, p, o, f) {}
+
+    void update(UpdateParams&) override;
+
+private:
+    SpheroidEmitter() {}
+
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive&, unsigned int);
+};
+
+BOOST_CLASS_EXPORT_KEY(SpheroidEmitter);

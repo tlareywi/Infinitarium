@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "DataBuffer.hpp"
 
 VulkanBuffer::VulkanBuffer(VulkanRenderContext& c) : context(c), cpu(nullptr), gpu(nullptr), xfer(nullptr), map(nullptr), 

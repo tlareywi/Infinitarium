@@ -1,8 +1,5 @@
 //
-//  Sprite.hpp
-//  IEPlatform
-//
-//  Created by Trystan Larey-Williams on 3/13/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -17,9 +14,7 @@
 
 class Sprite : public IRenderable {
 public:
-   Sprite() {
-       setProgram("sprite");
-   }
+   Sprite() {}
    Sprite( float nativeAspect );
    
    void prepare( IRenderContext& context ) override;
@@ -32,3 +27,15 @@ private:
 };
 
 BOOST_CLASS_EXPORT_KEY(Sprite);
+
+class BloomSprite : public Sprite {
+public:
+    BloomSprite() {}
+    void prepare(IRenderContext& context) override;
+
+private:
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive&, unsigned int);
+};
+
+BOOST_CLASS_EXPORT_KEY(BloomSprite);

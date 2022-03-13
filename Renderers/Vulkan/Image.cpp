@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "Image.hpp"
 
 VulkanImage::VulkanImage(const VulkanRenderContext& vkContext, const VkImageCreateInfo& imageInfo) {

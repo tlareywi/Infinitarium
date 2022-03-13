@@ -1,5 +1,5 @@
 //
-// Bounce offscreen render target to another render target
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved.
 //
 
 struct FragmmentIn {
@@ -8,11 +8,10 @@ struct FragmmentIn {
 
 layout(location = 0) in FragmmentIn fragment;
 layout(binding = 3) uniform sampler2D source;
-layout(binding = 4) uniform sampler2D blur;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(blur, fragment.uv);
+    outColor = texture(source, fragment.uv);
 }
 

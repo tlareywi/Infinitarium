@@ -1,3 +1,7 @@
+//
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//
+
 #include "RenderCommand.hpp"
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
@@ -11,6 +15,13 @@ template<typename T, typename U> const U static inline convert(const T& t) {
 	U retType;
 	memcpy(&retType, &t, sizeof(U));
 	return retType;
+}
+
+VulkanRenderCommand::~VulkanRenderCommand() {
+	if (descriptorSetLayout)
+		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+	dataBuffers.clear();
 }
 
 void VulkanRenderCommand::add(std::shared_ptr<IDataBuffer>& buffer) {
@@ -119,6 +130,9 @@ void VulkanRenderCommand::encode(IRenderPass& renderPass, IRenderState& state) {
 }
 
 void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, VulkanRenderState& vkState) {
+	if (descriptorSetLayout)
+		vkDestroyDescriptorSetLayout(vkState.getDevice(), descriptorSetLayout, nullptr);
+
 	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 	for (auto& buffer : dataBuffers) {
 		VkDescriptorSetLayoutBinding layoutBinding;
@@ -193,7 +207,8 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 	descriptorAllocInfo.descriptorSetCount = 1;
 	descriptorAllocInfo.pSetLayouts = &descriptorSetLayout;
 
-	if (vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptorSet) != VK_SUCCESS) {
+	VkResult err{ vkAllocateDescriptorSets(vkState.getDevice(), &descriptorAllocInfo, &descriptorSet) };
+	if (err != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 }
@@ -202,7 +217,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 	VulkanRenderContext& vkContext{ dynamic_cast<VulkanRenderContext&>(context) };
 	VulkanRenderState& vkState{ dynamic_cast<VulkanRenderState&>(state) };
 
-	if (!init) {
+	if (!init || vkContext.invalidDescriptorPool() ) {
 		allocateDescriptors(vkContext, vkState);
 		init = true;
 	}
@@ -268,7 +283,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = descriptorSet;
-		descriptorWrite.dstBinding = writeDescriptorSets.size();
+		descriptorWrite.dstBinding = static_cast<uint32_t>(writeDescriptorSets.size());
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrite.descriptorCount = 1;
@@ -288,7 +303,7 @@ void VulkanRenderCommand::updateDescriptors(IRenderContext& context, IRenderStat
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = descriptorSet;
-		descriptorWrite.dstBinding = writeDescriptorSets.size();
+		descriptorWrite.dstBinding = static_cast<uint32_t>(writeDescriptorSets.size());
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrite.descriptorCount = 1;

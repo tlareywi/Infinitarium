@@ -1,8 +1,5 @@
 //
-//  DataBuffer.hpp
-//  Infinitaruim-Engine
-//
-//  Created by Trystan (Home) on 10/12/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once

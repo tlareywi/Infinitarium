@@ -1,8 +1,5 @@
 //
-//  Delegate.h
-//  Infinitarium
-//
-//  Created by Trystan (Home) on 1/18/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once

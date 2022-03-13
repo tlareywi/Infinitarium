@@ -1,8 +1,5 @@
 //
-//  PythonBridge.cpp
-//  Infinitaruim-Engine
-//
-//  Created by Trystan Larey-Williams on 10/6/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "../config.h"
@@ -168,6 +165,8 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("create", &IRenderTarget::Create)
       .def("setClearColor", &IRenderTarget::setClearColor)
       .def("setBlendState", &IRenderTarget::setBlendState)
+       // Not fully implemented
+      //.def("setMultisample", &IRenderTarget::setMultisample)
    ;
    enum_<ITexture::Format>("Format")
       .value("BRGA8", ITexture::Format::BRGA8)
@@ -199,7 +198,6 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("translate", &Transform::translate)
       .def("rotate", &Transform::rotate)
       .def("scale", &Transform::scale)
-      .def("setName", &SceneObject::setName)
    ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
@@ -216,21 +214,20 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("setCullMode", &IRenderable::setCullMode)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
-      .def("setName", &SceneObject::setName)
    ;
    class_<ImGUI, bases<IRenderable>>("ImGUI", init<>())
-      .def("setName", &SceneObject::setName)
    ;
    class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
       .def("setNumPoints", &PointCloud::setNumPoints)
-      .def("setName", &SceneObject::setName)
    ;
    class_<Sprite, bases<IRenderable>>("Sprite", init<>())
-      .def("setName", &SceneObject::setName)
+   ;
+   class_<BloomSprite, bases<Sprite>>("BloomSprite", init<>())
    ;
    class_<Spheroid, bases<IRenderable>>("Spheroid", init<unsigned int, unsigned int, float, bool>())
-      .def("setName", &SceneObject::setName)
+   ;
+   class_<SpheroidEmitter, bases<Spheroid>>("SpheroidEmitter", init<unsigned int, unsigned int, float, bool>())
    ;
    
    // Scene ////////////////////////////////////////////////////////////////////////////////////////////////

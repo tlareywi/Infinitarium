@@ -46,6 +46,8 @@ img = None
 # Create sprite and add to scene.
 #
 crosshair = engine.Sprite()
+crosshair.setProgram("sprite")
+crosshair.setUniform( 'scale', engine.Uniform(engine.UniformType(26.0), engine.UniformType(1.0), engine.UniformType(100.0)) )
 crosshair.setTexture( texture )
 camera.addChild( crosshair )
 

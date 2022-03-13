@@ -1,11 +1,9 @@
 //
-//  Spheroid.cpp
-//  InfinitariumEngine
-//
-//  Created by Trystan Larey-Williams on 4/17/19.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Spheroid.hpp"
+#include "Application.hpp"
 
 #include <boost/serialization/export.hpp>
 
@@ -91,6 +89,7 @@ void Spheroid::prepare( IRenderContext& context ) {
        IRenderCommand::VertexAttribute attr{ IRenderCommand::AttributeType::UV, 2, offsetof(Spheroid::SpheroidVertex, texCoord) };
        renderCommand->addVertexAttribute(attr);
    }
+
    renderCommand->add( spheroid );
    
    IRenderable::prepare( context );
@@ -99,13 +98,38 @@ void Spheroid::prepare( IRenderContext& context ) {
 template<class Archive> void Spheroid::serialize(Archive& ar, unsigned int) {
     std::cout << "Serializing Spheroid" << std::endl;
     boost::serialization::void_cast_register<Spheroid,IRenderable>();
-    ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
-    ar & BOOST_SERIALIZATION_NVP(geometry);
+    ar & boost::serialization::base_object<IRenderable>(*this);
+    ar & geometry;
 }
    
 template<class Archive> void Spheroid::SpheroidVertex::serialize(Archive& ar, unsigned int) {
-	ar & BOOST_SERIALIZATION_NVP(vertex);
-    ar & BOOST_SERIALIZATION_NVP(normal);
-    ar & BOOST_SERIALIZATION_NVP(texCoord);
+	ar & vertex;
+    ar & normal;
+    ar & texCoord;
+}
+
+/// <summary>
+/// SpheroidEmitter: Overrides update to notify listeners of object center coords for radial blur (bloom)
+/// </summary>
+/// <param name="params"></param>
+
+BOOST_CLASS_EXPORT_IMPLEMENT(SpheroidEmitter)
+
+void SpheroidEmitter::update(UpdateParams& params) {
+    // Separate render passes may need this information (e.g. object center for radial blur). Fire event to update subscribers.
+    glm::vec4 pos{ params.getMVP() * glm::vec4(0.0, 0.0, 0.0, 1.0) };
+    pos /= pos.w;
+    std::tuple<glm::vec2> args(glm::vec2(pos.x, pos.y));
+    Event e(args);
+    e.setName("BloomCenter");
+    IApplication::Create()->invoke(e);
+
+    Spheroid::update(params);
+}
+
+template<class Archive> void SpheroidEmitter::serialize(Archive& ar, unsigned int) {
+    std::cout << "Serializing SpheroidEmitter" << std::endl;
+    boost::serialization::void_cast_register<SpheroidEmitter, Spheroid>();
+    ar & boost::serialization::base_object<Spheroid>(*this);
 }
 

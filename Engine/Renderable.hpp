@@ -1,8 +1,5 @@
 //
-//  Renderable.hpp
-//  Infinitarium
-//
-//  Created by Trystan (Home) on 10/11/18.
+//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -13,6 +10,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/variant.hpp>
 
+#include <mutex>
 #include <iostream>
 
 #include "RenderCommand.hpp"
@@ -24,6 +22,7 @@
 #include "SceneObject.hpp"
 #include "Texture.hpp"
 
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 
 ///
@@ -37,6 +36,7 @@ public:
       renderCommand = nullptr;
       uniformData = nullptr;
       texture = nullptr;
+      samplers.clear();
    }
    virtual void render( IRenderPass& );
    virtual void prepare( IRenderContext& );
@@ -55,6 +55,7 @@ public:
    void addSampler( const std::shared_ptr<IRenderTarget>& );
    
    void setUniform( const std::string&, const Uniform& );
+   void updateUniform(const std::string&, const Uniform& );
    void listUniforms();
    void removeUniform( const std::string& );
    std::vector<std::pair<std::string, Uniform>>& getUniforms();
@@ -86,6 +87,8 @@ private:
    std::shared_ptr<IDataBuffer> uniformData;
    std::shared_ptr<ITexture> texture;  
    std::vector<std::shared_ptr<IRenderTarget>> samplers;
+
+   std::shared_ptr<std::mutex> uniformMutex;
    
    // TODO: At some point there needs to be a pre-processing step at startup where
    // renderables with compatible state share the same RenderState instance, and thus share render pipelines. 
