@@ -28,16 +28,19 @@ I'll get around to documenting this once things stabilize a bit. It's a Cmake bu
 * GLFW
 * GLM
 * VulkanSDK
+* SQLite
 * OpenXR (optional)
 
 ### Required Runtime Dependencies
-Python 3.10.x
-Boost Serialization
-Boost_Python
+* Python 3.10.x
+* Boost Serialization
+* Boost_Python
+* SQLite
+* GLFW
 
 ### Runtime Dependencies for building scenes (python)
-pip3 install astropy  
-pip3 install pillow  
+* pip3 install astropy  
+* pip3 install pillow  
 
 ### Usage
 Startup scene has a minimal ImGui interface that allows loading of sample scenes such as Hipparcos and Tyco2 catalogs. The Scenegraph window allows exploration of the current scene nodes and interactive manipulation of shader uniforms. Various aspects of rendering such as star appearance can be adjusted this way. 

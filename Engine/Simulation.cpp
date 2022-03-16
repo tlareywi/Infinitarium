@@ -5,6 +5,7 @@
 #include "Simulation.hpp"
 #include "Application.hpp"
 #include "Stats.hpp"
+#include "Database.hpp"
 
 Simulation::Simulation() {
    simulation = std::make_unique<std::thread>( &Simulation::simLoop, this );
@@ -81,6 +82,8 @@ void Simulation::simLoop() {
 
    // Dealloc scenegraph
    scene = nullptr;
+
+   Database::destroy();
 
    simLoopRunning = false;
 }

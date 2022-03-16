@@ -38,5 +38,5 @@ int main(int argc, const char * argv[]) {
 
    simulation->wait();
    app->destroy();
-   app = nullptr; 
+   app = nullptr;
 }

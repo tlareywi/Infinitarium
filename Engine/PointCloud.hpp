@@ -9,6 +9,7 @@
 #include "DataPack.hpp"
 #include "Renderable.hpp"
 #include "MotionControllerOrbit.hpp"
+#include "ImGUI.hpp"
 
 #include "../config.h"
 
@@ -51,10 +52,10 @@ public:
 ///
 /// \brief Collection of renderable points with arbirtary properties defined by buffers/DataPacks.
 ///
-class PointCloud : public IRenderable {
+class PointCloud : public IRenderable, public INavigatable {
 public:
    PointCloud();
-   PointCloud( const PointCloud& obj ) : IRenderable( obj ) {
+   PointCloud( const PointCloud& obj ) : IRenderable( obj ), INavigatable( obj ) {
    }
    
    virtual ~PointCloud() {
@@ -85,10 +86,12 @@ private:
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive & ar, const unsigned int version) {
       std::cout<<"Serializing Pointcloud"<<std::endl;
-      boost::serialization::void_cast_register<PointCloud,IRenderable>();
-      ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
-      ar & BOOST_SERIALIZATION_NVP(vertexBuffers);
-      ar & BOOST_SERIALIZATION_NVP(numPoints);
+      boost::serialization::void_cast_register<PointCloud, IRenderable>();
+      boost::serialization::void_cast_register<PointCloud, INavigatable>();
+      ar & boost::serialization::base_object<IRenderable>(*this);
+      ar & boost::serialization::base_object<INavigatable>(*this);
+      ar & vertexBuffers;
+      ar & numPoints;
    }
 };
 

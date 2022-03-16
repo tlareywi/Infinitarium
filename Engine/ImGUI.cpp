@@ -66,6 +66,14 @@ ImGUI::ImGUI() {
 		ImGui::TreePop();
 		ImGui::PopID();
 	};
+
+	findNavNodes = [this](SceneObject& obj) {
+		INavigatable* navNode{ dynamic_cast<INavigatable*>(&obj) };
+		if (navNode)
+			tabDefs.push_back(std::make_pair(navNode->label(), std::move(Database::instance().execute(navNode->query()))));
+
+		return true;
+	};
 }
 
 ImGUI::~ImGUI() {
@@ -85,6 +93,9 @@ void ImGUI::update(UpdateParams& params) {
 		Scene& scene{ params.getScene() };
 		doVisit = [&scene, this]() {
 			scene.visit(Accumulator(accumulatorPush, accumulatorPop));
+		};
+		scrapeNavNodes = [&scene, this]() {
+			scene.visit(Visitor(findNavNodes));
 		};
 		setExit = [&scene]() {
 			scene.terminatePending();
@@ -108,6 +119,7 @@ void ImGUI::render(IRenderPass& renderPass) {
 				
 	platformGUI->apply(renderPass);
 
+	setStyles();
 	ImGui::NewFrame();
 
 	showMainMenuBar();
@@ -124,10 +136,12 @@ void ImGUI::render(IRenderPass& renderPass) {
 		showAbout();
 	if (_showLoad)
 		showLoad();
+	if (_showNavigation)
+		showNavigation();
 
 	// Really nice for debugging and design ideas. 
-	//	bool show_demo_window{ true };
-	//	ImGui::ShowDemoWindow(&show_demo_window);
+    // bool show_demo_window{ true };
+	// ImGui::ShowDemoWindow(&show_demo_window);
 
 	ImGui::Render();
 	platformGUI->render(renderPass);
@@ -183,6 +197,7 @@ void ImGUI::showMainMenuBar() {
 		}
 		if (ImGui::BeginMenu("Window"))
 		{
+			ImGui::MenuItem("Navigation", nullptr, &_showNavigation);
 			ImGui::MenuItem("SceneGraph", nullptr, &_showSceneGraph);
 		//	ImGui::MenuItem("Settings", nullptr, &_showSettings);
 			ImGui::MenuItem("Statistics", nullptr, &_showStats);
@@ -219,6 +234,62 @@ void ImGUI::showLoad() {
 	}
 }
 
+void ImGUI::showNavigation() {
+	static bool init{ false };
+	if (!init) { // Expensive and generally doesn't change at runtime. Do once.
+		scrapeNavNodes();
+		init = true;
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(480, 540), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Navigation", &_showNavigation)) {
+		ImGui::End();
+		return;
+	}
+
+	static constexpr char* names[1] = { "Common Stars" };
+	bool opened[1] = { true };
+
+	if (!ImGui::BeginTabBar("Navbar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+		ImGui::End();
+		return;
+	}
+
+	static int item_current_idx = 0;
+
+	for( auto& tab : tabDefs ) {
+		if( ImGui::BeginTabItem(tab.first.c_str(), nullptr, ImGuiTabItemFlags_None) ) {
+			ImVec2 size(-FLT_MIN, -FLT_MIN); // Fill window
+
+			if( ImGui::BeginListBox(("##" + tab.first).c_str(), size) ) {
+				unsigned int rowIndx{ 0 };
+				for (auto& row : tab.second) {
+					const bool is_selected = (item_current_idx == rowIndx);
+					if( ImGui::Selectable(row[0].c_str(), is_selected, ImGuiSelectableFlags_AllowDoubleClick) ) {
+						item_current_idx = rowIndx;
+						if( ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) )
+							std::cout << "Got it!" << std::endl;
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if( is_selected )
+						ImGui::SetItemDefaultFocus();
+
+					++rowIndx;
+				}
+
+				ImGui::EndListBox();
+			}
+
+			ImGui::EndTabItem();
+		}
+	}
+
+	ImGui::EndTabBar();
+
+	ImGui::End();
+}
+
 void ImGUI::showRenderNodeProps(IRenderable* const renderable) {
 	for (auto& uniform : renderable->getUniforms()) {
 		ImGui::PushID(reinterpret_cast<unsigned long long>(&uniform));
@@ -236,25 +307,44 @@ void ImGUI::showRenderNodeProps(IRenderable* const renderable) {
 				ImGui::SliderScalar("", ImGuiDataType_Float, &val, &min, &max);
 				uniform.second.val = val;
 			},
-			[&uniform](int v) {
+			[&uniform](int val) {
+				int min{ std::get<int>(uniform.second.min) };
+				int max{ std::get<int>(uniform.second.max) };
+				ImGui::SliderScalar("", ImGuiDataType_S32, &val, &min, &max);
+				uniform.second.val = val;
 			},
-			[&uniform](unsigned int v) {
+			[&uniform](unsigned int val) {
+				unsigned int min{ std::get<unsigned int>(uniform.second.min) };
+				unsigned int max{ std::get<unsigned int>(uniform.second.max) };
+				ImGui::SliderScalar("", ImGuiDataType_U32, &val, &min, &max);
+				uniform.second.val = val;
 			},
 			[&uniform](glm::ivec2 v) {
+				glm::ivec2 vec{ std::get<glm::ivec2>(uniform.second.val) };
+				ImGui::Text("x: %i, y: %i", vec.x, vec.y);
 			},
 			[&uniform](glm::ivec3 v) {
+				glm::ivec3 vec{ std::get<glm::ivec3>(uniform.second.val) };
+				ImGui::Text("x: %i, y: %i, z: %i", vec.x, vec.y, vec.z);
 			},
 			[&uniform](glm::ivec4 v) {
+				glm::ivec4 vec{ std::get<glm::ivec4>(uniform.second.val) };
+				ImGui::Text("x: %i, y: %i, z: %i, w: %i", vec.x, vec.y, vec.z, vec.w);
 			},
 			[&uniform](glm::mat4x4 v) {
+				// Not Yet Implemented
 			},
 			[&uniform](glm::uvec2 v) {
 				glm::uvec2 vec{ std::get<glm::uvec2>(uniform.second.val) };
 				ImGui::Text("x: %u, y: %u", vec.x, vec.y);
 			},
 			[&uniform](glm::uvec3 v) {
+				glm::uvec3 vec{ std::get<glm::uvec3>(uniform.second.val) };
+				ImGui::Text("x: %u, y: %u, z: %u", vec.x, vec.y, vec.z);
 			},
 		    [&uniform](glm::uvec4 v) {
+				glm::uvec4 vec{ std::get<glm::uvec4>(uniform.second.val) };
+				ImGui::Text("x: %u, y: %u, z: %u, w: %u", vec.x, vec.y, vec.z, vec.w);
 			},
 			[&uniform](glm::vec2 v) {
 				glm::vec2 vec{ std::get<glm::vec2>(uniform.second.val) };
@@ -339,7 +429,111 @@ void ImGUI::showStats() {
 	ImGui::End();
 }
 
+static constexpr bool bStyleDark_{ 1 };
+static constexpr float alpha_{ 0.25 };
+
+void ImGUI::setStyles() {
+	ImGuiStyle& style = ImGui::GetStyle();
+
+	style.Alpha = 1.0f;
+	style.FrameRounding = 3.0f;
+
+	style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 0.94f);
+	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
+	style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
+	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.78f, 1.00f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.78f, 1.00f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_Separator] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
+	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+	style.Colors[ImGuiCol_Tab] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_TabActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_TableHeaderBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+	style.Colors[ImGuiCol_TableBorderStrong] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
+	style.Colors[ImGuiCol_TableBorderLight] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+	style.Colors[ImGuiCol_TableRowBg]  = ImVec4(0.96f, 0.96f, 0.96f, 0.15f);
+	style.Colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+//	ImGuiCol_NavHighlight,          // Gamepad/keyboard: current highlighted item
+//		ImGuiCol_NavWindowingHighlight, // Highlight window when using CTRL+TAB
+//		ImGuiCol_NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
+	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+	if (bStyleDark_)
+	{
+		for (int i = 0; i <= ImGuiCol_COUNT; i++)
+		{
+			ImVec4& col = style.Colors[i];
+			float H, S, V;
+			ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
+
+			if (S < 0.1f)
+			{
+				V = 1.0f - V;
+			}
+			ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
+			if (col.w < 1.00f)
+			{
+				col.w *= alpha_;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i <= ImGuiCol_COUNT; i++)
+		{
+			ImVec4& col = style.Colors[i];
+			if (col.w < 1.00f)
+			{
+				col.x *= alpha_;
+				col.y *= alpha_;
+				col.z *= alpha_;
+				col.w *= alpha_;
+			}
+		}
+	}
+}
+
 template<class Archive> void ImGUI::serialize(Archive& ar, unsigned int version) {
 	boost::serialization::void_cast_register<ImGUI, IRenderable>();
 	ar& boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(INavigatable)
+
+template<class Archive> void INavigatable::serialize(Archive& ar, unsigned int version) {
+	ar & queryStr;
+	ar & tabLabel;
 }

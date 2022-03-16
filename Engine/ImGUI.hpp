@@ -6,8 +6,39 @@
 
 #include "Renderable.hpp"
 #include "IImGUI.hpp"
+#include "Database.hpp"
 
 #include "imgui.h"
+
+/// <summary>
+/// GUI implemention walks the scene and will add a Navigation tab for all objects implementing INavigatable,
+/// populating the tab with the result set from the query string.
+/// </summary>
+class INavigatable {
+public:
+    const std::string& query() {
+        return queryStr;
+    }
+    const std::string label() {
+        return tabLabel;
+    }
+    void setQuery(const std::string& q) {
+        queryStr = q;
+    }
+    void setLabel(const std::string& l) {
+        tabLabel = l;
+    }
+
+private:
+    std::string queryStr;
+    std::string tabLabel;
+
+    friend class boost::serialization::access;
+    template<class Archive> void serialize(Archive&, const unsigned int);
+};
+
+BOOST_CLASS_EXPORT_KEY(INavigatable);
+
 
 class ImGUI : public IRenderable {
 public:
@@ -24,6 +55,8 @@ public:
 private:
     std::shared_ptr<IImGUI> platformGUI{ nullptr };
     
+    void setStyles();
+
     bool _showSceneGraph{ false };
     void showSceneGraph();
     void showRenderNodeProps( IRenderable* const );
@@ -52,6 +85,13 @@ private:
 
     bool _showAbout{ false };
     void showAbout();
+
+    std::vector<std::pair<std::string, Database::ResultSet>> tabDefs;
+    std::function<void()> scrapeNavNodes;
+    std::function<bool(SceneObject&)> findNavNodes;
+    bool _showNavigation{ false };
+    void showNavigation();
+
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive&, const unsigned int);

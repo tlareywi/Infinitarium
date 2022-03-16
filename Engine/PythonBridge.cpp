@@ -199,6 +199,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("rotate", &Transform::rotate)
       .def("scale", &Transform::scale)
    ;
+
+   // INavigatable //////////////////////////////////////////////////////////////////////////////////////////
+   class_<INavigatable>("INavigatable", no_init)
+       .def("setQuery", &INavigatable::setQuery)
+       .def("setLabel", &INavigatable::setLabel)
+   ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
    class_<IRenderable, bases<SceneObject>, boost::noncopyable>("IRenderable", no_init)
@@ -217,7 +223,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    ;
    class_<ImGUI, bases<IRenderable>>("ImGUI", init<>())
    ;
-   class_<PointCloud, bases<IRenderable>>("PointCloud", init<>())
+   class_<PointCloud, bases<IRenderable, INavigatable>>("PointCloud", init<>())
       .def("addVertexBuffer", &PointCloud::addVertexBuffer)
       .def("setNumPoints", &PointCloud::setNumPoints)
    ;

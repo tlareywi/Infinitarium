@@ -25,6 +25,14 @@
 
 exec(open('./import_common.py').read())
 
+import csv;
+
+import sqlite3
+dbConnection = sqlite3.connect('../data/infinitarium.db')
+cursor = dbConnection.cursor()
+cursor.execute('''DROP TABLE IF EXISTS HipStars''')
+cursor.execute('''CREATE TABLE HipStars(hipid integer, name text, ra real, dec real)''')
+
 dataRoot = '/media/trystan/DATA/HipTyc/'
 
 if platform.system() == 'Windows':
@@ -79,9 +87,23 @@ hip2Cloud.setUniform( 'saturationMagnitude', engine.Uniform(engine.UniformType(-
 hip2Cloud.setUniform( 'diskBrightness', engine.Uniform(engine.UniformType(28.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
 hip2Cloud.setUniform( 'haloBrightness', engine.Uniform(engine.UniformType(1.0), engine.UniformType(0.0), engine.UniformType(50.0)) )
 
+hip2Cloud.setQuery( 'SELECT name FROM HipStars WHERE name IS NOT NULL ORDER BY name ASC;' )
+hip2Cloud.setLabel( 'Common Stars' )
+
+# Parse star common names file
+common_names = {}
+fh = open('common_star_names.txt', "r")
+for line in fh.read().splitlines():
+    fields = line.split('|')
+    if len(fields) > 1:
+        common_names[fields[0]] = fields[1]
+fh.close()
+
 print('Processing ...')
 
-skipped = 0
+insertStarQuery = """INSERT INTO HipStars (hipid, name, ra, dec) VALUES (?, ?, ?, ?);"""
+
+skipped = 0 
 numRecrods = 0
 maxDist = 0
 for record in t.filled():
@@ -99,7 +121,13 @@ for record in t.filled():
     apparentMagV.add( magnitude )
     color.addVec3(rgb[0], rgb[1], rgb[2])
     numRecrods += 1
+    # Insert record into application DB for representation in the navigation UI
+    hipId = record['HIP']
+    data_tuple = ( hipId, common_names.get(str(hipId)), record['RArad'], record['DErad'] )
+    cursor.execute( insertStarQuery, data_tuple )
 
+dbConnection.commit()
+dbConnection.close()
 hip2Cloud.setNumPoints( numRecrods )
 
 print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due incomplete or non-sensical data.')
