@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Application.hpp"
@@ -11,8 +11,10 @@
 	#include "../../Renderers/Vulkan/OpenXRContext.hpp"
 #endif
 
-#if (WIN32)
+#if defined(WIN32)
 	#define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(__APPLE__)
+    #define GLFW_EXPOSE_NATIVE_COCOA
 #else
 	#define GLFW_EXPOSE_NATIVE_X11
 #endif

@@ -38,6 +38,8 @@ imgui = engine.ImGUI()
 imgui.setName('GUI Renderable')
 gui.addChild( imgui )
 
+os.chdir(homeDir)
+
 print( 'Exporting ' + exportPath + 'imgui.ieb' )
 scene.save(exportPath + 'imgui.ieb')
 

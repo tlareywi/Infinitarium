@@ -13,11 +13,14 @@ if( MSVC )
     include_directories(${GLM_INCLUDE_DIR})
 endif( MSVC )
 
-add_executable( Infinitarium main.cpp
-)
+add_executable( Infinitarium main.cpp )
 
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD 17)
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories("./ImGui")
 
@@ -30,12 +33,7 @@ include_directories(${Python3_INCLUDE_DIRS})
 
 add_subdirectory( ImGui )
 
-if( APPLE )
-    add_subdirectory( Renderers/Metal )
-    add_subdirectory( Platforms/OSX )
-else( APPLE )
-    add_subdirectory( Renderers/Vulkan )
-endif( APPLE )
+add_subdirectory( Renderers/Vulkan )
 
 add_subdirectory( Engine )
 target_link_libraries( Infinitarium InfinitariumEngine )
@@ -43,5 +41,10 @@ target_link_libraries( Infinitarium InfinitariumEngine )
 add_subdirectory( data )
 
 configure_file( config.in ${CMAKE_SOURCE_DIR}/config.h )
+
+if( APPLE )
+    # Allow resign on install (fix for SIP enabled systems)
+    set(CMAKE_XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "-o linker-signed")
+endif( APPLE )
 
 install(TARGETS Infinitarium RUNTIME DESTINATION bin)

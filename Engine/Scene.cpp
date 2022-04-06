@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Scene.hpp"
@@ -83,7 +83,7 @@ void Scene::setLocalScenePath( const std::string& path ) {
 }
 
 void Scene::save( const std::string& filename ) const {
-   std::ofstream ofs( filename, std::fstream::binary );
+   std::ofstream ofs( filename, std::ofstream::binary | std::ofstream::trunc );
    if( !ofs.is_open() ) {
       std::cout<<"Unable to open "<<filename<<". Do you have write permissions?"<<std::endl;
    }

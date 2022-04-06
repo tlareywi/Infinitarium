@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #define NOMINMAX // TODO: move to cmakelists
@@ -165,8 +165,10 @@ void VulkanRenderPass::prepare(IRenderContext& context) {
 			//renderTargetStacks.emplace(derivedPtr, std::make_unique<RenderTargetStack>(*vkContext, *target, static_cast<uint8_t>(vkContext->numImages())));
 			derivedPtr->attach(vkContext, *this);
 		}
-		else
+        else {
+            std::cout<<"Prepare on "<<reinterpret_cast<unsigned long long>(this)<<std::endl;
 			vkContext.attachSwapchain(*this); // Context maintains the swapchain RenderTargetStack
+        }
 	}
 
 	//for (auto& stack : renderTargetStacks) {
@@ -193,8 +195,10 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	}
 
 	auto fbResource = currentTarget->getFramebuffer(*this);
-	if (!fbResource || !currentTarget->getCmdBuffer()) 
-		return;
+    if (!fbResource || !currentTarget->getCmdBuffer()) {
+        // This is going to cause problems downstream. Just throw.
+        throw std::runtime_error("Resources not allocated prior to RenderPass::begin!");
+    }
 
 	VkFramebuffer fb = (*fbResource)();
 
@@ -224,7 +228,7 @@ void VulkanRenderPass::begin(IRenderContext& context) {
 	
 	// TODO: Maybe makes more sense to have a stack of command buffers, one per swapchain image, tied to a RenderPass
 	// as opposed to a command buffer on every RenderTarget? Maybe 6 to one, half dozen to the other. Just seems odd
-	// in the MRT case to pick one command buffer arbitarily from multiple targets. 
+	// in the MRT case to pick one command buffer arbitarily from multiple targets.
 	if( vkBeginCommandBuffer(currentTarget->getCmdBuffer(), &beginInfo) != VK_SUCCESS )
 		throw std::runtime_error("failed to begin recording command buffer!");
 
@@ -257,7 +261,7 @@ void VulkanRenderPass::end(IRenderContext& context) {
 
 	vkCmdEndRenderPass(currentTarget->getCmdBuffer());
 	if( vkEndCommandBuffer(currentTarget->getCmdBuffer()) != VK_SUCCESS ) {
-		throw std::runtime_error("failed to record command buffer!");
+		throw std::runtime_error("Failed to record command buffer!");
 	}
 	
 	std::vector<VkSemaphore> waitSemaphores;

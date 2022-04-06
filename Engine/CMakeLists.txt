@@ -31,8 +31,8 @@ include_directories("../ImGui")
 target_link_libraries(InfinitariumEngine ImGUI)
 
 # boost
-find_package(Boost COMPONENTS serialization python310 REQUIRED)
-target_link_libraries(InfinitariumEngine ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON310_LIBRARY})
+find_package(Boost COMPONENTS serialization python3 REQUIRED)
+target_link_libraries(InfinitariumEngine ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON3_LIBRARY})
 include_directories(${Boost_INCLUDE_DIR})
 
 # python3

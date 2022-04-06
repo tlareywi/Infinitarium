@@ -1,10 +1,13 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "ImGUI.hpp"
 #include "RenderContext.hpp"
 #include "RenderPass.hpp"
+#include "Application.hpp"
+
+#include <thread>
 
 VulkanImGUI::~VulkanImGUI() {
 	ImGui_ImplVulkan_Shutdown();
@@ -24,8 +27,16 @@ void VulkanImGUI::initImGUI(IRenderPass& renderPass) {
 		//ImGui::StyleColorsClassic();
 
 		// Setup Platform/Renderer bindings
-		if( window )
-			ImGui_ImplGlfw_InitForVulkan(window, true);
+        if( window ) {
+            std::atomic<bool> done{false};
+            std::function<void()> f = [this, &done](){
+                ImGui_ImplGlfw_InitForVulkan(window, true);
+                done = true;
+            };
+            CreateApplication()->runOnUIThread( f );
+            while( !done )
+                std::this_thread::yield();
+        }
 		else {
 			io.DisplaySize.x = static_cast<float>(fbWidth);
 			io.DisplaySize.y = static_cast<float>(fbHeight);
@@ -81,8 +92,16 @@ void VulkanImGUI::apply(IRenderPass& renderPass) {
 
 	ImGui_ImplVulkan_NewFrame();
 
-	if( window )
-		ImGui_ImplGlfw_NewFrame();
+    if( window ) {
+        std::atomic<bool> done{false};
+        std::function<void()> f = [&done](){
+            ImGui_ImplGlfw_NewFrame();
+            done = true;
+        };
+        CreateApplication()->runOnUIThread( f );
+        while( !done )
+            std::this_thread::yield();
+    }
 }
 
 void VulkanImGUI::update() {

@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -9,14 +9,14 @@
 
 #include "vulkan/vulkan.h"
 
-#include <map>
+#include <unordered_map>
 
 class VulkanRenderContext;
 class VulkanImage;
 class VulkanRenderPass;
 
 static inline void CheckVkResult( VkResult result ) {
-	assert(result == VK_SUCCESS);
+	assert(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
 }
 
 /// <summary>
@@ -153,7 +153,7 @@ private:
 class RenderTargetStack {
 public:
 	RenderTargetStack(VulkanRenderContext&, const std::vector<VkImageViewCreateInfo>&);
-	RenderTargetStack::RenderTargetStack(VulkanRenderContext&, const VulkanRenderTarget&, uint8_t);
+	RenderTargetStack(VulkanRenderContext&, const VulkanRenderTarget&, uint8_t);
 	~RenderTargetStack();
 
 	VulkanRenderTarget& operator[](uint8_t indx);

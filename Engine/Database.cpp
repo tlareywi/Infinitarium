@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Database.hpp"
@@ -14,7 +14,8 @@ Database::Database() : db(nullptr) {
 
 	if (rc) {
 		const std::string str("Fatal: Database exception, ");
-		std::exception e( (str + sqlite3_errmsg(db)).c_str() );
+        std::string strErr{str + sqlite3_errmsg(db)};
+		std::runtime_error e( strErr );
 		throw(e);
 	}
 }

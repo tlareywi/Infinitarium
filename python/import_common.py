@@ -7,6 +7,8 @@ import ctypes
 import platform
 import os
 
+homeDir = os.getcwd()
+
 if platform.system() == 'Windows':
     exportPath = '../data/Windows/'
     sys.path.append('''C:\\Program Files (x86)\\Infinitarium\\bin''')

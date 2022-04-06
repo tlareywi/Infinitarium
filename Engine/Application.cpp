@@ -1,10 +1,12 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Application.hpp"
 #include "Module.hpp"
 #include "Scene.hpp"
+
+#include <thread>
 
 std::shared_ptr<IApplication> IApplication::Create() {
    return ModuleFactory<RendererFactory>::Instance()->createApplication();
@@ -16,6 +18,15 @@ void IApplication::run( Scene& scene ) {
             scene.mainThread();
 
         platformRun();
+        
+        {
+            std::scoped_lock lock(threadQLock);
+            while( uiThreadQueueIndx > 0 ) {
+                uiThreadQueue[uiThreadQueueIndx - 1]();
+                --uiThreadQueueIndx;
+            }
+        }
+            
         std::this_thread::yield();
     }
 }

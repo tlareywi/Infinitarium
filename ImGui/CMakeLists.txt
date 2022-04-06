@@ -1,14 +1,6 @@
 cmake_minimum_required( VERSION "3.12" )
 project( ImGUI )
 
-if( APPLE )
-add_library( ImGUI SHARED 
-  imgui.cpp imgui_widgets.cpp imgui_draw.cpp imgui_demo.cpp
-  examples/imgui_impl_metal.mm
-  examples/imgui_impl_osx.mm
-  ImGuiFileDialog.cpp
-)
-else( APPLE )
 add_library( ImGUI SHARED 
   imgui.cpp imgui_widgets.cpp imgui_tables.cpp imgui_draw.cpp imgui_demo.cpp
   examples/imgui_impl_vulkan.cpp 
@@ -25,7 +17,6 @@ find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h HINTS "C:\\Program Files (x86)\\GLFW\\in
 include_directories(${GLFW_INCLUDE_DIR})
 find_library(GLFW_LIB NAMES glfw3 glfw HINTS "C:\\Program Files (x86)\\GLFW\\lib")
 target_link_libraries(ImGUI ${GLFW_LIB})
-endif( APPLE )  
 
 include_directories(".")
 

@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <array>
 #include <variant>
 
 #include <iostream>
@@ -56,6 +57,7 @@ public:
    IE_EXPORT void run( Scene& scene );
    virtual void platformRun() = 0;
 
+   virtual void runOnUIThread( std::function<void()>& ) = 0;
    virtual void stop() = 0;
    virtual void destroy() = 0;
    virtual void addManipulator( const std::string& id, float, float, float ) = 0;
@@ -68,10 +70,19 @@ protected:
         ImGui::CreateContext();
     }
 
+    void pushFunction( std::function<void()>& f ) {
+        assert(uiThreadQueueIndx < 30);
+        std::scoped_lock lock(threadQLock);
+        uiThreadQueue[uiThreadQueueIndx++] = f;
+    }
     std::atomic<bool> running{ true };
     std::atomic<bool> terminatePending{ false };
    
 private:
+   std::array<std::function<void()>, 30> uiThreadQueue;
+   size_t uiThreadQueueIndx = 0;
+   std::mutex threadQLock;
+    
    std::shared_ptr<IPythonInterpreter> pyInterp;
    std::vector<std::pair<std::size_t, std::shared_ptr<IDelegate>>> subscribers;
 };

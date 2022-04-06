@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -144,8 +144,10 @@ private:
 	std::unique_ptr<RenderTargetStack> swapchainTargets;
 
 	const std::vector<const char*> deviceExtensions = { 
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+#ifndef __APPLE__
+		,VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME // For shader debugging
+#endif
 	};
 
 	std::vector<VkSemaphore> imageAvailableSemaphore;

@@ -195,6 +195,7 @@ transform.addChild( sphere )
 mainCamera.addChild( transform )
 
 # Write scene file --------------------------------------------------------------------------------
+os.chdir(homeDir)
 exportPath = exportPath + 'radiantBody.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
