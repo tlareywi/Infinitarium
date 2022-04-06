@@ -1,13 +1,13 @@
 # Introduction
-This 'star catalog viewer' is more or less a sandbox for me to fuss with modern graphics APIs such as Metal and Vulkan. It's not yet particularly usable, but it does some cool stuff such as ...
+A real-time graphics engine geared toward astronomy visualizations/simulation. Basically a passion project, and nowhere near production ready, but is growing ever more capable. The architectural focus is a bit different from projects like Stellarium. I wanted to make it easy to import new data-sets, star catalogs, etc. so a significant effort has been spent on Python integration so tools like AstroPy can be easilly leveraged. Complete scenes can be defined and exported via a Python script and then loaded into the C++/Vulkan viewer. Some features include;
+
+* Fast Vulkan renderer, MacOS support via MoltenVK
+* Cross platform; Windows, Linux, MacOS
 * ImGUI integration
 * OpenXR integration for stereoscopic headset rendering
-    * Tested on Valve Index. Theoretically works on other stero headsets (not phone adaptors)
-* Vulkan backend under continuous development. Metal abondoned. OSX support via Molten planned. 
-* Astropy and Python integration
-    * See the python folder for scripts that pull data from VizieR
+    * Tested on Valve Index. Theoretically works on other stereo headsets (not phone adaptors)
 * Highly customizable and distributable scene files
-    * Catalog data and the graphics pipeline configuration itself can be modified and serialized out to a scene
+    * Even the graphics pipeline configuration can be modified and serialized out to a custom scene via Python
 
 #### Tycho2 Catalog Render
 ![Tycho2 Catalog](screen_captures/tycho2.png)
@@ -19,22 +19,23 @@ This 'star catalog viewer' is more or less a sandbox for me to fuss with modern 
 * General stabilization of existing feautres and cross-platform builds     
 
 ### Supported Platforms
-Windows and Linux (Vulkan). OSX (Molten). Windows is currently under active development and will be the most stable and likely to build off the mainline.
+Windows, Linux, MacOS (hardware must support Metal). Windows is currently the active development environment and will be the most stable and likely to build off the mainline.
 
 ### Build Dependencies
 I'll get around to documenting this once things stabilize a bit. It's a Cmake build system, so it will let you know what's missing ;) But you at least need the following.
-* Boost 1.78 (or other boost versions that are on boost_python 3.10)
-* Python 3.10.x (where the x matches the whater version boost_python was validated against)
+* Boost
+* Boost_python3.x (sometimes a separate package in package managers)
+* Python3.x (make sure the boost_python version matches your python version!)
 * GLFW
 * GLM
-* VulkanSDK
+* VulkanSDK (this includes MoltenVK for MacOS)
 * SQLite
 * OpenXR (optional)
 
 ### Required Runtime Dependencies
-* Python 3.10.x
+* Python3.x
 * Boost Serialization
-* Boost_Python
+* Boost_Python3.x
 * SQLite
 * GLFW
 
@@ -44,3 +45,4 @@ I'll get around to documenting this once things stabilize a bit. It's a Cmake bu
 
 ### Usage
 Startup scene has a minimal ImGui interface that allows loading of sample scenes such as Hipparcos and Tyco2 catalogs. The Scenegraph window allows exploration of the current scene nodes and interactive manipulation of shader uniforms. Various aspects of rendering such as star appearance can be adjusted this way. 
+
