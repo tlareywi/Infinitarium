@@ -56,6 +56,11 @@ void Transform::translate( float x, float y, float z ) {
    transform = glm::translate( glm::mat4(1.0), glm::vec3(x, y, z) ) * transform;
 }
 
+void Transform::applyTranslate(const glm::dvec3& point) {
+    glm::vec3 fvec(point.x, point.y, point.z);
+    transform = glm::translate(glm::mat4(1.0), fvec) * transform;
+}
+
 void Transform::rotate( float degrees, float x, float y, float z ) {
    transform = glm::rotate( glm::mat4(1.0), glm::radians(degrees), glm::vec3(x, y, z)) * transform;
 }

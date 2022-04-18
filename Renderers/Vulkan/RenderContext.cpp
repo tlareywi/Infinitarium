@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "../../Engine/Application.hpp"
@@ -298,7 +298,8 @@ void VulkanRenderContext::endFrame() {
 
 	presentInfo.pResults = nullptr; // Optional
 
-	if (vkQueuePresentKHR(graphicsQueue, &presentInfo) != VK_SUCCESS) {
+    VkResult retVal = vkQueuePresentKHR(graphicsQueue, &presentInfo);
+	if (retVal != VK_SUCCESS && retVal != VK_SUBOPTIMAL_KHR) {
 		while (renderingPaused) // Generally indecates app is minimized
 			std::this_thread::yield();
 

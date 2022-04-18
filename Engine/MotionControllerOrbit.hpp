@@ -21,9 +21,12 @@ public:
    void setAnchor( const std::shared_ptr<SceneObject>& obj );
 
    void animate(const glm::vec3&, const glm::quat&, double ) override;
-   void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&) const override;
+   void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&, double& distance) const override;
       
 protected:
+   void resetCenter(const glm::dvec3& pos) override;
+   void setDistance(double d) override { _distance = d; }
+   void setViewComponents(const glm::dvec3&, const glm::dvec3&, const glm::dvec3&) override;
    void onKeyDown( const IEventSampler::Key& ) override;
    void onMouseMove( const IEventSampler::MouseMove& ) override;
    void onMouseDrag( const IEventSampler::MouseDrag& ) override;
@@ -33,8 +36,6 @@ protected:
    void updateAnimation( double ) override;
    
 private:
-   void setViewComponents(const glm::dvec3&, const glm::dvec3&, const glm::dvec3&);
-   void resetCenter(const glm::dvec3& pos);
    void calculateAngleAxis( glm::dvec3& axis, float& angle, const glm::vec2&, const glm::vec2& );
    void rotateAboutAnchor( const glm::vec2&, const glm::vec2& );
    

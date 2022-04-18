@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Application.hpp"
@@ -56,7 +56,8 @@ WinApplication::WinApplication() : vkInstance(nullptr), xrInstance(nullptr) {
 		extensions.push_back(glfwExt[i]);
 	createInfo.enabledLayerCount = 0;
 
-#ifdef NDEBUG
+// No layer loading available on MoltenVK
+#if defined(NDEBUG) || defined(__APPLE__)
 	enableValidation = false;
 #else
 	enableValidation = initValidationLayers(createInfo);
@@ -254,9 +255,26 @@ void WinApplication::registerValidationCallBack( VkInstance vkInstance ) {
 	}
 }
 
-RENDERER_EXPORT std::shared_ptr<IApplication> CreateApplication() {
-	return WinApplication::Instance();
+std::shared_ptr<IApplication> MacApplication::Instance() {
+    if (!instance)
+        instance = std::make_shared<MacApplication>();
+
+    return instance;
 }
+
+void MacApplication::runOnUIThread(std::function<void ()>& fun) {
+    pushFunction( fun );
+}
+
+#if defined(__APPLE__)
+    RENDERER_EXPORT std::shared_ptr<IApplication> CreateApplication() {
+        return MacApplication::Instance();
+    }
+#else
+    RENDERER_EXPORT std::shared_ptr<IApplication> CreateApplication() {
+        return WinApplication::Instance();
+    }
+#endif
 
 #if (WIN32)
 BOOL WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID ) {

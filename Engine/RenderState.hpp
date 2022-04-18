@@ -19,6 +19,12 @@ public:
        Back
    };
 
+   enum class PolygonMode {
+       Fill,
+       Line,
+       Point
+   };
+
    IRenderState() {}
    virtual ~IRenderState() {
        renderProgram = nullptr;
@@ -38,6 +44,7 @@ public:
    virtual void applyImpl( IRenderPass& ) = 0;
 
    virtual void setCullMode( IRenderState::CullMode ) = 0;
+   virtual void setPolygonMode( IRenderState::PolygonMode ) = 0;
 
 private:
    std::shared_ptr<IRenderProgram> renderProgram;

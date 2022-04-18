@@ -6,6 +6,8 @@
 #include "Delegate.hpp"
 #include "Application.hpp"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Orbit)
 
 static std::mutex viewMutex{ std::mutex() };
@@ -49,10 +51,11 @@ void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
    resetCenter(obj->getCenter());
 }
 
-void Orbit::getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up) const {
+void Orbit::getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up, double& distance) const {
     center = _center;
     eye = _center + _rotation * glm::dvec3(0., 0., _distance);
-    up = _rotation * glm::dvec3(0., 1., 0.);
+    up = _yawPitchRoll * _rotation * glm::dvec3(0., 1., 0.);
+    distance = _distance;
 }
 
 void Orbit::setViewComponents(const glm::dvec3& eye, const glm::dvec3& center, const glm::dvec3& up) {
@@ -92,7 +95,8 @@ void Orbit::resetCenter(const glm::dvec3& pos) {
     oldView = glm::inverse(oldView);
 
     glm::dvec3 eye, center, up;
-    getViewComponents(eye, center, up);
+    double distance;
+    getViewComponents(eye, center, up, distance);
     setViewComponents(eye, pos, up);
 
     // Derive rotation needed to make the new view matrix equivalent to the old one but with the new composition.
@@ -114,11 +118,11 @@ void Orbit::onKeyDown( const IEventSampler::Key& evt ) {
          break;
       }
       case 'w': {
-         _distance -= 0.4;
+          _distance = std::max( _distance - 0.4 * movementMultiple, 0.0 );
          break;
       }
       case 's': {
-         _distance += 0.4;
+         _distance += 0.4 * movementMultiple;
          break;
       }
       case 256: { //ESC
@@ -181,8 +185,6 @@ void Orbit::onMouseDoubleClick( const IEventSampler::MouseButton& ) {
    
    setAnchor( selectedObject );
 
-   glm::dvec3 eye, center, up;
-   getViewComponents(eye, center, up);
    animate( glm::dvec3(0,0,5.0), glm::dquat(1,0,0,0), 5000.0 );
 }
    
@@ -196,7 +198,7 @@ void Orbit::onMouseDrag( const IEventSampler::MouseDrag& evt ) {
         _yawPitchRoll = glm::rotate(_yawPitchRoll, glm::radians((double)-evt.dy), glm::dvec3(1.0, 0.0, 0.0));
     }
     else if (evt.button == IEventSampler::Button::MIDDLE) {
-        _distance -= (double)evt.dy;
+        _distance = std::max( _distance - (double)evt.dy * std::min(_distance, 0.1) * movementMultiple, 0.0 );
     }
     else if (evt.button == IEventSampler::Button::RIGHT) {
         rotateAboutAnchor(glm::vec2(0.0f, 0.0f), glm::vec2(-evt.dx, evt.dy));

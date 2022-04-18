@@ -31,6 +31,7 @@ public:
    void identity();
    void scale( float x, float y, float z );
    void translate( float x, float y, float z );
+   void applyTranslate( const glm::dvec3& );
    void rotate( float angle, float x, float y, float z );
    
 private:

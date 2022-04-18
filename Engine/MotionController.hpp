@@ -48,16 +48,27 @@ public:
    
    void pushHome( const UniversalPoint& p );
    void popHome();
+   bool onHomeStack(const UniversalPoint& p);
    UniversalPoint getHome() {
       return homeStack.back();
    }
+   UniversalPoint childSystem(const UniversalPoint& p) const;
    
    void select( const std::shared_ptr<SceneObject>& );
 
    virtual void animate(const glm::vec3& destPos, const glm::quat& destOrient, double ms);
-   virtual void getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up) const;
+   virtual void getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up, double& distance) const;
+   glm::dmat4 localView(const UniversalPoint&);
+   double setMovementMultiple( double m ) { 
+       double oldMult = movementMultiple;
+       movementMultiple = m; 
+       return oldMult;
+   }
    
 protected:
+   virtual void resetCenter(const glm::dvec3& pos) {}
+   virtual void setDistance(double) {}
+   virtual void setViewComponents(const glm::dvec3& eye, const glm::dvec3& center, const glm::dvec3& up);
    virtual void onKeyDown( const IEventSampler::Key& ) {}
    virtual void onKeyUp( const IEventSampler::Key& ) {}
    virtual void onMouseButtonDown( const IEventSampler::MouseButton& ) {}
@@ -71,6 +82,7 @@ protected:
    
    glm::dmat4 cameraTransform;
    double cameraFOV{ 60.0 };
+   double movementMultiple{ 1.0 };
    std::vector<UniversalPoint> homeStack;
    
    std::shared_ptr<IEventSampler> eventSampler;

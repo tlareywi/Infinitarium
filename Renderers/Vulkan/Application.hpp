@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -8,8 +8,10 @@
 
 #include <atomic>
 
-#if (WIN32)
+#if defined(WIN32)
 	#define VK_USE_PLATFORM_WIN32_KHR 
+#elif defined(__APPLE__)
+    #define VK_USE_PLATFORM_METAL_EXT
 #else
 	#define VK_USE_PLATFORM_X11_KHR
 #endif
@@ -31,6 +33,8 @@ public:
 	static std::shared_ptr<IApplication> Instance();
 	WinApplication();
 	virtual ~WinApplication();
+    
+    void runOnUIThread( std::function<void()>& f ) override { f(); }
 
 	void platformRun() override;
 	void stop() override;
@@ -54,6 +58,9 @@ public:
 	const VkInstanceCreateInfo& getCreateInfo() {
 		return createInfo;
 	}
+    
+protected:
+    static std::shared_ptr<IApplication> instance;
 
 private:
 	const std::vector<const char*> validationLayers = {
@@ -64,8 +71,6 @@ private:
 	void registerValidationCallBack( VkInstance );
 	VkValidationFeaturesEXT enabledFeatures;
 	std::vector<VkValidationFeatureEnableEXT> enabledValidationExt;
-
-	static std::shared_ptr<IApplication> instance;
 	
 	// Vulkan
 	VkApplicationInfo appInfo = {};
@@ -90,4 +95,13 @@ private:
 #endif
 
 };
+
+class MacApplication : public WinApplication {
+public:
+    static std::shared_ptr<IApplication> Instance();
+    void runOnUIThread( std::function<void()>& ) override;
+};
+
+// Forward Decl
+RENDERER_EXPORT std::shared_ptr<IApplication> CreateApplication();
 

@@ -41,7 +41,7 @@ void VulkanRenderState::prepareImpl(IRenderContext& context, IRenderCommand& com
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer.polygonMode = polygonMode;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = cullMode;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
@@ -146,6 +146,21 @@ void VulkanRenderState::setCullMode(IRenderState::CullMode mode) {
 	case IRenderState::CullMode::None:
 	default:
 		cullMode = VK_CULL_MODE_NONE;
+		break;
+	}
+}
+
+void VulkanRenderState::setPolygonMode(IRenderState::PolygonMode mode) {
+	switch (mode) {
+	case IRenderState::PolygonMode::Fill:
+		polygonMode = VK_POLYGON_MODE_FILL;
+		break;
+	case IRenderState::PolygonMode::Line:
+		polygonMode = VK_POLYGON_MODE_LINE;
+		break;
+	case IRenderState::PolygonMode::Point:
+	default:
+		polygonMode = VK_POLYGON_MODE_POINT;
 		break;
 	}
 }

@@ -68,7 +68,9 @@ void PointCloud::definePickOp() {
         }, p->second); }
 
         UniversalPoint center(pos, UniversalPoint::Parsec);
-        std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 40.0, UniversalPoint::AstronomicalUnit );
+        // At least in our own solar system, orbits of commets go out ~50,000AU
+        std::shared_ptr<CoordinateSystem> system = std::make_shared<CoordinateSystem>( center, 50000.0, UniversalPoint::AstronomicalUnit );
+        system->setName("CoordinateSystem");
         addChild( system );
         motionController->select( system );
 

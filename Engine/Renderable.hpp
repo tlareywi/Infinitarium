@@ -49,6 +49,10 @@ public:
    void setCullMode(IRenderState::CullMode mode) {
        cullMode = mode;
    }
+
+   void setPolygonMode(IRenderState::PolygonMode mode) {
+       polygonMode = mode;
+   }
    
    void setTexture( const std::shared_ptr<ITexture>& );
 
@@ -94,6 +98,7 @@ private:
    // renderables with compatible state share the same RenderState instance, and thus share render pipelines. 
    std::string programName;
    IRenderState::CullMode cullMode{IRenderState::CullMode::None};
+   IRenderState::PolygonMode polygonMode{ IRenderState::PolygonMode::Fill };
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive&, const unsigned int);

@@ -53,9 +53,10 @@ public:
    mpf getMultiplier(Unit, Unit) const;
   
    Unit getUnit() const { return unit; }
-   glm::dvec3 getPoint() { return point; }
+   glm::dvec3 getPoint() const { return point; }
    
    double distance( const UniversalPoint& ) const;
+   double convert( double, Unit ) const;
    UniversalPoint convert( Unit ) const;
    
 private:
@@ -72,9 +73,11 @@ private:
 class CoordinateSystem : public SceneObject {
 public:
    CoordinateSystem() {}
-   CoordinateSystem( const UniversalPoint& c, double r, UniversalPoint::Unit u ) : center(c), radius(r), units(u) {}
+   CoordinateSystem(const UniversalPoint& c, double r, UniversalPoint::Unit u);
    
+   void prepare(IRenderContext&) override;
    void update( UpdateParams& ) override; // Convert matrix to this coordinate system if position outside radius, traverse proxy
+   void render(IRenderPass&) override;
    
    // TODO: this assumes the viewer is outside the system. May not always return value in expected units.
    glm::vec3 getCenter() override;
@@ -82,13 +85,18 @@ public:
 private:
    // Will need crossfade between these:
    // Implicit subgraph, SceneObject children, Visible when inside of system at this system's scale
-   std::shared_ptr<SceneObject> proxy; // Visible when outside of system at parent system sclae (optional)
+   std::shared_ptr<SceneObject> proxy; // Visible when outside of system at parent system scale (optional)
    
    UniversalPoint center; // Center in parent units
-   double radius; // In the units below
+   double radius; // In this CoordinateSystem's units
    UniversalPoint::Unit units; // Units of this system
+   bool active{ false };
    
    friend class boost::serialization::access;
    template<class Archive> void serialize( Archive& ar, const unsigned int );
 };
+
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT_KEY(CoordinateSystem);
+BOOST_CLASS_EXPORT_KEY(UniversalPoint);
 

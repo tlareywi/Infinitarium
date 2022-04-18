@@ -43,6 +43,8 @@ t = Table.read(dataRoot + "hip2.dat",
         readme=dataRoot + "readme.hip2",
         format="ascii.cds")
 
+print('Building Scene ...')
+
 t['Plx'].fill_value = 0
 
 scene = engine.Scene()
@@ -56,6 +58,7 @@ context = engine.IRenderContext.create(0, 0, 1920, 1080, False, False)
 camera.setRenderContext( context )
 
 origin = engine.UniversalPoint( 0, 0, 0, engine.Unit.Parsec )
+stars3D = engine.CoordinateSystem( origin, 1.0e9, engine.Unit.Parsec )
 
 # Main RenderPass
 renderPass = engine.IRenderPass.create()
@@ -89,6 +92,8 @@ hip2Cloud.setUniform( 'haloBrightness', engine.Uniform(engine.UniformType(1.0), 
 
 hip2Cloud.setQuery( 'SELECT name FROM HipStars WHERE name IS NOT NULL ORDER BY name ASC;' )
 hip2Cloud.setLabel( 'Common Stars' )
+
+print('Reading common names ...')
 
 # Parse star common names file
 common_names = {}
@@ -135,7 +140,8 @@ print('\nWriting', numRecrods, 'records.', skipped, 'records skipped to due inco
 hip2Cloud.addVertexBuffer( engine.wrap(position), 'position' )
 hip2Cloud.addVertexBuffer( engine.wrap(apparentMagV), 'magnitude' )
 hip2Cloud.addVertexBuffer( engine.wrap(color), 'color' )
-camera.addChild( hip2Cloud )
+camera.addChild( stars3D )
+stars3D.addChild( hip2Cloud )
 
 initImGUI( scene, context, renderTarget )
 

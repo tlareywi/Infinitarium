@@ -86,6 +86,7 @@ void IRenderable::prepare( IRenderContext& context ) {
    pipelineState->setProgram( shader );
 
    pipelineState->setCullMode( cullMode );
+   pipelineState->setPolygonMode( polygonMode );
    
    pipelineState->prepare( context, *renderCommand );
 }
@@ -118,6 +119,8 @@ void IRenderable::update(UpdateParams& params) {
                 uniformData->set(&e, offset, sz);
         }, i.second.val);
     }
+
+    SceneObject::update(params);
 }
 
 void IRenderable::render( IRenderPass& renderPass ) {
@@ -129,6 +132,8 @@ void IRenderable::render( IRenderPass& renderPass ) {
     uniformData->commit(); // Copy to GPU
     pipelineState->apply( renderPass );
     renderCommand->encode( renderPass, *pipelineState );
+
+    SceneObject::render(renderPass);
 }
 
 void IRenderable::addSampler(const std::shared_ptr<IRenderTarget>& samplerSource) {
@@ -195,25 +200,26 @@ std::vector<std::pair<std::string, Uniform>>& IRenderable::getUniforms() {
 }
 
 template<class Archive> void IRenderable::save( Archive& ar ) const {
-   ar << boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+   ar << boost::serialization::base_object<SceneObject>(*this);
 
-   ar << BOOST_SERIALIZATION_NVP(uniforms);
-   ar << BOOST_SERIALIZATION_NVP(programName);
-   ar << BOOST_SERIALIZATION_NVP(cullMode);
+   ar << uniforms;
+   ar << programName;
+   ar << cullMode;
+   ar << polygonMode;
 
    bool hasTextureResource{ false };
   
    if( texture == nullptr )
-	   ar << BOOST_SERIALIZATION_NVP( hasTextureResource );
+	   ar << hasTextureResource;
    else {
       hasTextureResource = true;
-      ar << BOOST_SERIALIZATION_NVP( hasTextureResource );
+      ar << hasTextureResource;
       std::unique_ptr<TextureProxy> t = std::make_unique<TextureProxy>(*texture);
-      ar << BOOST_SERIALIZATION_NVP(t);
+      ar << t;
    }
 
    size_t szSamplers{ samplers.size() };
-   ar << BOOST_SERIALIZATION_NVP(szSamplers);
+   ar << szSamplers;
 
    // Memory leak but we don't care. This will ensure we get a unique address for each proxy object so
    // boost doesn't try to skip serializing the object. If we create the proxy on the stack, it's the 
@@ -223,22 +229,23 @@ template<class Archive> void IRenderable::save( Archive& ar ) const {
 }
 
 template<class Archive> void IRenderable::load( Archive& ar ) {
-   ar >> boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+   ar >> boost::serialization::base_object<SceneObject>(*this);
 
-   ar >> BOOST_SERIALIZATION_NVP(uniforms);
-   ar >> BOOST_SERIALIZATION_NVP(programName); 
-   ar >> BOOST_SERIALIZATION_NVP(cullMode);
+   ar >> uniforms;
+   ar >> programName; 
+   ar >> cullMode;
+   ar >> polygonMode;
    
    bool hasTextureResource{ false };
-   ar >> BOOST_SERIALIZATION_NVP(hasTextureResource);
+   ar >> hasTextureResource;
    if( hasTextureResource ) {
       std::unique_ptr<TextureProxy> t;
-      ar >> BOOST_SERIALIZATION_NVP(t);
+      ar >> t;
       texture = ITexture::Clone( *t ); 
    }
 
    size_t szSamplers;
-   ar >> BOOST_SERIALIZATION_NVP(szSamplers);
+   ar >> szSamplers;
 
    samplers.reserve(szSamplers);
    for (unsigned int i = 0; i < szSamplers; ++i) {
@@ -266,7 +273,7 @@ template<class Archive> void IRenderable::serialize(Archive& ar, unsigned int ve
 
 template<class Archive> void ClearScreen::serialize(Archive& ar, unsigned int version) {
 	boost::serialization::void_cast_register<ClearScreen, IRenderable>();
-	ar & boost::serialization::make_nvp("IRenderable", boost::serialization::base_object<IRenderable>(*this));
+	ar & boost::serialization::base_object<IRenderable>(*this);
 }
 
 

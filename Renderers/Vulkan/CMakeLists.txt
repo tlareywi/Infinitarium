@@ -5,7 +5,7 @@ add_library( IERenderer SHARED RenderContext.cpp RenderContext.hpp RenderCommand
   RenderProgram.cpp RenderProgram.hpp DataBuffer.cpp DataBuffer.hpp RenderPass.cpp RenderPass.hpp Texture.cpp Texture.hpp RenderTarget.cpp
   RenderTarget.hpp Image.cpp Image.hpp OpenXRContext.cpp OpenXRContext.hpp xr_linear.h ImGUI.cpp ImGUI.hpp
   ApplicationWindow.cpp ApplicationWindow.hpp Application.cpp Application.hpp EventSampler.cpp EventSampler.hpp
-  UniformMap.h 
+  UniformMap.h
   
   default.vert.glsl default.frag.glsl starsDefault.vert.glsl starsDefault.frag.glsl starsUnitSphere.vert.glsl starsUnitSphere.frag.glsl
   sprite.vert.glsl sprite.frag.glsl solarBody.vert.glsl solarBody.frag.glsl radiantBody.vert.glsl radiantBody.frag.glsl 

@@ -18,6 +18,7 @@ public:
 	glm::dvec3 eye;
 	glm::dvec3 center;
 	glm::dvec3 up;
+	double distance;
 
 private:
 	Stats();

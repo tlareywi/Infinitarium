@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "RenderContext.hpp"
@@ -57,7 +57,11 @@ template<class Archive> void RenderContextProxy::serialize(Archive& ar, const un
 	ar & BOOST_SERIALIZATION_NVP(_headset);
 	ar & BOOST_SERIALIZATION_NVP(_objId);
 
-	//_fullScreen = true;
+// TODO: Temporary force fullscreen for MacOS until I have the motivation to fix hiDPI/scaling issues
+#if defined(__APPLE__)
+	_fullScreen = true;
+#endif
+    
 	std::cout << "Serializing RenderContextProxy " << _objId << std::endl;
 }
 

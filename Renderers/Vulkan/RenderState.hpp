@@ -18,6 +18,7 @@ public:
 	void applyImpl(IRenderPass&) override;
 
 	void setCullMode(IRenderState::CullMode) override;
+	void setPolygonMode(IRenderState::PolygonMode) override;
 
 	VkGraphicsPipelineCreateInfo& getPipelineState();
 	VkPipelineLayoutCreateInfo& getPipelineLayoutState();
@@ -42,6 +43,7 @@ private:
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 
 	VkCullModeFlags cullMode{ VK_CULL_MODE_NONE };
+	VkPolygonMode polygonMode{ VK_POLYGON_MODE_FILL };
 
 	// TODO: For convinience currently. Could revisit for perf tuning.
 	VkDynamicState dynamicStates[1] = {

@@ -122,9 +122,6 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    .export_values()
    ;
    
-   class_<CoordinateSystem>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
-   ;
-   
    // IMotionController ////////////////////////////////////////////////////////////////////////////////////////
    class_<IMotionController, boost::noncopyable>("IMotionController", no_init)
       .def("setHomeSystem", &IMotionController::pushHome);
@@ -199,11 +196,27 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("rotate", &Transform::rotate)
       .def("scale", &Transform::scale)
    ;
+   class_<CoordinateSystem, bases<SceneObject>>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
+   ;
 
    // INavigatable //////////////////////////////////////////////////////////////////////////////////////////
    class_<INavigatable>("INavigatable", no_init)
        .def("setQuery", &INavigatable::setQuery)
        .def("setLabel", &INavigatable::setLabel)
+   ;
+
+   // IRenderState //////////////////////////////////////////////////////////////////////////////////////////
+   enum_<IRenderState::CullMode>("CullMode")
+       .value("None", IRenderState::CullMode::None)
+       .value("Front", IRenderState::CullMode::Front)
+       .value("Back", IRenderState::CullMode::Back)
+       .export_values()
+   ;
+   enum_<IRenderState::PolygonMode>("PolygonMode")
+       .value("Fill", IRenderState::PolygonMode::Fill)
+       .value("Line", IRenderState::PolygonMode::Line)
+       .value("Point", IRenderState::PolygonMode::Point)
+       .export_values()
    ;
    
    // IRenderable ///////////////////////////////////////////////////////////////////////////////////////////
@@ -218,6 +231,7 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("addSampler", &IRenderable::addSampler)
       .def("setName", &SceneObject::setName)
       .def("setCullMode", &IRenderable::setCullMode)
+      .def("setPolygonMode", &IRenderState::setPolygonMode)
    ;
    class_<ClearScreen, bases<IRenderable>>("ClearScreen", init<>())
    ;
