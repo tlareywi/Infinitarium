@@ -69,6 +69,7 @@ initImGUI( scene, context, renderTarget )
 #
 # Write scene file.
 #
+os.chdir(homeDir)
 exportPath = exportPath + 'sphere.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
