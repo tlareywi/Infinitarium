@@ -7,6 +7,8 @@
 #include "EventSampler.hpp"
 #include "RenderContext.hpp"
 
+#include <thread>
+
 #if (USING_OPENXR)
 	#include "../../Renderers/Vulkan/OpenXRContext.hpp"
 #endif
@@ -60,8 +62,8 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 			wndSize[0] = renderContext.width();
 			wndSize[1] = renderContext.height();
 
-			monitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 			glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 			glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
@@ -69,11 +71,14 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 			glfwWindowHint(GLFW_FOCUSED, 1);
             
 			window = glfwCreateWindow(mode->width, mode->height, "Infinitarium", monitor, nullptr);
-
-			renderContext.setContextExtent(mode->width, mode->height);
 		}
 		else
 			window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Infinitarium", nullptr, nullptr);
+        
+        // hiDPI; GLFW handles this internally, so we need to ask it what the logical size is for our swapchain.
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(window, &width, &height);
+        renderContext.setContextExtent(width, height);
 
 #if (WIN32)
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
@@ -103,22 +108,41 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 
 void WinApplicationWindow::toggleFullScreen(IRenderContext& renderContext) {
 	if (!monitor) {
-		monitor = glfwGetPrimaryMonitor();
+        std::atomic<bool> done{false};
+        std::function<void()> f = [this, &done, &renderContext](){
+            monitor = glfwGetPrimaryMonitor();
 
-		// backup window position and size
-		glfwGetWindowPos(window, &wndPos[0], &wndPos[1]);
-		glfwGetWindowSize(window, &wndSize[0], &wndSize[1]);
+            // backup window position and size
+            glfwGetWindowPos(window, &wndPos[0], &wndPos[1]);
+            glfwGetWindowSize(window, &wndSize[0], &wndSize[1]);
 
-		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-
-		renderContext.setContextExtent(mode->width, mode->height);
+            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            
+            // hiDPI; GLFW handles this internally, so we need to ask it what the logical size is for our swapchain.
+            int width = 0, height = 0;
+            glfwGetFramebufferSize(window, &width, &height);
+            renderContext.setContextExtent(width, height);
+            done = true;
+        };
+        CreateApplication()->runOnUIThread( f );
+        while( !done )
+            std::this_thread::yield();
 	}
 	else {
-		// restore 
-		monitor = nullptr;
-		glfwSetWindowMonitor(window, monitor, wndPos[0], wndPos[1], wndSize[0], wndSize[1], 0);
-		renderContext.setContextExtent(wndSize[0], wndSize[1]);
+		// restore
+        std::atomic<bool> done{false};
+        std::function<void()> f = [this, &done, &renderContext](){
+            monitor = nullptr;
+            glfwSetWindowMonitor(window, monitor, wndPos[0], wndPos[1], wndSize[0], wndSize[1], 0);
+            int w{0}, h{0};
+            glfwGetFramebufferSize(window, &w, &h);
+            renderContext.setContextExtent(w, h);
+            done = true;
+        };
+        CreateApplication()->runOnUIThread( f );
+        while( !done )
+            std::this_thread::yield();
 	}
 }
 

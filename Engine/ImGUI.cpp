@@ -190,10 +190,8 @@ void ImGUI::showMainMenuBar() {
 		}
 		if (ImGui::BeginMenu("View"))
 		{
-#if !defined(__APPLE__) // TODO: Temporary until I get around to hiDPI/scaling issues
 			if (ImGui::MenuItem("Toggle Fullscreen", ""))
 				toggleFullScreen();
-#endif
 
 			ImGui::EndMenu();
 		}
