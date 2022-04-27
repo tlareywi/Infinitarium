@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "config.h"
@@ -32,6 +32,7 @@ int main(int argc, const char * argv[]) {
   
    // Don't hang on to references here. Prevents clean exit.
    Scene* scene_ptr = s.get();
+   pyInterpInterface = nullptr;
    s = nullptr;
    
    app->run( *scene_ptr );

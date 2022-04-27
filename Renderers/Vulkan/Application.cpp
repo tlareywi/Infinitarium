@@ -76,6 +76,10 @@ WinApplication::~WinApplication() {
 	}
 #endif
 
+    // These need to run before destroying vkInstance so can't be in base class destructor
+    ImGui::DestroyContext();
+    pyInterp = nullptr;
+    
 	glfwTerminate();
 	vkDestroyInstance(vkInstance, nullptr);
 }

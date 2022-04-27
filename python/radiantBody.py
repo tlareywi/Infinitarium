@@ -155,6 +155,8 @@ fbCamera.addChild( quad )
 # Add GUI support (draw directly to swapchain target) ---------------------------------------------
 initImGUI( scene, context, swapChainTarget )
 
+os.chdir(homeDir)
+
 # Read image and store as engine texture. ---------------------------------------------------------
 from PIL import Image # Must have Pillow (pip3 install Pillow)
 img = Image.open('../resources/textures/2k_sun.jpg', mode='r')
@@ -195,7 +197,6 @@ transform.addChild( sphere )
 mainCamera.addChild( transform )
 
 # Write scene file --------------------------------------------------------------------------------
-os.chdir(homeDir)
 exportPath = exportPath + 'radiantBody.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

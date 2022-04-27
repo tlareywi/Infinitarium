@@ -45,6 +45,7 @@ VulkanRenderContext::~VulkanRenderContext() {
 	if( descriptorPool )
 		vkDestroyDescriptorPool(logicalDevice, descriptorPool, nullptr);
 	vkDestroyDevice(logicalDevice, nullptr);
+    logicalDevice = nullptr;
 }
 
 VkCommandBuffer VulkanRenderContext::allocTransientBuffer() {
@@ -159,14 +160,14 @@ void VulkanRenderContext::createDescriptorPool() {
 	{
 		VkDescriptorPoolSize poolSize;
 		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = 1;
+		poolSize.descriptorCount = 8;
 		poolSizes.push_back(poolSize);
 	}
 
 	{
 		VkDescriptorPoolSize poolSize;
 		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		poolSize.descriptorCount = 6; // Arbitrary, 6 buffers should be enough for anyone :P
+		poolSize.descriptorCount = 8*6; // Arbitrary
 		poolSizes.push_back(poolSize);
 	}
 

@@ -27,7 +27,6 @@ class Scene;
 class IApplication {
 public:
    virtual ~IApplication() {
-       ImGui::DestroyContext();
        subscribers.clear();
        pyInterp = nullptr;
    }
@@ -79,12 +78,13 @@ protected:
     }
     std::atomic<bool> running{ true };
     std::atomic<bool> terminatePending{ false };
+    
+    std::shared_ptr<IPythonInterpreter> pyInterp;
    
 private:
    std::array<std::function<void()>, 30> uiThreadQueue;
    size_t uiThreadQueueIndx = 0;
    std::mutex threadQLock;
     
-   std::shared_ptr<IPythonInterpreter> pyInterp;
    std::vector<std::pair<std::size_t, std::shared_ptr<IDelegate>>> subscribers;
 };

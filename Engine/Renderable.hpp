@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -106,7 +106,9 @@ private:
 
 class ClearScreen : public IRenderable {
 public:
-	ClearScreen() {}
+	ClearScreen() {
+        setProgram("null");
+    }
 
 private:
    friend class boost::serialization::access;

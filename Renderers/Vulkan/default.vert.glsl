@@ -1,5 +1,5 @@
 //
-//  Copyright © 2020 Blue Canvas Studios LLC. All rights reserved.
+//  Copyright ï¿½ 2020 Blue Canvas Studios LLC. All rights reserved.
 //
 //  Uncomment below for glslangValidator.exe  .\[name].[type].glsl - o .\[name].[type].spirv - V
 /*  #version 450

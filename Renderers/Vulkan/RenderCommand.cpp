@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "RenderCommand.hpp"
@@ -135,6 +135,8 @@ void VulkanRenderCommand::allocateDescriptors(VulkanRenderContext& vkContext, Vu
 
 	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 	for (auto& buffer : dataBuffers) {
+        // TODO: These should probably be allocated on a global basis and assiciated with the resource; not per RenderCommand for a non-unique
+        // resource. This is just chewing through the descriptor pool.
 		VkDescriptorSetLayoutBinding layoutBinding;
 		layoutBinding.binding = (uint32_t)layoutBindings.size() + 3; // Binding 0 reserved for injected uniforms, 1 reserved for pick buffer, 2 for Light/Post Process
 		layoutBinding.descriptorCount = 1;

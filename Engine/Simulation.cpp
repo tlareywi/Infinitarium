@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Simulation.hpp"
@@ -78,7 +78,7 @@ void Simulation::simLoop() {
    IApplication::Create()->stop();
 
    // Wait for all contexts to finish execution before tearing down resources
-   //scene->waitOnIdle();
+   scene->waitOnIdle();
 
    // Dealloc scenegraph
    scene = nullptr;

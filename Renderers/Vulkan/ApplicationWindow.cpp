@@ -67,6 +67,7 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 			glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 			glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 			glfwWindowHint(GLFW_FOCUSED, 1);
+            
 			window = glfwCreateWindow(mode->width, mode->height, "Infinitarium", monitor, nullptr);
 
 			renderContext.setContextExtent(mode->width, mode->height);
