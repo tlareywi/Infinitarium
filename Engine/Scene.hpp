@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -19,6 +19,8 @@
 #include "../config.h"
 
 using ReferenceTime = std::chrono::duration<double, std::milli>;
+using SimulationTime = std::chrono::time_point<std::chrono::system_clock>;
+using SimulationTimeDelta = std::chrono::duration<double, std::milli>;
 
 /// <summary>
 /// Scene is the top level node for the engine. It may have many Cameras, each of which are traversed for each frame. The render method of this class 
@@ -46,6 +48,24 @@ public:
    const ReferenceTime& tickTime() const {
        return _tickTime;
    }
+    
+   // TODO: Maybe both of these down in Calendar?
+   double JD() const {
+       return _JD;
+   }
+   const SimulationTime& simulationTime() const {
+       return _simulationTime;
+   }
+   const SimulationTimeDelta& simulationTimeDelta() const {
+        return _simulationTimeDelta;
+   }
+   int timeMultiplier() const {
+       return _timeMultiplier;
+   }
+   void timeMultiplier( int t ) {
+        return _timeMultiplier = t;
+   }
+   ////////////////////////
    
    // SceneObject ////////////////////////////////////
    void prepare(IRenderContext&) override {};
@@ -83,10 +103,13 @@ private:
    Scene& operator=( const Scene& ) = delete;
    
    std::string localScenePath;
-
-   ReferenceTime _referenceTime; // Cumulative time app has been running (ms)
-   ReferenceTime _tickTime; // Time since last update (ms)
-
+   
+   int _timeMultiplier{ 1 };
+   ReferenceTime _referenceTime;             // Cumulative time app has been running in real time (ms)
+   ReferenceTime _tickTime;                  // Time since last update in real time (ms). Always positive.
+   SimulationTime _simulationTime;           // Current time in the context of the simulation
+   SimulationTimeDelta _simulationTimeDelta; // Difference in simulation time relative to last update. Can be negative.
+   double _JD;                               // _simulationTime in units of Julian Days.
 };
 
 BOOST_CLASS_EXPORT_KEY(Scene);

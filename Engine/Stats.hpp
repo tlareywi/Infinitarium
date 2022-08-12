@@ -1,10 +1,11 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
 
 #include <memory>
+#include <string>
 
 #define GLM_FORCE_RADIANS
 #define GLM_DEPTH_ZERO_TO_ONE
@@ -19,6 +20,7 @@ public:
 	glm::dvec3 center;
 	glm::dvec3 up;
 	double distance;
+    std::string simulationDateTime;
 
 private:
 	Stats();

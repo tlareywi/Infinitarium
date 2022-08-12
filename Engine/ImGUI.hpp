@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -15,7 +15,7 @@
 /// populating the tab with the result set from the query string.
 /// </summary>
 class INavigatable {
-public:
+public:    
     const std::string& query() {
         return queryStr;
     }
@@ -73,6 +73,9 @@ private:
 
     bool _showMainMenuBar{ true };
     void showMainMenuBar();
+    
+    bool _showCalendar{ false };
+    void showCalendar();
 
     bool _showLoad{ false };
     void showLoad();
@@ -88,10 +91,10 @@ private:
 
     std::vector<std::pair<std::string, Database::ResultSet>> tabDefs;
     std::function<void()> scrapeNavNodes;
+    std::function<Scene&()> getScene;
     std::function<bool(SceneObject&)> findNavNodes;
     bool _showNavigation{ false };
     void showNavigation();
-
 
     friend class boost::serialization::access;
     template<class Archive> void serialize(Archive&, const unsigned int);

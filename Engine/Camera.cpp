@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Camera.hpp"
@@ -53,6 +53,9 @@ void Camera::update( UpdateParams& params ) {
 
    UpdateParams updateParams(params, projection, view, glm::dmat4(1.0));
    Transform::update(updateParams);
+    
+   if( motionController )
+       motionController->postUpdate();
 
    //updateParams = std::make_unique<UpdateParams>(params);
 }

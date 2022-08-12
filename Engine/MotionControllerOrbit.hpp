@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -13,12 +13,16 @@
 
 class Orbit : public IMotionController {
 public:
-   Orbit() : _yawPitchRoll{1.0,0.0,0.0,0.0}, _distance{0.0}, _rotation(1.0,0.0,0.0,0.0), _center(0.0,0.0,0.0) {}
+   Orbit() : _yawPitchRoll{1.0,0.0,0.0,0.0}, _distance{0.000001}, _rotation(1.0,0.0,0.0,0.0), _center(0.0,0.0,0.0), tracking{ nullptr } {}
    virtual ~Orbit() {}
+    
+   void postUpdate() override;
    
    void getCameraMatrix( glm::dmat4& ) override;
    
-   void setAnchor( const std::shared_ptr<SceneObject>& obj );
+   void setAnchor( const std::shared_ptr<SceneObject>& obj ) override;
+   void lookAt( const std::shared_ptr<SceneObject>& obj, float duration ) override;
+   void track( const std::shared_ptr<SceneObject>& obj ) override;
 
    void animate(const glm::vec3&, const glm::quat&, double ) override;
    void getViewComponents(glm::dvec3&, glm::dvec3&, glm::dvec3&, double& distance) const override;
@@ -43,6 +47,9 @@ private:
    double _distance;
    glm::dquat _rotation;
    glm::dvec3 _center;
+    
+   std::shared_ptr<SceneObject> tracking;
+   std::shared_ptr<SceneObject> tethered;
    
    friend class boost::serialization::access;
    template<class Archive> void serialize(Archive& ar, const unsigned int version);

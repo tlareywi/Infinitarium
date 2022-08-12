@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -40,7 +40,9 @@ public:
    }
    
    void processEvents( UpdateParams& );
+   virtual void postUpdate() {};
    virtual void getCameraMatrix( glm::dmat4& );
+   
    void getViewMatrix(glm::dmat4&);
    double getFOV() const {
        return cameraFOV;
@@ -54,7 +56,10 @@ public:
    }
    UniversalPoint childSystem(const UniversalPoint& p) const;
    
-   void select( const std::shared_ptr<SceneObject>& );
+   virtual void select( const std::shared_ptr<SceneObject>& );
+   virtual void lookAt( const std::shared_ptr<SceneObject>&, float duration ) {};
+   virtual void track( const std::shared_ptr<SceneObject>& ) {};
+   virtual void setAnchor( const std::shared_ptr<SceneObject>& obj ) {};
 
    virtual void animate(const glm::vec3& destPos, const glm::quat& destOrient, double ms);
    virtual void getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up, double& distance) const;
@@ -92,7 +97,7 @@ protected:
    glm::dquat sourceOrientation;
    glm::dvec3 destPosition;
    glm::dquat destOrientation;
-   double duration{ 0.0 };
+   double duration{ -1.0 };
    double elapsed{ 0.0 };
    
 private:
