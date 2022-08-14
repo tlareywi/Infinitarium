@@ -13,6 +13,8 @@ if( MSVC )
     include_directories(${GLM_INCLUDE_DIR})
 endif( MSVC )
 
+set(CMAKE_DEBUG_POSTFIX "")
+
 add_executable( Infinitarium main.cpp )
 
 set_property(TARGET Infinitarium PROPERTY CXX_STANDARD 17)
@@ -30,6 +32,8 @@ include_directories(${Boost_INCLUDE_DIR})
 
 find_package(Python3 COMPONENTS Development)
 include_directories(${Python3_INCLUDE_DIRS})
+
+add_subdirectory( Mechanics )
 
 add_subdirectory( ImGui )
 

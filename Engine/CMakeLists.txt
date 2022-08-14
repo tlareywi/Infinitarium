@@ -54,6 +54,9 @@ set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD_REQUIRED ON)
 include_directories("../ImGui")
 target_link_libraries(InfinitariumEngine ImGUI)
 
+include_directories("../mechanics")
+target_link_libraries(InfinitariumEngine IEMechanics)
+
 # boost
 find_package(Boost COMPONENTS serialization python3 REQUIRED)
 target_link_libraries(InfinitariumEngine ${Boost_SERIALIZATION_LIBRARY} ${Boost_PYTHON3_LIBRARY})

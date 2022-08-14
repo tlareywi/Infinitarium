@@ -67,6 +67,12 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
    def("wrap", wrapDataPack<uint32_t>, return_internal_reference<>() );
    def("wrap", wrapDataPack<uint16_t>, return_internal_reference<>() );
    def("wrap", wrapDataPack<uint8_t>, return_internal_reference<>() );
+    
+   // INavigatable //////////////////////////////////////////////////////////////////////////////////////////
+   class_<INavigatable>("INavigatable", no_init)
+      .def("setQuery", &INavigatable::setQuery)
+      .def("setLabel", &INavigatable::setLabel)
+   ;
    
    // UniformType //////////////////////////////////////////////////////////////////////////////////////////////
    class_<UniformType>("UniformType", init<float>())
@@ -195,14 +201,28 @@ BOOST_PYTHON_MODULE(libInfinitariumEngine)
       .def("translate", &Transform::translate)
       .def("rotate", &Transform::rotate)
       .def("scale", &Transform::scale)
+      .def("setPositionCallback", &Transform::setPositionCallback)
+      .def("setUpVector", &Transform::setUpVector)
+      .def("setRotation", &Transform::setRotateAboutUpRate)
    ;
-   class_<CoordinateSystem, bases<SceneObject>>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
+   enum_<OrbitalFactory::PositionCallback>("PositionCallbackId")
+      .value("None", OrbitalFactory::PositionCallback::None)
+      .value("Sun", OrbitalFactory::PositionCallback::Sun)
+      .value("Mercury", OrbitalFactory::PositionCallback::Mercury)
+      .value("Venus", OrbitalFactory::PositionCallback::Venus)
+      .value("Earth", OrbitalFactory::PositionCallback::Earth)
+      .value("Earth_Moon", OrbitalFactory::PositionCallback::Earth_Moon)
+      .value("Mars", OrbitalFactory::PositionCallback::Mars)
+      .value("Mars_Phobos", OrbitalFactory::PositionCallback::Mars_Phobos)
+      .value("Mars_Demos", OrbitalFactory::PositionCallback::Mars_Demos)
+      .value("Satrun", OrbitalFactory::PositionCallback::Saturn)
+      .value("Jupiter", OrbitalFactory::PositionCallback::Jupiter)
+      .value("Uranus", OrbitalFactory::PositionCallback::Uranus)
+      .value("Neptune", OrbitalFactory::PositionCallback::Neptune)
+      .value("Pluto", OrbitalFactory::PositionCallback::Pluto)
+      .export_values()
    ;
-
-   // INavigatable //////////////////////////////////////////////////////////////////////////////////////////
-   class_<INavigatable>("INavigatable", no_init)
-       .def("setQuery", &INavigatable::setQuery)
-       .def("setLabel", &INavigatable::setLabel)
+   class_<CoordinateSystem, bases<SceneObject, INavigatable>>("CoordinateSystem", init<UniversalPoint, double, UniversalPoint::Unit>())
    ;
 
    // IRenderState //////////////////////////////////////////////////////////////////////////////////////////

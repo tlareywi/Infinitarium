@@ -1,11 +1,13 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "CoordinateSystem.hpp"
 #include "Camera.hpp"
 #include "UniformType.hpp"
 #include "Spheroid.hpp"
+#include "Delegate.hpp"
+#include "Application.hpp"
 
 #include <limits>
 
@@ -101,6 +103,72 @@ template<class Archive> void UniversalPoint::serialize( Archive& ar, const unsig
 /// CoordinateSystem
 /// </summary>
 /// <param name="params"></param>
+
+CoordinateSystem::CoordinateSystem() {
+    // Subscribe to navigational events to search children for object ID.
+    auto lookAt = [this](const std::string& id, float duration ) {
+        std::function<bool(SceneObject&)> f{ [&id, duration](SceneObject& obj) {
+            if( obj.getName() == id ) {
+                obj.lookAt( duration );
+                return false;
+            }
+            return true;
+        }};
+        
+        visit( Visitor(f) );
+    };
+    
+    std::shared_ptr<IDelegate> delegate = std::make_shared<EventDelegate<decltype(lookAt), const std::string&, float>>(lookAt);
+    IApplication::Create()->subscribe("lookAt", delegate);
+    
+    // TRACK //////
+    auto track = [this](const std::string& id) {
+        std::function<bool(SceneObject&)> f{ [&id](SceneObject& obj) {
+            if( obj.getName() == id ) {
+                obj.track();
+                return false;
+            }
+            return true;
+        }};
+        
+        visit( Visitor(f) );
+    };
+    
+    std::shared_ptr<IDelegate> trackDelegate = std::make_shared<EventDelegate<decltype(track), const std::string&>>(track);
+    IApplication::Create()->subscribe("track", trackDelegate);
+    
+    // SELECT //////
+    auto select = [this](const std::string& id) {
+        std::function<bool(SceneObject&)> f{ [&id](SceneObject& obj) {
+            if( obj.getName() == id ) {
+                obj.select();
+                return false;
+            }
+            return true;
+        }};
+        
+        visit( Visitor(f) );
+    };
+    
+    std::shared_ptr<IDelegate> delegateSelect = std::make_shared<EventDelegate<decltype(select), const std::string&>>(select);
+    IApplication::Create()->subscribe("select", delegateSelect);
+    
+    // TETHER //////
+    auto tether = [this](const std::string& id) {
+        std::function<bool(SceneObject&)> f{ [&id](SceneObject& obj) {
+            if( obj.getName() == id ) {
+                obj.tether();
+                return false;
+            }
+            return true;
+        }};
+        
+        visit( Visitor(f) );
+    };
+    
+    std::shared_ptr<IDelegate> delegateTether = std::make_shared<EventDelegate<decltype(tether), const std::string&>>(tether);
+    IApplication::Create()->subscribe("tether", delegateTether);
+}
 
 CoordinateSystem::CoordinateSystem(const UniversalPoint& c, double r, UniversalPoint::Unit u) : 
     center(c), radius(r), units(u) {
@@ -225,8 +293,11 @@ template<class Archive> void CoordinateSystem::serialize( Archive& ar, const uns
    ar & center;
    ar & radius;
    ar & units;
-   
+    
    boost::serialization::void_cast_register<CoordinateSystem,SceneObject>();
-   ar & boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
+   ar & boost::serialization::base_object<SceneObject>(*this);
+   
+   boost::serialization::void_cast_register<CoordinateSystem,INavigatable>();
+   ar & boost::serialization::base_object<INavigatable>(*this);
 }
 

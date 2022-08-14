@@ -5,7 +5,8 @@ if( WIN32 )
     Windows/radiantBody.ieb infinitarium.db
     DESTINATION share/Infinitarium)
 elseif( APPLE )
-    install(FILES OSX/tyco2.ieb OSX/hip2.ieb OSX/empty.ieb OSX/imgui.ieb OSX/sprite.ieb OSX/sphere.ieb OSX/radiantBody.ieb infinitarium.db DESTINATION share/Infinitarium)
+    install(FILES OSX/tyco2.ieb OSX/hip2.ieb OSX/empty.ieb OSX/imgui.ieb OSX/sprite.ieb OSX/sphere.ieb OSX/radiantBody.ieb OSX/sol_base.ieb
+    infinitarium.db DESTINATION share/Infinitarium)
 else()
 	install(FILES Linux/tyco2.ieb Linux/hip2.ieb Linux/empty.ieb Linux/imgui.ieb Linux/sprite.ieb Linux/sphere.ieb infinitarium.db DESTINATION share/Infinitarium)
 endif( )

@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "SceneObject.hpp"
+#include "ImGUI.hpp"
 
 #pragma warning( push )
 #pragma warning( disable : 4244 ) // The underlying gmp header generates lots of spurious type conversion warnings.
@@ -70,9 +71,9 @@ private:
 };
 
 
-class CoordinateSystem : public SceneObject {
+class CoordinateSystem : public SceneObject, public INavigatable {
 public:
-   CoordinateSystem() {}
+   CoordinateSystem();
    CoordinateSystem(const UniversalPoint& c, double r, UniversalPoint::Unit u);
    
    void prepare(IRenderContext&) override;
@@ -86,6 +87,8 @@ private:
    // Will need crossfade between these:
    // Implicit subgraph, SceneObject children, Visible when inside of system at this system's scale
    std::shared_ptr<SceneObject> proxy; // Visible when outside of system at parent system scale (optional)
+    
+   std::shared_ptr<SceneObject> pendingLookat;
    
    UniversalPoint center; // Center in parent units
    double radius; // In this CoordinateSystem's units

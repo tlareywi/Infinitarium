@@ -1,12 +1,15 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "MotionControllerOrbit.hpp"
 #include "Delegate.hpp"
 #include "Application.hpp"
 
+#include <math.h>
+
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Orbit)
 
@@ -38,8 +41,8 @@ void Orbit::updateAnimation(double msTick) {
         glm::dvec3 pos{ glm::mix(sourcePosition, destPosition, rSum) };
         _distance = pos.z;
     }
-    else if (duration > 0) { // Ensure the last animation frame is processed
-        duration = 0.0;
+    else if (duration >= 0) { // Ensure the last animation frame is processed
+        duration = -1.0;
         rSum = 0.0;
 
         _yawPitchRoll = destOrientation;
@@ -48,7 +51,39 @@ void Orbit::updateAnimation(double msTick) {
 }
 
 void Orbit::setAnchor( const std::shared_ptr<SceneObject>& obj ) {
-   resetCenter(obj->getCenter());
+   tethered = obj;
+   resetCenter(tethered->getCenter());
+}
+
+void Orbit::lookAt( const std::shared_ptr<SceneObject>& obj, float seconds ) {
+    glm::dvec3 eye; glm::dvec3 center; glm::dvec3 up;
+    double distance;
+    getViewComponents( eye, center, up, distance );
+    
+    glm::dvec3 front{ _rotation * glm::dvec4(0.0,0.0,1.0,0.0) };
+    front = glm::normalize( front );
+    glm::dvec3 targetFront{ eye - glm::dvec3{ glm::dvec4(obj->getCenter(), 1.0) } };
+    targetFront = glm::normalize( targetFront );
+    
+    glm::dvec3 basis{ glm::normalize(glm::cross( targetFront, front )) };
+    double angle{ acos( glm::dot( targetFront, front) ) };
+    glm::dquat rotation{ glm::angleAxis( angle, basis ) };
+    animate( glm::dvec3{0.0,0.0,_distance}, rotation, seconds * 1000.0 );
+}
+
+void Orbit::track( const std::shared_ptr<SceneObject>& obj ) {
+    if( tracking == obj )
+        tracking = nullptr;
+    else
+        tracking = obj;
+}
+
+void Orbit::postUpdate() {
+    if( tethered )
+        _center = tethered->getCenter();
+    
+    if( tracking )
+        lookAt( tracking, 0.0f );
 }
 
 void Orbit::getViewComponents(glm::dvec3& eye, glm::dvec3& center, glm::dvec3& up, double& distance) const {
@@ -226,7 +261,13 @@ void Orbit::getCameraMatrix( glm::dmat4& out ) {
 template<class Archive> void Orbit::serialize(Archive & ar, const unsigned int version) {
 	std::cout << "Serializing Orbit MotionController" << std::endl;
 	boost::serialization::void_cast_register<Orbit, IMotionController>();
-	ar& boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
+	ar & boost::serialization::make_nvp("IMotionController", boost::serialization::base_object<IMotionController>(*this));
+    
+    _yawPitchRoll = glm::dquat{0.0,0.0,0.0,1.0};
+    _distance = 0.00001;
+    _rotation = glm::dquat{0.0,0.0,0.0,1.0};
+    _center = glm::dvec3{0.0,0.0,0.0};
+    tracking = nullptr;
 }
 
 

@@ -4,16 +4,20 @@
 
 #include "Scene.hpp"
 #include "ObjectStore.hpp"
+#include "Stats.hpp"
+
+#include "../mechanics/Calendar.hpp"
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Scene);
 
-Scene::Scene() : _referenceTime{ 0 }, _tickTime{ 0 } {
+Scene::Scene() : _referenceTime{ 0 }, _tickTime{ 0 }, _simulationTime{std::chrono::system_clock::now()} {
 }
 
 Scene::~Scene() {
@@ -118,6 +122,18 @@ void Scene::update(const ReferenceTime& rt) {
    auto lastRefTime = _referenceTime;
    _referenceTime = rt;
    _tickTime = _referenceTime - lastRefTime;
+   auto oldSimTime = _simulationTime;
+   _simulationTime += (std::chrono::duration_cast<std::chrono::system_clock::duration>(_tickTime) * _timeMultiplier);
+   _simulationTimeDelta = _simulationTime - oldSimTime;
+   
+   const std::time_t tt = std::chrono::system_clock::to_time_t(_simulationTime);
+   std::tm tm = *std::localtime(&tt);
+   std::stringstream timeStr;
+   timeStr << std::put_time(&tm, "%m-%d-%Y %H:%M:%S");
+   Stats::Instance().simulationDateTime = timeStr.str();
+    
+   Calendar cal;
+   _JD = cal.timetToJD( tt );
 
    canLoad = false;
    std::lock_guard guard(loadSceneMutex);

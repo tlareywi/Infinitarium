@@ -1,5 +1,5 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #pragma once
@@ -86,7 +86,7 @@ private:
 /// <summary>
 /// Base class for all scenegraph nodes. Implements common traversal logic.
 /// </summary>
-class IE_EXPORT SceneObject {
+class IE_EXPORT SceneObject : public std::enable_shared_from_this<SceneObject> {
 public:
    SceneObject() : dirty(true), name("Undefined") {}
    virtual ~SceneObject() {
@@ -100,7 +100,7 @@ public:
    virtual void visit(const class Visitor& v);
    virtual void visit(const class Accumulator& v);
    
-   virtual glm::vec3 getCenter() { return {0,0,0}; }
+   virtual glm::vec3 getCenter() { return localPos; }
    
    void addChild( const std::shared_ptr<SceneObject>& );
    void removeChild( unsigned int );
@@ -117,12 +117,30 @@ public:
    void setDirty() {
        dirty = true;
    }
+    
+   void select() {
+       pendingSelect = true;
+   }
+   void lookAt( float /* duration */ ) {
+       pendingLookAt = true;
+   }
+   void track() {
+       pendingTrack = true;
+   }
+   void tether() {
+       pendingTether = true;
+   }
 
 protected:
-   bool dirty;
+   bool dirty{ true };
+   bool pendingSelect{ false };
+   bool pendingLookAt{ false };
+   bool pendingTrack{ false };
+   bool pendingTether{ false };
    
 private:
    std::string name;
+   glm::dvec3 localPos{ 0.0, 0.0, 0.0 };
    std::vector<std::shared_ptr<SceneObject>> children;
 
    friend class boost::serialization::access;

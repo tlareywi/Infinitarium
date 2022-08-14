@@ -12,7 +12,9 @@
 		#define IE_EXPORT __declspec(dllimport)
 	#endif
 	#define RENDERER_EXPORT __declspec(dllexport)
+	#define MECHANICS_EXPORT __declspec(dllexport)
 #else
 	#define IE_EXPORT 
 	#define RENDERER_EXPORT
+	#define MECHANICS_EXPORT
 #endif

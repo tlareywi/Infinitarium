@@ -1,0 +1,6 @@
+
+[submodule "mechanics/libnova"]
+	path = mechanics/libnova
+	url = https://github.com/tlareywi/libnova.git
+	branch = stable
+

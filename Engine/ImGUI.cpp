@@ -103,6 +103,9 @@ void ImGUI::update(UpdateParams& params) {
 		loadScene = [&scene]( const std::string& path ) {
 			scene.prepareLoadScene( path );
 		};
+        getScene = [&scene]() -> Scene& {
+            return scene;
+        };
 
 		platformGUI->update();
 	}
@@ -124,6 +127,8 @@ void ImGUI::render(IRenderPass& renderPass) {
 
 	showMainMenuBar();
 
+    if (_showCalendar)
+        showCalendar();
 	if (_showSceneGraph)
 		showSceneGraph();
 	if (_showSettings)
@@ -197,6 +202,7 @@ void ImGUI::showMainMenuBar() {
 		}
 		if (ImGui::BeginMenu("Window"))
 		{
+            ImGui::MenuItem("Calendar", nullptr, &_showCalendar);
 			ImGui::MenuItem("Navigation", nullptr, &_showNavigation);
 			ImGui::MenuItem("SceneGraph", nullptr, &_showSceneGraph);
 		//	ImGui::MenuItem("Settings", nullptr, &_showSettings);
@@ -214,6 +220,50 @@ void ImGUI::showMainMenuBar() {
 		}
 		ImGui::EndMainMenuBar();
 	}
+}
+
+void ImGUI::showCalendar() {
+    ImGui::SetNextWindowSize(ImVec2(200, 380), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Calendar", &_showCalendar)) {
+        ImGui::End();
+        return;
+    }
+    
+    Stats& stats{ Stats::Instance() };
+    
+    int multiplier{ getScene().timeMultiplier() };
+
+    ImGui::Text("Simulation Time: %s", stats.simulationDateTime.c_str());
+    
+    if( ImGui::ArrowButton("DecTime", ImGuiDir_Left) ) {
+        if( multiplier <= -10000000 )
+            ;
+        else if( multiplier == 0 )
+            getScene().timeMultiplier( -1 );
+        else if( multiplier == 1 )
+            getScene().timeMultiplier( 0 );
+        else if( multiplier > 1 )
+            getScene().timeMultiplier( multiplier / 10 );
+        else
+            getScene().timeMultiplier( multiplier * 10 );
+    }
+    ImGui::SameLine();
+    if( ImGui::ArrowButton("IncTime", ImGuiDir_Right) ) {
+        if( multiplier >= 10000000 )
+            ;
+        else if( multiplier == 0 )
+            getScene().timeMultiplier( 1 );
+        else if( multiplier == -1 )
+            getScene().timeMultiplier( 0 );
+        else if( multiplier < 1 )
+            getScene().timeMultiplier( multiplier / 10 );
+        else
+            getScene().timeMultiplier( multiplier * 10 );
+    }
+    ImGui::SameLine();
+    ImGui::Text("Time Multiplier: %i", multiplier);
+    
+    ImGui::End();
 }
 
 void ImGUI::showLoad() {
@@ -246,16 +296,47 @@ void ImGUI::showNavigation() {
 		ImGui::End();
 		return;
 	}
-
-	static constexpr char* names[1] = { "Common Stars" };
+    
+    static int item_current_idx = 0;
+    static std::string objID;
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Center", ImVec2(80,20))) {
+        std::tuple<const std::string&, float> args( objID, 3.0f );
+        Event e( args );
+        e.setName("lookAt");
+        IApplication::Create()->invoke( e );
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Select", ImVec2(80,20))) {
+        std::tuple<const std::string&> args( objID );
+        Event e( args );
+        e.setName("select");
+        IApplication::Create()->invoke( e );
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Tether", ImVec2(80,20))) {
+        std::tuple<const std::string&> args( objID );
+        Event e( args );
+        e.setName("tether");
+        IApplication::Create()->invoke( e );
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Track", ImVec2(80,20))) {
+        std::tuple<const std::string&> args( objID );
+        Event e( args );
+        e.setName("track");
+        IApplication::Create()->invoke( e );
+    }
+    ImGui::NewLine();
+    
+	static constexpr char* const names[1] = { "Common Stars" };
 	bool opened[1] = { true };
 
 	if (!ImGui::BeginTabBar("Navbar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
 		ImGui::End();
 		return;
 	}
-
-	static int item_current_idx = 0;
 
 	for( auto& tab : tabDefs ) {
 		if( ImGui::BeginTabItem(tab.first.c_str(), nullptr, ImGuiTabItemFlags_None) ) {
@@ -267,8 +348,13 @@ void ImGUI::showNavigation() {
 					const bool is_selected = (item_current_idx == rowIndx);
 					if( ImGui::Selectable(row[0].c_str(), is_selected, ImGuiSelectableFlags_AllowDoubleClick) ) {
 						item_current_idx = rowIndx;
-						if( ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) )
-							std::cout << "Got it!" << std::endl;
+                        objID = row[0];
+                        if( ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) ) {
+                            std::tuple<const std::string&, float> args( objID, 3.0f );
+                            Event e( args );
+                            e.setName("lookAt"); // TODO: Make event IDs enums
+                            IApplication::Create()->invoke( e );
+                        }
 					}
 
 					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -420,13 +506,14 @@ void ImGUI::showStats() {
 		"FPS is a 60 frame rolling average.\n"
 	);
 
-	ImGui::Text("FPS   : %u", stats.fps);
+    ImGui::Text("Simulation Time: %s", stats.simulationDateTime.c_str());
+	ImGui::Text("FPS            : %u", stats.fps);
 
-	ImGui::Text("Eye     : (%f, %f, %f)", stats.eye.x, stats.eye.y, stats.eye.z);
-	ImGui::Text("Center  : (%f, %f, %f)", stats.center.x, stats.center.y, stats.center.z);
-	ImGui::Text("Up      : (%f, %f, %f)", stats.up.x, stats.up.y, stats.up.z);
-	ImGui::Text("Distance: %f", stats.distance);
-
+	ImGui::Text("Eye            : (%f, %f, %f)", stats.eye.x, stats.eye.y, stats.eye.z);
+	ImGui::Text("Center         : (%f, %f, %f)", stats.center.x, stats.center.y, stats.center.z);
+	ImGui::Text("Up             : (%f, %f, %f)", stats.up.x, stats.up.y, stats.up.z);
+	ImGui::Text("Distance       : %f", stats.distance);
+    
 	ImGui::End();
 }
 

@@ -1,16 +1,38 @@
 //
-//  Copyright © 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
+//  Copyright ï¿½ 2022 Blue Canvas Studios LLC. All rights reserved. Commercial use prohibited by license.
 //
 
 #include "Transform.hpp"
 #include "UniformType.hpp"
 
+#include "Scene.hpp"
+
+#include "OrbitalFactory.hpp"
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Transform)
 
-Transform::Transform() : transform(glm::mat4(1.0)) {
+static constexpr double HoursToMilliseconds = 1000.0 * 60.0 * 60.0;
+
+Transform::Transform() : transform(glm::mat4(1.0)),
+    positionCallbackId(OrbitalFactory::PositionCallback::None),
+    up(glm::dvec3(0.0,1.0,0.0)),
+    rotationRate(0.0) {
 }
 
 void Transform::update( UpdateParams& params ) {
+   if( positionCallback ) {
+       glm::dvec3 pos;
+       positionCallback(params.getScene().JD(), pos);
+       transform[3][0] = pos.x;
+       transform[3][1] = pos.y;
+       transform[3][2] = pos.z;
+       transform[3][3] = 1.0;
+      // std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
+   }
+    
+   if( rotationRate ) // In hours per full rotation (sidereal)
+      rotateInternal( params.getScene().simulationTimeDelta().count() / (rotationRate * HoursToMilliseconds) * 2.0*M_PI, up );
+    
    params.addModel( transform );
    SceneObject::update( params );
 }
@@ -65,10 +87,45 @@ void Transform::rotate( float degrees, float x, float y, float z ) {
    transform = glm::rotate( glm::mat4(1.0), glm::radians(degrees), glm::vec3(x, y, z)) * transform;
 }
 
+void Transform::rotateInternal( float radians, const glm::vec3& axis ) {
+   transform = glm::rotate( glm::mat4(1.0), radians, axis) * transform;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// SERIALIZATION
+//////////////////////////////////////////////////////////////////////////////////////////
+template<class Archive> void Transform::load( Archive& ar ) {
+    ar >> positionCallbackId;
+    ar >> transform;
+    ar >> up;
+    ar >> rotationRate;
+    
+    // Instance our position callback if defined
+    if( positionCallbackId != OrbitalFactory::PositionCallback::None )
+        positionCallback = OrbitalFactory::instance().orbitalSampler(positionCallbackId);
+}
+
+template<class Archive> void Transform::save( Archive& ar ) const {
+    ar << positionCallbackId;
+    ar << transform;
+    ar << up;
+    ar << rotationRate;
+}
+
+namespace boost { namespace serialization {
+   template<class Archive> inline void load(Archive& ar, Transform& t, unsigned int version) {
+      t.load( ar );
+      std::cout << "Loading Transform " << t.getName() << std::endl;
+   }
+   template<class Archive> inline void save(Archive& ar, const Transform& t, const unsigned int version) {
+      std::cout<<"Saving Transform "<< t.getName() << std::endl;
+      t.save( ar );
+   }
+}}
+
 template<class Archive> void Transform::serialize( Archive& ar, const unsigned int version ) {
-	std::cout << "Serializing Transform" << std::endl;
 	boost::serialization::void_cast_register<Transform, SceneObject>();
-	ar & boost::serialization::make_nvp("SceneObject", boost::serialization::base_object<SceneObject>(*this));
-	ar & BOOST_SERIALIZATION_NVP(transform);
+    boost::serialization::split_free(ar, *this, version);
+	ar & boost::serialization::base_object<SceneObject>(*this);
 }
 
