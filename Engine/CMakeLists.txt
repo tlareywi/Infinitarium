@@ -8,6 +8,8 @@ endif( MSVC )
 
 add_definitions(-DENGINE_BUILD)
 
+set_property( GLOBAL PROPERTY USE_FOLDERS ON )
+
 add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   PointCloud.cpp PythonBridge.cpp Renderable.cpp RenderCommand.cpp RenderPass.cpp
   RenderProgram.cpp RenderState.cpp Scene.cpp Module.cpp DataPack.hpp Module.hpp
@@ -22,6 +24,28 @@ add_library( InfinitariumEngine SHARED DataBuffer.cpp MotionControllerOrbit.cpp
   Sprite.hpp SceneObject.hpp Transform.hpp Spheroid.hpp CoordinateSystem.hpp
   MotionController.cpp MotionController.hpp ImGUI.hpp ImGUI.cpp IImGUI.hpp IImGUI.cpp
   ObjectStore.cpp ObjectStore.hpp RenderTarget.cpp RenderTarget.hpp Database.cpp Database.hpp
+  
+  Terrain/Cesium.cpp Terrain/Cesium.hpp
+  Terrain/GenericIOManager.cpp Terrain/GenericIOManager.hpp
+  Terrain/HttpManager.cpp Terrain/HttpManager.hpp
+  Terrain/LocalFileManager.cpp Terrain/LocalFileManager.hpp
+  Terrain/GenericAssetAccessor.cpp Terrain/GenericAssetAccessor.hpp
+  Terrain/CriticalAssetManager.cpp Terrain/CriticalAssetManager.hpp
+  Terrain/HttpAssetAccessor.cpp Terrain/HttpAssetAccessor.hpp
+  Terrain/TaskProcessor.cpp Terrain/TaskProcessor.hpp
+  Terrain/RenderResourcesPreparer.cpp Terrain/RenderResourcesPreparer.hpp
+)
+
+source_group("Terrain" FILES 
+  Terrain/Cesium.cpp Terrain/Cesium.hpp
+  Terrain/GenericIOManager.cpp Terrain/GenericIOManager.hpp
+  Terrain/HttpManager.cpp Terrain/HttpManager.hpp
+  Terrain/LocalFileManager.cpp Terrain/LocalFileManager.hpp
+  Terrain/GenericAssetAccessor.cpp Terrain/GenericAssetAccessor.hpp
+  Terrain/CriticalAssetManager.cpp Terrain/CriticalAssetManager.hpp
+  Terrain/HttpAssetAccessor.cpp Terrain/HttpAssetAccessor.hpp
+  Terrain/TaskProcessor.cpp Terrain/TaskProcessor.hpp
+  Terrain/RenderResourcesPreparer.cpp Terrain/RenderResourcesPreparer.hpp
 )
 
 set_property(TARGET InfinitariumEngine PROPERTY CXX_STANDARD 17)
@@ -45,13 +69,27 @@ find_package(SQLite3)
 include_directories(${SQLite3_INCLUDE_DIR})
 target_link_libraries (InfinitariumEngine ${SQLite3_LIBRARY})
 
+# Terrain Engine (experimental)
+OPTION(CESIUM "Experimental support for terrain via Cesium Native/Cesium Ion." OFF)
+if( CESIUM )
+	find_path( ZLIB_INCLUDE_DIR zlib.h HINTS "C:\\Program Files (x86)\\zlib\\include" )
+	include_directories(${ZLIB_INCLUDE_DIR})
+	find_library( LIB_ZLIB zlib HINTS "C:\\Program Files (x86)\\zlib\\lib" )
+	target_link_libraries( InfinitariumEngine ${LIB_ZLIB} )
+
+	find_path(CESIUM_INCLUDE_DIR async++.h HINTS "C:\\Program Files (x86)\\cesium-native\\include")
+	include_directories(${CESIUM_INCLUDE_DIR})
+	find_path(AWS_SDK_INCLUDE_DIR aws/core/http/HttpResponse.h HINTS "C:\\Program Files (x86)\\aws-cpp-sdk-all\\include")
+	include_directories(${AWS_SDK_INCLUDE_DIR})	
+endif( CESIUM )
+
 if( MSVC )
-#find_library( LIB_BCRYPT Bcrypt ) # Needed by boost::uuid
-target_link_libraries( InfinitariumEngine bcrypt )
-else( MSVC ) # On OSX and Linux we can use GMP and MPFR (multiprecision number lib) for increased big number performance.
-find_library( LIB_MPFR mpfr )
-find_library( LIB_GMP gmp )
-target_link_libraries( InfinitariumEngine ${LIB_GMP} ${LIB_MPFR} ${LIB_BCRYPT} )
+  #find_library( LIB_BCRYPT Bcrypt ) # Needed by boost::uuid
+  target_link_libraries( InfinitariumEngine bcrypt )
+  else( MSVC ) # On OSX and Linux we can use GMP and MPFR (multiprecision number lib) for increased big number performance.
+  find_library( LIB_MPFR mpfr )
+  find_library( LIB_GMP gmp )
+  target_link_libraries( InfinitariumEngine ${LIB_GMP} ${LIB_MPFR} ${LIB_BCRYPT} )
 endif( MSVC )
 
 if( MSVC )
