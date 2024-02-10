@@ -70,15 +70,20 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 			glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 			glfwWindowHint(GLFW_FOCUSED, 1);
             
+            std::cout << "Creating fullscreen window " << mode->width << ", " << mode->height << std::endl;
 			window = glfwCreateWindow(mode->width, mode->height, "Infinitarium", monitor, nullptr);
 		}
-		else
-			window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Infinitarium", nullptr, nullptr);
+        else {
+            std::cout << "Creating window " << renderContext.width() << ", " << renderContext.height() << std::endl;
+            window = glfwCreateWindow(renderContext.width(), renderContext.height(), "Infinitarium", nullptr, nullptr);
+        }
         
         // hiDPI; GLFW handles this internally, so we need to ask it what the logical size is for our swapchain.
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
         renderContext.setContextExtent(width, height);
+        
+        VkResult errCode{ VK_SUCCESS };
 
 #if (WIN32)
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
@@ -86,11 +91,11 @@ void WinApplicationWindow::init( IRenderContext& renderContext ) {
 		createInfo.hwnd = glfwGetWin32Window(window);
 		createInfo.hinstance = GetModuleHandle(nullptr);
 
-		if (vkCreateWin32SurfaceKHR(instance.getVkInstance(), &createInfo, nullptr, &surface) != VK_SUCCESS)
-			throw std::runtime_error("Failed to create Vulkan window surface!");
+		if ( (errCode = vkCreateWin32SurfaceKHR(instance.getVkInstance(), &createInfo, nullptr, &surface)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create Vulkan window surface with VKResult " + + std::to_string( errCode ) );
 #else
-		if( glfwCreateWindowSurface( instance.getVkInstance(), window, nullptr, &surface ) != VK_SUCCESS )
-			throw std::runtime_error("Failed to create Vulkan window surface!");
+		if( (errCode = glfwCreateWindowSurface( instance.getVkInstance(), window, nullptr, &surface )) != VK_SUCCESS )
+			throw std::runtime_error("Failed to create Vulkan window surface with VKResult " + std::to_string( errCode ) );
 		
 		sleep(1);
 #endif

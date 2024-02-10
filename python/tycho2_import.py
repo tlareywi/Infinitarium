@@ -8,7 +8,7 @@
 
 exec(open('./import_common.py').read())
 
-dataRoot = '/media/trystan/DATA/HipTyc/'
+dataRoot = '/Users/trystan/StarCatalogs/HipTyc/'
 
 if platform.system() == 'Windows':
     dataRoot = 'E:/HipTyc/'
@@ -104,6 +104,6 @@ imgui = engine.ImGUI()
 imgui.setName('GUI Renderable')
 gui.addChild( imgui )
 
-exportPath = exportPath + 'tyco2.ieb'
+exportPath = homeDir + '/' + exportPath + 'tyco2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)

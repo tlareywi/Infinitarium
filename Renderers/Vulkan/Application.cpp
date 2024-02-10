@@ -38,7 +38,10 @@ std::shared_ptr<IApplication> WinApplication::Instance() {
 }
 
 WinApplication::WinApplication() : vkInstance(nullptr), xrInstance(nullptr) {
-	glfwInit();
+	if( glfwInit() != GLFW_TRUE )
+        throw std::runtime_error("Failed to initialize GLFW.");
+    if( glfwVulkanSupported() != GLFW_TRUE )
+        throw std::runtime_error("GLFW not configured for Vulkan support or can't find Vulkan runtime.");
 
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Stargazer";
@@ -56,7 +59,12 @@ WinApplication::WinApplication() : vkInstance(nullptr), xrInstance(nullptr) {
 		extensions.push_back(glfwExt[i]);
 	createInfo.enabledLayerCount = 0;
 
-// No layer loading available on MoltenVK
+#if defined(__APPLE__) // Allow Vulkan -> Metal translation    
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    extensions.push_back( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
+    extensions.push_back( VK_EXT_METAL_SURFACE_EXTENSION_NAME );
+#endif
+    
 #if defined(NDEBUG) || defined(__APPLE__)
 	enableValidation = false;
 #else

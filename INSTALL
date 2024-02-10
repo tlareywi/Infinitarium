@@ -1,24 +1,28 @@
 ------------------------------------------------------------------------------
--- BUILDING ON OSX
+-- BUILDING ON MacOS (revised Feb 2024)
 ------------------------------------------------------------------------------
 * Install homebrew https://brew.sh
+* Ensure both git and git-lfs are installed (brew install git; brew install git-lfs)
+* git clone https://github.com/tlareywi/Infinitarium.git
+* cd into Infinitarium
+* git submodule update --init --recursive
 * brew install glm  
 * brew install boost  
-* brew install boost-python3  
-* brew install rapidjson
-* brew install python (ensure python3)
+* brew install boost-python3
+* brew install python3
 * brew install mpfr
+* brew install vulkan-tools
+* brew install shaderc
 * Run CMake or CMake GUI. Fill in library and header paths as needed. Target XCode project.
 * Build in XCode.
 
 ------------------------------------------------------------------------------
--- BUILDING ON WINDOWS
+-- BUILDING ON WINDOWS (outdated)
 ------------------------------------------------------------------------------
 * Install Vulkan SDK 1.1.x; https://vulkan.lunarg.com/
 * Rebuild shaderc in Vulkan SDK with -DSHADERC_ENABLE_SHARED_CRT=ON (using CMake), otherwise linking will fail on Infinitarium rendering module
 * Build and install GLFW 3.3; https://github.com/glfw/glfw/tree/3.3
 * Install Boost prebuilt binaries; https://sourceforge.net/projects/boost/files/boost-binaries/
-* Build and install RapidJSON; https://github.com/Tencent/rapidjson/tree/v1.1.0
 * Build and install GLM; https://glm.g-truc.net/0.9.9/index.html
 * Run CMake or CMake GUI. Fill in library and header paths as needed. Target Visual Stuio 2019 project. 
 * Build in Visual Studio 2019

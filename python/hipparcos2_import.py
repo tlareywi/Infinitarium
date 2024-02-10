@@ -33,7 +33,7 @@ cursor = dbConnection.cursor()
 cursor.execute('''DROP TABLE IF EXISTS HipStars''')
 cursor.execute('''CREATE TABLE HipStars(hipid integer, name text, ra real, dec real)''')
 
-dataRoot = '/media/trystan/DATA/HipTyc/'
+dataRoot = '/Users/trystan/StarCatalogs/HipTyc/'
 
 if platform.system() == 'Windows':
     dataRoot = 'E:/HipTyc/'
@@ -97,7 +97,7 @@ print('Reading common names ...')
 
 # Parse star common names file
 common_names = {}
-fh = open('common_star_names.txt', "r")
+fh = open( homeDir + '/common_star_names.txt', "r")
 for line in fh.read().splitlines():
     fields = line.split('|')
     if len(fields) > 1:
@@ -145,7 +145,7 @@ stars3D.addChild( hip2Cloud )
 
 initImGUI( scene, context, renderTarget )
 
-exportPath = exportPath + 'hip2.ieb'
+exportPath = homeDir + '/' + exportPath + 'hip2.ieb'
 print('Exporting ' + exportPath)
 scene.save(exportPath)
 print('Success!')

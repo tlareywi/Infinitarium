@@ -33,8 +33,11 @@ include_directories(${VULKAN_INCLUDE_DIR})
 find_library(VULKAN_LIB NAMES vulkan-1 vulkan HINTS "C:\\Program Files (x86)\\VulkanSDK\\lib" "C:\\local\\VulkanSDK\\lib")
 target_link_libraries(IERenderer ${VULKAN_LIB})
 
-find_library(GLSL_LIB NAMES shaderc_shared HINTS "C:\\local\\VulkanSDK\\shaderc\\build\\install\\lib" "C:\\Program Files (x86)\\VulkanSDK\\lib")
+find_library(GLSL_LIB NAMES glslang HINTS "C:\\local\\VulkanSDK\\shaderc\\build\\install\\lib" "C:\\Program Files (x86)\\VulkanSDK\\lib")
 target_link_libraries(IERenderer ${GLSL_LIB})
+
+find_library(SHADERC_LIB NAMES shaderc_shared HINTS "C:\\local\\VulkanSDK\\shaderc\\build\\install\\lib" "C:\\Program Files (x86)\\VulkanSDK\\lib")
+target_link_libraries(IERenderer ${SHADERC_LIB})
 
 if( OPENXR )
 find_path(OPENXR_INCLUDE_DIR openxr.h HINTS "C:\\local\\include")

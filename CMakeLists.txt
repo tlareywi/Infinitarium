@@ -1,6 +1,8 @@
 cmake_minimum_required( VERSION "3.1" )
 project( Infinitarium )
 
+SET(CMAKE_INSTALL_RPATH "/usr/local/lib;.")
+
 if( MSVC )
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -47,8 +49,13 @@ add_subdirectory( data )
 configure_file( config.in ${CMAKE_SOURCE_DIR}/config.h )
 
 if( APPLE )
+    macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
+        set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
+    endmacro (set_xcode_property)
+
     # Allow resign on install (fix for SIP enabled systems)
     set(CMAKE_XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "-o linker-signed")
+    set_xcode_property(Infinitarium LD_RUNPATH_SEARCH_PATHS "/usr/local/lib")
 endif( APPLE )
 
 install(TARGETS Infinitarium RUNTIME DESTINATION bin)

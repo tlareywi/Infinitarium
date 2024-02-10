@@ -1,4 +1,5 @@
 exec(open('./BlackBodyParser.py').read())
+print( '\nBlack body mappings complete' )
 
 import math
 import importlib
@@ -75,7 +76,6 @@ def initImGUI( scene, context, renderTarget ):
     gui.setRenderContext( context )
     guiPass.addRenderTarget( renderTarget, engine.LoadOp.Load )
     return
-
 
 
 

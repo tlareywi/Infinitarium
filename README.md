@@ -23,6 +23,12 @@ A real-time graphics engine geared toward astronomy visualizations/simulation. B
 ### Supported Platforms
 Windows, Linux, MacOS (hardware must support Metal). Windows is currently the active development environment and will be the most stable and likely to build off the mainline.
 
+### Douloading Source Code
+* Ensure git-lfs is installed or scene files will not be cloned
+* git clone https://github.com/tlareywi/Infinitarium.git
+* cd into `Infinitarium`
+* git submodule update --init --recursive
+
 ### Build Dependencies
 I'll get around to documenting this once things stabilize a bit. It's a Cmake build system, so it will let you know what's missing ;) But you at least need the following.
 * Boost
